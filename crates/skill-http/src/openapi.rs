@@ -11,7 +11,7 @@ use crate::types::*;
 #[openapi(
     info(
         title = "Skill Engine API",
-        version = "0.3.0",
+        version = "1.0.0",
         description = "REST API for managing and executing AI agent skills",
         license(
             name = "Apache-2.0",

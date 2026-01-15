@@ -250,8 +250,8 @@ API version is included in all responses:
 
 ```json
 {
-  "api_version": "0.3.0",
-  "skill_engine_version": "0.3.0"
+  "api_version": "1.0.0",
+  "skill_engine_version": "1.0.0"
 }
 ```
 

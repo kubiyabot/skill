@@ -241,7 +241,7 @@ Instances inherit from skill-level configuration:
 source = "./api-skill"
 runtime = "wasm"
 # These apply to ALL instances
-config.user_agent = "SkillEngine/0.3.0"
+config.user_agent = "SkillEngine/1.0.0"
 env.LOG_FORMAT = "json"
 
 [skills.api.instances.dev]

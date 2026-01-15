@@ -163,7 +163,7 @@ GET /api/health
 ```json
 {
   "status": "healthy",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "uptime_seconds": 1234
 }
 ```
@@ -176,7 +176,7 @@ GET /api/version
 **Response:**
 ```json
 {
-  "version": "0.3.0",
+  "version": "1.0.0",
   "commit": "abc123",
   "build_date": "2024-01-15"
 }

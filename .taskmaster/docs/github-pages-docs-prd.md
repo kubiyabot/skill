@@ -1146,7 +1146,7 @@ export default defineConfig({
       { text: 'Playground', link: '/playground/live' },
       { text: 'Examples', link: '/examples/' },
       {
-        text: 'v0.3.0',
+        text: 'v1.0.0',
         items: [
           { text: 'Changelog', link: '/resources/changelog' },
           { text: 'Roadmap', link: '/resources/roadmap' }
