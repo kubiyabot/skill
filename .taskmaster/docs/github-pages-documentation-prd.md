@@ -1323,7 +1323,7 @@ pub async fn execute_tool(
     ),
     info(
         title = "Skill Engine REST API",
-        version = "0.3.0",
+        version = "1.0.0",
         description = "Universal runtime system for AI agents - REST API for skill management, \
                       tool execution, and semantic search.",
         contact(
@@ -1492,7 +1492,7 @@ MCP uses JSON-RPC 2.0 over stdio or HTTP.
     },
     "serverInfo": {
       "name": "skill-engine",
-      "version": "0.3.0"
+      "version": "1.0.0"
     }
   }
 }
@@ -2050,7 +2050,7 @@ export default defineConfig({
       { text: 'Playground', link: '/playground' },
       { text: 'Examples', link: '/examples/' },
       {
-        text: 'v0.3.0',
+        text: 'v1.0.0',
         items: [
           { text: 'Changelog', link: '/resources/changelog' },
           { text: 'Roadmap', link: '/resources/roadmap' },
@@ -2393,7 +2393,7 @@ docs-site/
 ```json
 {
   "name": "skill-engine-docs",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vitepress dev",

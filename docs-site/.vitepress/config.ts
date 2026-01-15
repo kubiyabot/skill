@@ -29,7 +29,7 @@ export default defineConfig({
       { text: 'Examples', link: '/examples/', activeMatch: '/examples/' },
       { text: 'Catalog', link: CATALOG_URL, target: '_blank', rel: 'noopener' },
       {
-        text: 'v0.3.0',
+        text: 'v1.0.0',
         items: [
           { text: 'Changelog', link: '/changelog' },
           { text: 'Contributing', link: '/contributing' },

@@ -22,7 +22,7 @@ This automatically:
 
 ```bash
 skill --version
-# Output: skill 0.3.0
+# Output: skill 1.0.0
 ```
 
 ## For Claude Code Users

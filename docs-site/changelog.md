@@ -5,7 +5,7 @@ All notable changes to Skill Engine will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.0] - 2024-01-15
+## [1.0.0] - 2024-01-15
 
 ### Added
 
@@ -106,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Migration Guides
 
-### Upgrading from 0.2.x to 0.3.0
+### Upgrading from 0.2.x to 1.0.0
 
 **Breaking Changes**: None
 
@@ -121,7 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
 
 # Verify installation
-skill --version  # Should show 0.3.0
+skill --version  # Should show 1.0.0
 
 # Try new Claude Bridge feature
 skill claude-bridge generate examples/native-skills/kubernetes-skill/SKILL.md

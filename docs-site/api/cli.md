@@ -9,7 +9,7 @@ Display the current version.
 
 ```bash
 skill --version
-# Output: skill 0.3.0
+# Output: skill 1.0.0
 ```
 
 ### skill --help

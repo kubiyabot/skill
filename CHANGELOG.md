@@ -42,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added encrypted credential storage using OS keychain
 - WASM sandbox isolation via Wasmtime
 
-## [0.3.0] - 2025-12-01
+## [1.0.0] - 2025-12-01
 
 ### Added
 - RAG search pipeline with hybrid search (vector + BM25)
@@ -88,7 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 [Unreleased]: https://github.com/kubiyabot/skill/compare/v0.3.4...HEAD
-[0.3.4]: https://github.com/kubiyabot/skill/compare/v0.3.0...v0.3.4
-[0.3.0]: https://github.com/kubiyabot/skill/compare/v0.2.0...v0.3.0
+[0.3.4]: https://github.com/kubiyabot/skill/compare/v1.0.0...v0.3.4
+[1.0.0]: https://github.com/kubiyabot/skill/compare/v0.2.0...v1.0.0
 [0.2.0]: https://github.com/kubiyabot/skill/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/kubiyabot/skill/releases/tag/v0.1.0

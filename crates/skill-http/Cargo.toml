@@ -17,7 +17,7 @@ web-ui = ["dep:rust-embed", "dep:mime_guess"]
 
 [dependencies]
 # Workspace dependencies
-skill-runtime = "0.3.0"
+skill-runtime = "1.0.0"
 
 # HTTP server
 axum = { workspace = true }

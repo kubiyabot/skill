@@ -587,7 +587,7 @@ Each test case is considered successful if:
 
 **Solutions**:
 1. Verify MCP server supports context engineering
-2. Check server version: `skill --version` (requires >= 0.3.0)
+2. Check server version: `skill --version` (requires >= 1.0.0)
 3. Test context engineering directly via MCP tools/call
 4. Review skill TOOLS.md for supported parameters
 
