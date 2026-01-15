@@ -1,0 +1,248 @@
+name: Security Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run security tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  security-tests:
+    name: Run Security Test Suite
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Cache cargo registry
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo index
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo build
+      uses: actions/cache@v4
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Run security tests
+      run: cargo test --test security_tests --package skill-cli -- --ignored --nocapture
+
+    - name: Run error handling tests
+      run: cargo test --test error_tests -- --ignored --nocapture
+
+    - name: Check for security test failures
+      if: failure()
+      run: |
+        echo "::error::Security tests failed! Please review the test output above."
+        exit 1
+
+  cargo-audit:
+    name: Security Audit (cargo-audit)
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install cargo-audit
+      run: cargo install cargo-audit
+
+    - name: Run cargo audit
+      run: cargo audit
+
+    - name: Report vulnerabilities
+      if: failure()
+      run: |
+        echo "::error::Security vulnerabilities found in dependencies!"
+        cargo audit --json
+        exit 1
+
+  cargo-deny:
+    name: Security Policy Check (cargo-deny)
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install cargo-deny
+      run: cargo install cargo-deny
+
+    - name: Run cargo deny (advisories)
+      run: cargo deny check advisories
+
+    - name: Run cargo deny (licenses)
+      run: cargo deny check licenses
+
+    - name: Run cargo deny (bans)
+      run: cargo deny check bans
+
+    - name: Run cargo deny (sources)
+      run: cargo deny check sources
+
+  secrets-scan:
+    name: Scan for Hardcoded Secrets
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for better secret detection
+
+    - name: Run gitleaks
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Report secret findings
+      if: failure()
+      run: |
+        echo "::error::Potential secrets or credentials found in code!"
+        echo "Please review gitleaks output above and remove any hardcoded secrets."
+        exit 1
+
+  sast-scan:
+    name: Static Application Security Testing
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'rust'
+
+    - name: Build for CodeQL
+      run: cargo build --release
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:rust"
+
+    - name: Report SAST findings
+      if: failure()
+      run: |
+        echo "::error::Static analysis found potential security issues!"
+        exit 1
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: moderate
+        deny-licenses: GPL-3.0, AGPL-3.0
+
+  permissions-check:
+    name: Check File Permissions
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for world-writable files
+      run: |
+        echo "Checking for world-writable files..."
+        WORLD_WRITABLE=$(find . -type f -perm -002 ! -path "./.git/*" || true)
+        if [ -n "$WORLD_WRITABLE" ]; then
+          echo "::error::Found world-writable files:"
+          echo "$WORLD_WRITABLE"
+          exit 1
+        else
+          echo "✓ No world-writable files found"
+        fi
+
+    - name: Check script permissions
+      run: |
+        echo "Checking script permissions..."
+        BAD_PERMS=$(find . -type f -name "*.sh" -perm -002 ! -path "./.git/*" || true)
+        if [ -n "$BAD_PERMS" ]; then
+          echo "::error::Found scripts with world-writable permissions:"
+          echo "$BAD_PERMS"
+          exit 1
+        else
+          echo "✓ All scripts have appropriate permissions"
+        fi
+
+    - name: Check for setuid/setgid files
+      run: |
+        echo "Checking for setuid/setgid files..."
+        SUID_FILES=$(find . -type f \( -perm -4000 -o -perm -2000 \) ! -path "./.git/*" || true)
+        if [ -n "$SUID_FILES" ]; then
+          echo "::warning::Found setuid/setgid files (review manually):"
+          echo "$SUID_FILES"
+        else
+          echo "✓ No setuid/setgid files found"
+        fi
+
+  security-summary:
+    name: Security Test Summary
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+    needs: [security-tests, cargo-audit, cargo-deny, secrets-scan, sast-scan, permissions-check]
+    if: always()
+
+    steps:
+    - name: Check results
+      run: |
+        echo "### Security Test Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Security Tests | ${{ needs.security-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Cargo Audit | ${{ needs.cargo-audit.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Cargo Deny | ${{ needs.cargo-deny.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Secrets Scan | ${{ needs.secrets-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| SAST Scan | ${{ needs.sast-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Permissions Check | ${{ needs.permissions-check.result }} |" >> $GITHUB_STEP_SUMMARY
+
+        if [[ "${{ needs.security-tests.result }}" == "failure" ]] || \
+           [[ "${{ needs.cargo-audit.result }}" == "failure" ]] || \
+           [[ "${{ needs.cargo-deny.result }}" == "failure" ]] || \
+           [[ "${{ needs.secrets-scan.result }}" == "failure" ]] || \
+           [[ "${{ needs.sast-scan.result }}" == "failure" ]] || \
+           [[ "${{ needs.permissions-check.result }}" == "failure" ]]; then
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Security checks failed! Please review the failures above.**" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        else
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **All security checks passed!**" >> $GITHUB_STEP_SUMMARY
+        fi

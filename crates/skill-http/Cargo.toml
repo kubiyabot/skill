@@ -1,0 +1,67 @@
+[package]
+name = "skill-http"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "HTTP streaming server for Skill - REST API and web interface support"
+keywords = ["http", "api", "streaming", "axum", "skills"]
+categories = ["web-programming::http-server", "development-tools"]
+
+[features]
+default = []
+# Enable embedded web UI (requires skill-web/dist to be built)
+web-ui = ["dep:rust-embed", "dep:mime_guess"]
+
+[dependencies]
+# Workspace dependencies
+skill-runtime = "0.3.0"
+
+# HTTP server
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+hyper = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+futures = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Logging & metrics
+tracing = { workspace = true }
+
+# Utilities
+bytes = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+toml = { workspace = true }
+dirs = { workspace = true }
+
+# OpenAPI documentation
+utoipa = { version = "5.0", features = ["axum_extras", "chrono", "uuid"] }
+utoipa-swagger-ui = { version = "8.0", features = ["axum"] }
+
+# Database
+sqlx = { workspace = true, features = ["sqlite", "migrate", "macros", "uuid"] }
+shellexpand = "3.1"
+
+# Embedded web assets (optional, enabled with web-ui feature)
+rust-embed = { version = "8.5", features = ["interpolate-folder-path"], optional = true }
+mime_guess = { version = "2.0", optional = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+hyper = { workspace = true, features = ["client"] }
+tower = { workspace = true, features = ["util"] }
+tokio-test = "0.4"

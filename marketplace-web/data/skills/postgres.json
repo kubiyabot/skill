@@ -1,0 +1,58 @@
+{
+    "id": "postgres",
+    "name": "PostgreSQL",
+    "icon": "https://cdn.simpleicons.org/postgresql",
+    "type": "wasm",
+    "description": "Execute queries and manage PostgreSQL databases.",
+    "longDescription": "Safe and controlled access to your PostgreSQL databases. Run read-only queries or authorized migrations via your agent.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Skill Engine Team",
+        "github": "kubiyabot",
+        "url": "https://github.com/kubiyabot/skill"
+    },
+    "categories": [
+        "database",
+        "infrastructure"
+    ],
+    "badges": [
+        "official"
+    ],
+    "installation": {
+        "source": "registry.kubiya.sh/skills/postgres:latest",
+        "requiresAuth": true,
+        "envVars": [
+            {
+                "name": "PG_CONNECTION_STRING",
+                "required": true,
+                "description": "PostgreSQL Connection URL"
+            }
+        ]
+    },
+    "tools": [
+        {
+            "name": "query",
+            "description": "Execute a SQL query",
+            "parameters": [
+                {
+                    "name": "sql",
+                    "type": "string",
+                    "required": true,
+                    "description": "SQL query statement"
+                }
+            ]
+        },
+        {
+            "name": "list_tables",
+            "description": "List all tables in the current schema",
+            "parameters": []
+        }
+    ],
+    "examples": [
+        {
+            "title": "List users",
+            "description": "Select top 10 users",
+            "code": "skill run postgres:query sql=\"SELECT * FROM users LIMIT 10\""
+        }
+    ]
+}

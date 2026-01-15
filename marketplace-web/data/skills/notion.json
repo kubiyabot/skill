@@ -1,0 +1,71 @@
+{
+    "id": "notion",
+    "name": "Notion",
+    "icon": "https://cdn.simpleicons.org/notion",
+    "type": "wasm",
+    "description": "Manage pages and databases in Notion.",
+    "longDescription": "Access your Notion workspace to read, write, and manage pages and databases programmatically.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Skill Engine Team",
+        "github": "kubiyabot",
+        "url": "https://github.com/kubiyabot/skill"
+    },
+    "categories": [
+        "productivity",
+        "documentation"
+    ],
+    "badges": [
+        "featured"
+    ],
+    "installation": {
+        "source": "registry.kubiya.sh/skills/notion:latest",
+        "requiresAuth": true,
+        "envVars": [
+            {
+                "name": "NOTION_API_KEY",
+                "required": true,
+                "description": "Notion Integration Token"
+            }
+        ]
+    },
+    "tools": [
+        {
+            "name": "create_page",
+            "description": "Create a new page",
+            "parameters": [
+                {
+                    "name": "parentId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Parent Page or Database ID"
+                },
+                {
+                    "name": "title",
+                    "type": "string",
+                    "required": true,
+                    "description": "Page title"
+                }
+            ]
+        },
+        {
+            "name": "search",
+            "description": "Search Notion workspace",
+            "parameters": [
+                {
+                    "name": "query",
+                    "type": "string",
+                    "required": true,
+                    "description": "Search text"
+                }
+            ]
+        }
+    ],
+    "examples": [
+        {
+            "title": "Search pages",
+            "description": "Find pages about 'design'",
+            "code": "skill run notion:search query=\"design\""
+        }
+    ]
+}

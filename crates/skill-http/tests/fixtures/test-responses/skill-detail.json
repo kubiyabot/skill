@@ -1,0 +1,84 @@
+{
+  "summary": {
+    "name": "test-skill",
+    "version": "0.1.0",
+    "description": "A test skill for integration tests",
+    "source": "local:./test-skill",
+    "runtime": "wasm",
+    "tools_count": 3,
+    "instances_count": 1,
+    "execution_count": 0,
+    "last_used": null,
+    "required_services": []
+  },
+  "full_description": "A comprehensive test skill for integration testing",
+  "author": "Test Author",
+  "repository": "https://github.com/test/test-skill",
+  "license": "MIT",
+  "tools": [
+    {
+      "name": "echo",
+      "description": "Echo input back",
+      "parameters": [
+        {
+          "name": "message",
+          "param_type": "string",
+          "description": "Message to echo",
+          "required": true,
+          "default_value": null
+        }
+      ],
+      "streaming": false
+    },
+    {
+      "name": "add",
+      "description": "Add two numbers",
+      "parameters": [
+        {
+          "name": "a",
+          "param_type": "number",
+          "description": "First number",
+          "required": true,
+          "default_value": null
+        },
+        {
+          "name": "b",
+          "param_type": "number",
+          "description": "Second number",
+          "required": true,
+          "default_value": null
+        }
+      ],
+      "streaming": false
+    },
+    {
+      "name": "list",
+      "description": "List items with optional filter",
+      "parameters": [
+        {
+          "name": "filter",
+          "param_type": "string",
+          "description": "Filter pattern",
+          "required": false,
+          "default_value": "*"
+        },
+        {
+          "name": "limit",
+          "param_type": "number",
+          "description": "Maximum items to return",
+          "required": false,
+          "default_value": "10"
+        }
+      ],
+      "streaming": false
+    }
+  ],
+  "instances": [
+    {
+      "name": "default",
+      "description": null,
+      "is_default": true,
+      "config_keys": []
+    }
+  ]
+}

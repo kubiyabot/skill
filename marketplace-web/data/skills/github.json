@@ -1,0 +1,214 @@
+{
+  "id": "github",
+  "name": "GitHub",
+  "icon": "https://cdn.simpleicons.org/github",
+  "skillMdPath": "../examples/wasm-skills/github-skill/SKILL.md",
+  "type": "wasm",
+  "description": "Self-contained GitHub integration skill for repositories, issues, PRs, and actions. 25+ tools for managing projects.",
+  "longDescription": "Comprehensive, self-contained GitHub API integration built as a WASM skill. Manage repositories, issues, pull requests, actions, and more directly from any AI agent. Perfect for automating GitHub workflows, tracking project status, and managing contributions.\n\n**When to Use:**\n- Creating and managing repositories\n- Opening, closing, and commenting on issues\n- Managing pull requests (create, review, merge)\n- Triggering GitHub Actions workflows\n- Managing repository collaborators and permissions\n- Searching code, issues, and repositories\n- Viewing and creating releases\n\n**Features:**\n- Full GitHub REST API v3 support\n- Authentication via personal access token\n- Sandboxed WASM execution for security\n- Rate limit handling",
+  "version": "1.0.0",
+  "author": {
+    "name": "Skill Engine Team",
+    "github": "kubiyabot",
+    "url": "https://github.com/kubiyabot/skill"
+  },
+  "categories": ["api", "development"],
+  "badges": ["official", "featured"],
+  "installation": {
+    "source": "./examples/wasm-skills/github-skill",
+    "requiresAuth": true,
+    "envVars": [
+      {
+        "name": "SKILL_GITHUB_TOKEN",
+        "required": true,
+        "description": "GitHub personal access token with repo scope"
+      }
+    ]
+  },
+  "requirements": {
+    "platform": ["macos", "linux", "windows"]
+  },
+  "tools": [
+    {
+      "name": "list-repos",
+      "description": "List repositories for a user or organization",
+      "parameters": [
+        {
+          "name": "owner",
+          "type": "string",
+          "required": true,
+          "description": "GitHub username or organization name"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "enum": ["all", "public", "private", "member"],
+          "default": "all",
+          "description": "Repository type filter"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "required": false,
+          "enum": ["created", "updated", "pushed", "full_name"],
+          "default": "updated",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "create-issue",
+      "description": "Create a new issue in a repository",
+      "parameters": [
+        {
+          "name": "owner",
+          "type": "string",
+          "required": true,
+          "description": "Repository owner"
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "required": true,
+          "description": "Repository name"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true,
+          "description": "Issue title"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "required": false,
+          "description": "Issue description (markdown supported)"
+        },
+        {
+          "name": "labels",
+          "type": "array",
+          "required": false,
+          "description": "Array of label names"
+        },
+        {
+          "name": "assignees",
+          "type": "array",
+          "required": false,
+          "description": "Array of GitHub usernames to assign"
+        }
+      ]
+    },
+    {
+      "name": "create-pr",
+      "description": "Create a new pull request",
+      "parameters": [
+        {
+          "name": "owner",
+          "type": "string",
+          "required": true,
+          "description": "Repository owner"
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "required": true,
+          "description": "Repository name"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true,
+          "description": "Pull request title"
+        },
+        {
+          "name": "head",
+          "type": "string",
+          "required": true,
+          "description": "Branch containing changes"
+        },
+        {
+          "name": "base",
+          "type": "string",
+          "required": true,
+          "description": "Branch to merge into (usually 'main')"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "required": false,
+          "description": "Pull request description"
+        }
+      ]
+    },
+    {
+      "name": "list-issues",
+      "description": "List issues in a repository",
+      "parameters": [
+        {
+          "name": "owner",
+          "type": "string",
+          "required": true,
+          "description": "Repository owner"
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "required": true,
+          "description": "Repository name"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false,
+          "enum": ["open", "closed", "all"],
+          "default": "open",
+          "description": "Issue state filter"
+        },
+        {
+          "name": "labels",
+          "type": "string",
+          "required": false,
+          "description": "Comma-separated list of label names"
+        }
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "List your repositories",
+      "description": "Get all repositories for a user",
+      "code": "skill run github:list-repos owner=yourusername"
+    },
+    {
+      "title": "Create a new issue",
+      "description": "Open an issue with labels and assignees",
+      "code": "skill run github:create-issue owner=kubiyabot repo=skill title=\"Bug report\" body=\"Description here\" labels='[\"bug\", \"priority:high\"]'"
+    },
+    {
+      "title": "List open issues",
+      "description": "Get all open issues in a repository",
+      "code": "skill run github:list-issues owner=kubiyabot repo=skill state=open"
+    },
+    {
+      "title": "Create a pull request",
+      "description": "Open a PR from feature branch to main",
+      "code": "skill run github:create-pr owner=kubiyabot repo=skill title=\"Add feature\" head=feature-branch base=main body=\"PR description\""
+    },
+    {
+      "title": "List private repositories",
+      "description": "Get only private repos",
+      "code": "skill run github:list-repos owner=yourusername type=private"
+    }
+  ],
+  "links": {
+    "github": "https://github.com/kubiyabot/skill/tree/main/examples/wasm-skills/github-skill",
+    "documentation": "https://docs.github.com/en/rest",
+    "homepage": "https://skill.dev"
+  },
+  "stats": {
+    "downloads": 0,
+    "stars": 0,
+    "lastUpdated": "2026-01-04T00:00:00Z"
+  }
+}

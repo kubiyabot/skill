@@ -1,0 +1,171 @@
+package skill-engine:skill@1.0.0;
+
+// ============================================
+// Types Interface
+// ============================================
+
+interface types {
+    /// Metadata about a skill
+    record skill-metadata {
+        name: string,
+        version: string,
+        description: string,
+        author: string,
+        repository: option<string>,
+        license: option<string>,
+    }
+
+    /// Definition of a tool exposed by a skill
+    record tool-definition {
+        name: string,
+        description: string,
+        parameters: list<parameter>,
+        streaming: bool,
+    }
+
+    /// Parameter definition for a tool
+    record parameter {
+        name: string,
+        param-type: param-type-enum,
+        description: string,
+        required: bool,
+        default-value: option<string>,
+    }
+
+    /// Supported parameter types
+    enum param-type-enum {
+        str,
+        num,
+        boolean,
+        file,
+        json,
+        array,
+    }
+
+    /// Result of tool execution
+    record execution-result {
+        success: bool,
+        output: string,
+        error-message: option<string>,
+        metadata: option<list<tuple<string, string>>>,
+    }
+
+    /// Chunk of streaming output
+    record stream-chunk {
+        chunk-type: stream-chunk-type,
+        data: string,
+    }
+
+    /// Type of stream chunk
+    enum stream-chunk-type {
+        stdout,
+        stderr,
+        progress,
+        metadata,
+    }
+
+    /// Configuration key-value pair
+    record config-value {
+        key: string,
+        value: string,
+        secret: bool,
+    }
+
+    /// Skill dependency declaration
+    record dependency {
+        skill-name: string,
+        version-constraint: string,
+        optional: bool,
+    }
+
+    /// Log level for host logging
+    enum log-level {
+        trace,
+        debug,
+        info,
+        warn,
+        error,
+    }
+}
+
+// ============================================
+// World: skill - Skills implement this
+// ============================================
+
+world skill {
+    use types.{skill-metadata, tool-definition, execution-result, config-value, stream-chunk, dependency};
+    // Import WASI capabilities (Preview 2)
+    import wasi:cli/environment@0.2.0;
+    import wasi:io/streams@0.2.0;
+    import wasi:filesystem/types@0.2.0;
+    import wasi:filesystem/preopens@0.2.0;
+    import wasi:random/random@0.2.0;
+    import wasi:clocks/wall-clock@0.2.0;
+    import wasi:clocks/monotonic-clock@0.2.0;
+
+    // ============================================
+    // Required Exports - All skills must implement
+    // ============================================
+
+    /// Get skill metadata
+    export get-metadata: func() -> skill-metadata;
+
+    /// Get list of tools provided by this skill
+    export get-tools: func() -> list<tool-definition>;
+
+    /// Execute a tool (non-streaming)
+    export execute-tool: func(
+        tool-name: string,
+        args: list<tuple<string, string>>
+    ) -> result<execution-result, string>;
+
+    /// Validate configuration
+    export validate-config: func(
+        config: list<config-value>
+    ) -> result<_, string>;
+
+    // ============================================
+    // Optional Exports - Skills can implement
+    // ============================================
+
+    /// Execute a tool with streaming output
+    export execute-tool-stream: func(
+        tool-name: string,
+        args: list<tuple<string, string>>
+    ) -> result<list<stream-chunk>, string>;
+
+    /// Get skill dependencies
+    export get-dependencies: func() -> list<dependency>;
+
+    /// Health check
+    export health-check: func() -> result<_, string>;
+
+    /// Lifecycle: Called after skill installation
+    export on-install: func() -> result<_, string>;
+
+    /// Lifecycle: Called after configuration update
+    export on-configure: func(config: list<config-value>) -> result<_, string>;
+
+    /// Lifecycle: Called before skill uninstallation
+    export on-uninstall: func() -> result<_, string>;
+}
+
+// ============================================
+// World: host - What the host provides to skills
+// ============================================
+
+world host {
+    use types.{log-level};
+
+    /// Get configuration value
+    export get-config: func(key: string) -> option<string>;
+
+    /// Set configuration value
+    export set-config: func(key: string, value: string, secret: bool) -> result<_, string>;
+
+    /// Log a message
+    export log: func(level: log-level, message: string);
+
+    /// Emit progress update
+    export emit-progress: func(percent: u8, message: string);
+}

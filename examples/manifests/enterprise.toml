@@ -1,0 +1,300 @@
+# Enterprise Skill Engine Manifest
+#
+# Perfect for: Large organizations, multiple teams, multi-environment setups
+# Skills: All team skills + multiple instances per environment
+# Features: Dev/Staging/Prod configs, extensive env vars, service dependencies
+#
+# Copy and customize for your organization:
+#   cp examples/manifests/enterprise.toml .skill-engine.toml
+
+version = "1"
+
+# Global defaults for all skills
+[defaults]
+capabilities.network_access = false  # Secure by default
+capabilities.max_concurrent_requests = 10
+
+# =============================================================================
+# Version Control & Code Hosting
+# =============================================================================
+
+[skills.git]
+source = "./examples/native-skills/git-skill"
+description = "Git version control operations"
+runtime = "native"
+
+[skills.git.instances.default]
+
+[skills.github]
+source = "./examples/wasm-skills/github-skill"
+description = "GitHub API integration"
+
+# Personal use
+[skills.github.instances.personal]
+description = "Personal GitHub account"
+env.GITHUB_TOKEN = "${GITHUB_PERSONAL_TOKEN}"
+config.api_url = "https://api.github.com"
+capabilities.network_access = true
+
+# Corporate GitHub Enterprise
+[skills.github.instances.enterprise]
+description = "Corporate GitHub Enterprise"
+env.GITHUB_TOKEN = "${GITHUB_ENTERPRISE_TOKEN}"
+config.api_url = "${GITHUB_ENTERPRISE_URL}/api/v3"
+capabilities.network_access = true
+
+# =============================================================================
+# CI/CD
+# =============================================================================
+
+[skills.circleci]
+source = "./examples/wasm-skills/circleci-skill"
+description = "CircleCI pipeline management"
+
+[skills.circleci.instances.default]
+env.CIRCLECI_TOKEN = "${SKILL_CIRCLECI_TOKEN}"
+capabilities.network_access = true
+
+# =============================================================================
+# Container & Orchestration
+# =============================================================================
+
+[skills.docker]
+source = "./examples/native-skills/docker-skill"
+description = "Docker container management"
+runtime = "native"
+
+[skills.docker.instances.default]
+
+[skills.kubernetes]
+source = "./examples/native-skills/kubernetes-skill"
+description = "Kubernetes cluster management"
+runtime = "native"
+
+[[skills.kubernetes.services]]
+name = "kubectl-proxy"
+description = "Kubernetes API proxy"
+optional = false
+default_port = 8001
+
+# Development cluster (minikube/kind)
+[skills.kubernetes.instances.dev]
+description = "Local development cluster"
+config.cluster = "minikube"
+config.kubeconfig = "${KUBECONFIG_DEV:-~/.kube/dev-config}"
+config.namespace = "development"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 20
+
+# Staging cluster
+[skills.kubernetes.instances.staging]
+description = "Staging environment cluster"
+config.cluster = "staging-cluster"
+config.kubeconfig = "${KUBECONFIG_STAGING:-/etc/kube/staging-config}"
+config.namespace = "staging"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 10
+
+# Production cluster (rate limited)
+[skills.kubernetes.instances.prod]
+description = "Production cluster - use with caution"
+config.cluster = "production-cluster"
+config.kubeconfig = "${KUBECONFIG_PROD:-/etc/kube/prod-config}"
+config.namespace = "production"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 5  # Strict rate limiting
+
+# =============================================================================
+# Infrastructure as Code
+# =============================================================================
+
+[skills.terraform]
+source = "./examples/native-skills/terraform-skill"
+description = "Terraform infrastructure management"
+runtime = "native"
+
+[skills.terraform.instances.dev]
+description = "Development infrastructure"
+config.workspace = "development"
+config.var_file = "${TERRAFORM_VARS_DEV:-terraform.dev.tfvars}"
+
+[skills.terraform.instances.staging]
+description = "Staging infrastructure"
+config.workspace = "staging"
+config.var_file = "${TERRAFORM_VARS_STAGING:-terraform.staging.tfvars}"
+
+[skills.terraform.instances.prod]
+description = "Production infrastructure"
+config.workspace = "production"
+config.var_file = "${TERRAFORM_VARS_PROD:-terraform.prod.tfvars}"
+
+# =============================================================================
+# Databases
+# =============================================================================
+
+[skills.postgres-native]
+source = "./examples/native-skills/postgres-skill"
+description = "PostgreSQL database operations"
+runtime = "native"
+
+[[skills.postgres-native.services]]
+name = "postgres"
+description = "PostgreSQL database server"
+optional = false
+default_port = 5432
+
+# Development database
+[skills.postgres-native.instances.dev]
+description = "Local development database"
+config.host = "${POSTGRES_DEV_HOST:-localhost}"
+config.port = "${POSTGRES_DEV_PORT:-5432}"
+config.database = "${POSTGRES_DEV_DB:-myapp_dev}"
+config.username = "${POSTGRES_DEV_USER:-postgres}"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 50
+
+# Staging database
+[skills.postgres-native.instances.staging]
+description = "Staging database (read-write)"
+config.host = "${POSTGRES_STAGING_HOST}"
+config.port = "${POSTGRES_STAGING_PORT:-5432}"
+config.database = "${POSTGRES_STAGING_DB}"
+config.username = "${POSTGRES_STAGING_USER}"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 30
+
+# Production database (read-only recommended)
+[skills.postgres-native.instances.prod]
+description = "Production database - READ ONLY recommended"
+config.host = "${POSTGRES_PROD_HOST}"
+config.port = "${POSTGRES_PROD_PORT:-5432}"
+config.database = "${POSTGRES_PROD_DB}"
+config.username = "${POSTGRES_PROD_READONLY_USER}"  # Use read-only user!
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 10
+
+# =============================================================================
+# Project Management & Communication
+# =============================================================================
+
+[skills.jira]
+source = "./examples/wasm-skills/jira-skill"
+description = "Jira issue tracking"
+
+[skills.jira.instances.default]
+config.url = "${SKILL_JIRA_URL}"
+config.email = "${SKILL_JIRA_EMAIL}"
+config.default_project = "${JIRA_DEFAULT_PROJECT:-ENG}"
+env.JIRA_TOKEN = "${SKILL_JIRA_TOKEN}"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 20
+
+[skills.slack]
+source = "./examples/wasm-skills/slack-skill"
+description = "Slack messaging"
+
+# Team workspace
+[skills.slack.instances.team]
+description = "Team Slack workspace"
+env.SLACK_TOKEN = "${SKILL_SLACK_TOKEN}"
+config.workspace = "team"
+capabilities.network_access = true
+
+# Company-wide workspace
+[skills.slack.instances.company]
+description = "Company-wide Slack workspace"
+env.SLACK_TOKEN = "${SKILL_SLACK_COMPANY_TOKEN}"
+config.workspace = "company"
+capabilities.network_access = true
+
+# =============================================================================
+# Monitoring & Observability
+# =============================================================================
+
+[skills.prometheus]
+source = "./examples/wasm-skills/prometheus-skill"
+description = "Prometheus metrics querying"
+
+[[skills.prometheus.services]]
+name = "prometheus"
+description = "Prometheus server"
+optional = false
+default_port = 9090
+
+[skills.prometheus.instances.dev]
+description = "Development metrics"
+config.prometheus_url = "${PROMETHEUS_DEV_URL:-http://localhost:9090}"
+capabilities.network_access = true
+
+[skills.prometheus.instances.staging]
+description = "Staging metrics"
+config.prometheus_url = "${PROMETHEUS_STAGING_URL}"
+capabilities.network_access = true
+
+[skills.prometheus.instances.prod]
+description = "Production metrics (read-only)"
+config.prometheus_url = "${PROMETHEUS_PROD_URL}"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 20
+
+# =============================================================================
+# HTTP Client
+# =============================================================================
+
+[skills.http]
+source = "./examples/wasm-skills/http-skill"
+description = "Universal HTTP client"
+
+[skills.http.instances.default]
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 50
+
+# =============================================================================
+# Environment Variables Required
+# =============================================================================
+#
+# Create environment-specific .env files:
+#
+# .env.dev:
+#   KUBECONFIG_DEV=~/.kube/dev-config
+#   POSTGRES_DEV_HOST=localhost
+#   POSTGRES_DEV_DB=myapp_dev
+#   POSTGRES_DEV_USER=postgres
+#   TERRAFORM_VARS_DEV=terraform.dev.tfvars
+#
+# .env.staging:
+#   KUBECONFIG_STAGING=/etc/kube/staging-config
+#   POSTGRES_STAGING_HOST=db.staging.company.com
+#   POSTGRES_STAGING_DB=myapp_staging
+#   POSTGRES_STAGING_USER=app_staging
+#   TERRAFORM_VARS_STAGING=terraform.staging.tfvars
+#
+# .env.prod:
+#   KUBECONFIG_PROD=/etc/kube/prod-config
+#   POSTGRES_PROD_HOST=db.prod.company.com
+#   POSTGRES_PROD_DB=myapp_production
+#   POSTGRES_PROD_READONLY_USER=app_readonly
+#   TERRAFORM_VARS_PROD=terraform.prod.tfvars
+#
+# Shared secrets (use secret manager in production):
+#   GITHUB_ENTERPRISE_TOKEN=ghp_xxxxx
+#   SKILL_CIRCLECI_TOKEN=xxxxx
+#   SKILL_JIRA_TOKEN=xxxxx
+#   SKILL_SLACK_TOKEN=xoxb-xxxxx
+
+# =============================================================================
+# Usage
+# =============================================================================
+#
+# Use environment-specific instances:
+#   skill run kubernetes:dev get pods
+#   skill run kubernetes:staging get pods
+#   skill run kubernetes:prod get pods --namespace production
+#
+#   skill run postgres:dev \\sql "SELECT * FROM users LIMIT 10"
+#   skill run postgres:prod \\sql "SELECT COUNT(*) FROM users"  # Read-only
+#
+# With Claude Code:
+#   > Use kubernetes:dev to show all pods
+#   > Use kubernetes:prod to check production pod status
+#   > Query the staging database for recent orders

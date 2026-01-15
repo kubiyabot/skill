@@ -1,0 +1,42 @@
+# Cargo configuration for static binary builds
+# https://doc.rust-lang.org/cargo/reference/config.html
+
+# Linux musl target for fully static binaries
+[target.x86_64-unknown-linux-musl]
+# Use musl-gcc for static linking
+linker = "musl-gcc"
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.aarch64-unknown-linux-musl]
+linker = "aarch64-linux-musl-gcc"
+rustflags = ["-C", "target-feature=+crt-static"]
+
+# Linux GNU target (default)
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+# macOS targets - use static libgcc
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-arg=-static-libgcc"]
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "link-arg=-static-libgcc"]
+
+# Build configuration
+[build]
+# Parallel jobs (leave unset for auto-detection)
+# jobs = 4
+
+# Incremental compilation in release mode
+[profile.release]
+incremental = false
+
+# Linker settings for faster builds
+[target.'cfg(target_os = "linux")']
+# Using mold or lld can speed up linking significantly
+# linker = "clang"
+# rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+
+# Network settings
+[net]
+git-fetch-with-cli = false  # Use libgit2 instead of CLI (for vendored)

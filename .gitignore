@@ -1,0 +1,71 @@
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.wasm
+*.cwasm
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+
+# Task Master (keep docs)
+.taskmaster/tasks/
+.taskmaster/reports/
+.taskmaster/state.json
+
+# Embedding model cache (large binary files)
+.fastembed_cache/
+**/.fastembed_cache/
+
+# Python
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+
+# Node
+node_modules/
+.next/
+out/
+coverage/
+test-results/
+playwright-report/
+.eslintcache
+
+# VitePress
+.vitepress/cache/
+.vitepress/dist/
+
+# Temporary files
+*.txt.bak
+*_backup.*
+*_old_backup.*
+check_output.txt

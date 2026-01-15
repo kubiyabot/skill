@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Test artifacts
+test-data.txt
+downloaded*.txt
+*.log
+
+# LocalStack data
+localstack-data/
+
+# Environment
+.env
+.env.local

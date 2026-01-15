@@ -1,0 +1,53 @@
+[package]
+name = "skill-context"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Execution context management for skill-engine"
+keywords = ["execution-context", "sandbox", "secrets", "configuration"]
+categories = ["development-tools"]
+
+[dependencies]
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+toml = { workspace = true }
+
+# Time and identifiers
+chrono = { workspace = true }
+uuid = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Security - for secret handling
+zeroize = { workspace = true }
+secrecy = { workspace = true }
+keyring = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Utilities
+dirs = { workspace = true }
+walkdir = { workspace = true }
+tracing = { workspace = true }
+regex = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+
+[features]
+default = []
+# External secret providers (optional)
+vault = []
+aws-secrets = []
+azure-keyvault = []
+gcp-secrets = []

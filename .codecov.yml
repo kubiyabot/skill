@@ -1,0 +1,67 @@
+# Codecov Configuration for Skill Engine
+# https://docs.codecov.com/docs/codecov-yaml
+
+# Coverage targets
+coverage:
+  status:
+    # Overall project coverage
+    project:
+      default:
+        target: 70%           # Target coverage for entire project
+        threshold: 2%         # Allow 2% drop before failing
+        informational: false  # Fail if not met
+
+    # Coverage for changed code (patches)
+    patch:
+      default:
+        target: 80%           # New code should have higher coverage
+        threshold: 1%
+        informational: false
+
+  # Precision for coverage percentages
+  precision: 2
+  round: down
+  range: "60...100"
+
+# Files to ignore in coverage
+ignore:
+  - "tests/"
+  - "benches/"
+  - "examples/"
+  - "**/build.rs"
+  - "**/main.rs"
+
+# Pull request comment configuration
+comment:
+  layout: "diff, files, footer"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+# Flag configuration for different test types
+flags:
+  claude-bridge:
+    paths:
+      - crates/skill-cli/src/commands/claude_bridge/
+    carryforward: false
+
+  unit-tests:
+    carryforward: false
+
+# GitHub Checks integration
+github_checks:
+  annotations: true
+
+# Notification settings
+slack:
+  enabled: false
+
+# Validation
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no

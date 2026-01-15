@@ -1,0 +1,16 @@
+{
+  "name": "terraform-skill",
+  "version": "1.0.0",
+  "description": "Terraform infrastructure as code management via native CLI",
+  "main": "skill.js",
+  "type": "module",
+  "keywords": [
+    "skill",
+    "terraform",
+    "iac",
+    "infrastructure",
+    "devops"
+  ],
+  "author": "Skill Engine",
+  "license": "MIT"
+}

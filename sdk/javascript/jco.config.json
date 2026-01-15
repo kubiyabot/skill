@@ -1,0 +1,21 @@
+{
+  "world": "skill",
+  "wit": "../../wit",
+  "map": {
+    "wasi:cli/*": "@bytecodealliance/preview2-shim/cli#*",
+    "wasi:clocks/*": "@bytecodealliance/preview2-shim/clocks#*",
+    "wasi:filesystem/*": "@bytecodealliance/preview2-shim/filesystem#*",
+    "wasi:io/*": "@bytecodealliance/preview2-shim/io#*",
+    "wasi:random/*": "@bytecodealliance/preview2-shim/random#*"
+  },
+  "transpile": {
+    "name": "@skill-engine/sdk",
+    "map": {
+      "wasi:cli/*": "@bytecodealliance/preview2-shim/cli#*",
+      "wasi:clocks/*": "@bytecodealliance/preview2-shim/clocks#*",
+      "wasi:filesystem/*": "@bytecodealliance/preview2-shim/filesystem#*",
+      "wasi:io/*": "@bytecodealliance/preview2-shim/io#*",
+      "wasi:random/*": "@bytecodealliance/preview2-shim/random#*"
+    }
+  }
+}

@@ -1,0 +1,220 @@
+# Skill Engine Manifest
+version = "1"
+
+# =============================================================================
+# WASM Skills - WebAssembly components (sandboxed)
+# =============================================================================
+
+[skills.simple]
+source = "./examples/wasm-skills/simple-skill"
+description = "Simple greeting skill"
+
+[skills.simple.instances.default]
+config.greeting = "Hello"
+
+[skills.simple.instances.friendly]
+config.greeting = "Hi there"
+
+# =============================================================================
+# Native Skills - CLI wrappers (command allowlist)
+# =============================================================================
+
+[skills.kubernetes]
+source = "./examples/native-skills/kubernetes-skill"
+description = "Kubernetes cluster management"
+runtime = "native"
+
+[[skills.kubernetes.services]]
+name = "kubectl-proxy"
+description = "Kubernetes API proxy for executing commands"
+optional = false
+default_port = 8001
+
+[skills.kubernetes.instances.default]
+# No config needed for demo
+
+[skills.kubernetes.instances.prod]
+config.cluster = "production-cluster"
+config.kubeconfig = "${KUBECONFIG:-~/.kube/config}"
+
+[skills.docker]
+source = "./examples/native-skills/docker-skill"
+description = "Docker container and image management"
+runtime = "native"
+
+[skills.docker.instances.default]
+# No config needed - uses system Docker
+
+[skills.git]
+source = "./examples/native-skills/git-skill"
+description = "Git version control operations"
+runtime = "native"
+
+[skills.git.instances.default]
+# No config needed - uses system git
+
+[skills.terraform]
+source = "./examples/native-skills/terraform-skill"
+description = "Terraform infrastructure as code management"
+runtime = "native"
+
+[skills.terraform.instances.default]
+# No config needed - uses system terraform
+
+[skills.postgres-native]
+source = "./examples/native-skills/postgres-skill"
+description = "PostgreSQL operations via native psql CLI"
+runtime = "native"
+
+[[skills.postgres-native.services]]
+name = "postgres"
+description = "PostgreSQL database server"
+optional = false
+default_port = 5432
+
+[skills.postgres-native.instances.default]
+# Password provided via PGPASSWORD environment variable
+
+# =============================================================================
+# WASM Skills - API Integrations
+# =============================================================================
+
+[skills.github]
+source = "./examples/wasm-skills/github-skill"
+description = "GitHub integration for repositories, issues, PRs, and actions"
+
+[skills.github.instances.default]
+# Token provided via SKILL_GITHUB_TOKEN environment variable
+
+[skills.http]
+source = "./examples/wasm-skills/http-skill"
+description = "Universal HTTP client for API requests"
+
+[skills.http.instances.default]
+# No config needed - authentication is per-request
+
+[skills.slack]
+source = "./examples/wasm-skills/slack-skill"
+description = "Slack messaging, channels, and user management"
+
+[skills.slack.instances.default]
+# Token provided via SKILL_SLACK_TOKEN environment variable
+
+[skills.prometheus]
+source = "./examples/wasm-skills/prometheus-skill"
+description = "Prometheus metrics querying and monitoring"
+
+[[skills.prometheus.services]]
+name = "prometheus"
+description = "Prometheus server for metrics querying"
+optional = false
+default_port = 9090
+
+[skills.prometheus.instances.default]
+config.prometheus_url = "${SKILL_PROMETHEUS_URL:-http://localhost:9090}"
+
+[skills.circleci]
+source = "./examples/wasm-skills/circleci-skill"
+description = "CircleCI CI/CD pipeline management"
+
+[skills.circleci.instances.default]
+# Token provided via SKILL_CIRCLECI_TOKEN environment variable
+
+[skills.jira]
+source = "./examples/wasm-skills/jira-skill"
+description = "Jira project management and issue tracking"
+
+[skills.jira.instances.default]
+# Configuration via SKILL_JIRA_URL, SKILL_JIRA_EMAIL, SKILL_JIRA_TOKEN
+
+# =============================================================================
+# Docker Runtime Skills - Execute inside Docker containers (sandboxed)
+# =============================================================================
+
+# FFmpeg - Video/audio processing
+[skills.ffmpeg]
+source = "docker:linuxserver/ffmpeg:latest"
+runtime = "docker"
+description = "FFmpeg video/audio processing"
+
+[skills.ffmpeg.docker]
+image = "linuxserver/ffmpeg:latest"
+entrypoint = "ffmpeg"
+volumes = ["${PWD:-/tmp}:/workdir"]
+working_dir = "/workdir"
+memory = "2g"
+cpus = "4"
+network = "none"
+rm = true
+
+# Python Runner - Python script execution
+[skills.python-runner]
+source = "docker:python:3.12-slim"
+runtime = "docker"
+description = "Python script execution (sandboxed)"
+
+[skills.python-runner.docker]
+image = "python:3.12-slim"
+entrypoint = "python3"
+volumes = ["${PWD:-/tmp}:/workdir"]
+working_dir = "/workdir"
+memory = "512m"
+network = "none"
+rm = true
+
+# Node.js Runner - JavaScript execution
+[skills.node-runner]
+source = "docker:node:20-alpine"
+runtime = "docker"
+description = "Node.js script execution (sandboxed)"
+
+[skills.node-runner.docker]
+image = "node:20-alpine"
+entrypoint = "node"
+volumes = ["${PWD:-/tmp}:/workdir"]
+working_dir = "/workdir"
+memory = "512m"
+network = "none"
+rm = true
+
+# ImageMagick - Image processing
+[skills.imagemagick]
+source = "docker:dpokidov/imagemagick:latest"
+runtime = "docker"
+description = "ImageMagick image processing"
+
+[skills.imagemagick.docker]
+image = "dpokidov/imagemagick:latest"
+entrypoint = "magick"
+volumes = ["${PWD:-/tmp}:/workdir"]
+working_dir = "/workdir"
+memory = "1g"
+network = "none"
+rm = true
+
+# PostgreSQL - Database CLI client
+[skills.postgres]
+source = "docker:postgres:16-alpine"
+runtime = "docker"
+description = "PostgreSQL CLI client"
+
+[skills.postgres.docker]
+image = "postgres:16-alpine"
+entrypoint = "psql"
+environment = ["PGPASSWORD=${PGPASSWORD:-}"]
+network = "bridge"
+memory = "256m"
+rm = true
+
+# Redis - Cache CLI client
+[skills.redis]
+source = "docker:redis:7-alpine"
+runtime = "docker"
+description = "Redis CLI client"
+
+[skills.redis.docker]
+image = "redis:7-alpine"
+entrypoint = "redis-cli"
+network = "bridge"
+memory = "128m"
+rm = true

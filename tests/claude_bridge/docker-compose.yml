@@ -1,0 +1,151 @@
+version: '3.8'
+
+services:
+  # Main test runner service
+  test-runner:
+    build:
+      context: ../..
+      dockerfile: tests/claude_bridge/Dockerfile
+    container_name: skill-cli-test
+    volumes:
+      - ../..:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+    environment:
+      - RUST_BACKTRACE=1
+      - RUST_LOG=info
+      - SKILL_TEST_MODE=1
+    command: cargo test --workspace --verbose
+    networks:
+      - test-network
+
+  # Unit tests only
+  unit-tests:
+    build:
+      context: ../..
+      dockerfile: tests/claude_bridge/Dockerfile
+    container_name: skill-cli-unit-tests
+    volumes:
+      - ../..:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+    environment:
+      - RUST_BACKTRACE=1
+      - RUST_LOG=debug
+    command: cargo test -p skill-cli --lib -- claude_bridge
+    networks:
+      - test-network
+    profiles:
+      - unit
+
+  # Integration tests with bash scripts
+  integration-tests:
+    build:
+      context: ../..
+      dockerfile: tests/claude_bridge/Dockerfile
+    container_name: skill-cli-integration-tests
+    volumes:
+      - ../..:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+    environment:
+      - RUST_BACKTRACE=1
+      - RUST_LOG=info
+    command: >
+      bash -c "
+        cargo build -p skill-cli --release &&
+        export PATH=\$PATH:/workspace/target/release &&
+        ./tests/claude_bridge/test-skill-generation.sh
+      "
+    networks:
+      - test-network
+    profiles:
+      - integration
+
+  # Performance benchmarks
+  performance-tests:
+    build:
+      context: ../..
+      dockerfile: tests/claude_bridge/Dockerfile
+    container_name: skill-cli-performance-tests
+    volumes:
+      - ../..:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+    environment:
+      - RUST_BACKTRACE=1
+      - RUST_LOG=warn
+    command: >
+      bash -c "
+        cargo build -p skill-cli --release &&
+        export PATH=\$PATH:/workspace/target/release &&
+        ./tests/claude_bridge/performance/test-performance.sh
+      "
+    networks:
+      - test-network
+    profiles:
+      - performance
+
+  # Security tests
+  security-tests:
+    build:
+      context: ../..
+      dockerfile: tests/claude_bridge/Dockerfile
+    container_name: skill-cli-security-tests
+    volumes:
+      - ../..:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+    environment:
+      - RUST_BACKTRACE=1
+    command: >
+      bash -c "
+        cargo audit &&
+        cargo clippy --all-targets -- -D warnings &&
+        ./tests/claude_bridge/security/test-security.sh
+      "
+    networks:
+      - test-network
+    profiles:
+      - security
+
+  # MCP server for integration tests
+  mcp-server:
+    build:
+      context: ../..
+      dockerfile: tests/claude_bridge/Dockerfile
+    container_name: skill-mcp-server
+    volumes:
+      - ../..:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+    environment:
+      - RUST_BACKTRACE=1
+      - RUST_LOG=info
+    command: >
+      bash -c "
+        cargo build -p skill-cli --release &&
+        ./target/release/skill serve
+      "
+    ports:
+      - "3000:3000"
+    networks:
+      - test-network
+    profiles:
+      - mcp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  test-network:
+    driver: bridge
+
+volumes:
+  cargo-cache:
+    driver: local
+  target-cache:
+    driver: local

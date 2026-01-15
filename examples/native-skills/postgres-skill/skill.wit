@@ -1,0 +1,10 @@
+package skill-engine:skill-basic@1.0.0;
+
+world skill-basic {
+    import get-config: func(key: string) -> option<string>;
+    import get-all-config: func() -> list<tuple<string, string>>;
+    export get-metadata: func() -> string;
+    export get-tools: func() -> string;
+    export execute-tool: func(tool-name: string, args: string) -> string;
+    export validate-config: func(config: string) -> string;
+}

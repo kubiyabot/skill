@@ -1,0 +1,672 @@
+/**
+ * Skill Engine Documentation - Custom Theme
+ * Clean, professional technical documentation design
+ */
+
+/* ============================================
+   DESIGN TOKENS
+   ============================================ */
+
+:root {
+  /* Brand Colors */
+  --vp-c-brand-1: #000000;
+  --vp-c-brand-2: #1a1a1a;
+  --vp-c-brand-3: #333333;
+  --vp-c-brand-soft: #f6f6f6;
+  
+  /* Accent Colors */
+  --vp-c-accent: #0066ff;
+  --vp-c-accent-hover: #0052cc;
+  --vp-c-accent-soft: #e6f0ff;
+
+  /* Typography */
+  --vp-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --vp-font-family-mono: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  
+  /* Spacing */
+  --vp-layout-max-width: 1440px;
+  
+  /* Colors */
+  --vp-c-bg: #ffffff;
+  --vp-c-bg-soft: #f9fafb;
+  --vp-c-bg-mute: #f3f4f6;
+  --vp-c-divider: #e5e7eb;
+  --vp-c-text-1: #1f2937;
+  --vp-c-text-2: #4b5563;
+  --vp-c-text-3: #6b7280;
+  
+  /* Shadows */
+  --vp-shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --vp-shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --vp-shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  --vp-c-bg: #0d0d0d;
+  --vp-c-bg-soft: #1a1a1a;
+  --vp-c-bg-mute: #262626;
+  --vp-c-divider: #333333;
+  --vp-c-text-1: #f3f4f6;
+  --vp-c-text-2: #d1d5db;
+  --vp-c-text-3: #9ca3af;
+  
+  --vp-c-brand-1: #ffffff;
+  --vp-c-brand-2: #e5e7eb;
+  --vp-c-brand-3: #d1d5db;
+  --vp-c-brand-soft: #1a1a1a;
+  
+  --vp-c-accent: #3b82f6;
+  --vp-c-accent-hover: #60a5fa;
+  --vp-c-accent-soft: #1e3a8a;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+.vp-doc {
+  font-size: 16px;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+}
+
+.vp-doc h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  border: none;
+}
+
+.vp-doc h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc h2:first-child {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.vp-doc h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.vp-doc h4 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.vp-doc p {
+  margin: 1rem 0;
+}
+
+.vp-doc strong {
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+.vp-doc a {
+  color: var(--vp-c-accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.vp-doc a:hover {
+  color: var(--vp-c-accent-hover);
+}
+
+/* ============================================
+   CODE BLOCKS
+   ============================================ */
+
+.vp-doc [class*='language-'] {
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc [class*='language-'] code {
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.vp-doc div[class*='language-'] > button {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.vp-doc div[class*='language-']:hover > button {
+  opacity: 1;
+}
+
+.vp-doc :not(pre) > code {
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+  font-size: 0.875em;
+  font-family: var(--vp-font-family-mono);
+  font-weight: 500;
+  color: var(--vp-c-text-1);
+}
+
+/* ============================================
+   CUSTOM BLOCKS (TIP, WARNING, etc)
+   ============================================ */
+
+.vp-doc .custom-block {
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border-left: 4px solid;
+}
+
+.vp-doc .tip {
+  background: #f0f9ff;
+  border-color: #0ea5e9;
+}
+
+.dark .vp-doc .tip {
+  background: #082f49;
+  border-color: #0ea5e9;
+}
+
+.vp-doc .warning {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.dark .vp-doc .warning {
+  background: #451a03;
+  border-color: #f59e0b;
+}
+
+.vp-doc .danger {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.dark .vp-doc .danger {
+  background: #450a0a;
+  border-color: #ef4444;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+.vp-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9375rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc thead {
+  background: var(--vp-c-bg-soft);
+}
+
+.vp-doc th {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.vp-doc tbody tr:hover {
+  background: var(--vp-c-bg-soft);
+}
+
+/* ============================================
+   NAVIGATION
+   ============================================ */
+
+.VPNav {
+  border-bottom: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  backdrop-filter: blur(10px);
+}
+
+.VPNavBar {
+  max-width: var(--vp-layout-max-width);
+  margin: 0 auto;
+}
+
+.VPNavBarTitle .title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: -0.01em;
+}
+
+.VPNavBarMenuLink {
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+
+.VPSidebar {
+  background: var(--vp-c-bg);
+  border-right: 1px solid var(--vp-c-divider);
+}
+
+.VPSidebarItem .text {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--vp-c-text-2);
+}
+
+.VPSidebarItem.is-active .text {
+  color: var(--vp-c-accent);
+  font-weight: 600;
+}
+
+.group .text {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--vp-c-text-3);
+}
+
+/* ============================================
+   HOME PAGE
+   ============================================ */
+
+.VPHome {
+  padding-bottom: 4rem;
+}
+
+.VPHomeHero {
+  padding-top: 3rem;
+  padding-bottom: 4rem;
+}
+
+.VPHomeHero .name {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.VPHomeHero .text {
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.4;
+  max-width: 600px;
+}
+
+.VPHomeHero .tagline {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  max-width: 600px;
+  color: var(--vp-c-text-2);
+}
+
+.VPButton {
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s;
+}
+
+.VPButton.brand {
+  background: var(--vp-c-brand-1);
+  color: #ffffff;
+  border: none;
+}
+
+.VPButton.brand:hover {
+  background: var(--vp-c-brand-2);
+  transform: translateY(-1px);
+  box-shadow: var(--vp-shadow-2);
+}
+
+.dark .VPButton.brand {
+  background: #ffffff;
+  color: #000000;
+}
+
+.dark .VPButton.brand:hover {
+  background: #e5e7eb;
+}
+
+.VPButton.alt {
+  background: transparent;
+  border: 1px solid var(--vp-c-divider);
+  color: var(--vp-c-text-1);
+}
+
+.VPButton.alt:hover {
+  border-color: var(--vp-c-brand-1);
+  background: var(--vp-c-bg-soft);
+}
+
+.dark .VPButton.alt {
+  border: 1px solid #404040;
+  color: var(--vp-c-text-1);
+}
+
+.dark .VPButton.alt:hover {
+  border-color: #666666;
+  background: var(--vp-c-bg-soft);
+}
+
+.VPFeatures {
+  padding: 4rem 0 2rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.VPFeature {
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.2s;
+  height: 100%;
+}
+
+.VPFeature:hover {
+  border-color: var(--vp-c-brand-1);
+  box-shadow: var(--vp-shadow-2);
+  transform: translateY(-2px);
+}
+
+.VPFeature .icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.VPFeature .title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--vp-c-text-1);
+}
+
+.VPFeature .details {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--vp-c-text-2);
+}
+
+/* Content sections spacing - Moderate spacing (6rem total) */
+.vp-doc.container {
+  margin-top: 3rem; /* Base space between features and content */
+}
+
+.vp-doc > h2:first-of-type {
+  margin-top: 2rem; /* Additional space for first heading */
+  border-top: 1px solid var(--vp-c-divider);
+  padding-top: 1rem; /* Space after border */
+}
+
+.vp-doc > h2 {
+  margin-top: 4rem; /* Subsequent sections */
+  margin-bottom: 1.5rem;
+  padding-top: 2rem;
+}
+
+/* ============================================
+   HOMEPAGE CUSTOM SECTIONS
+   ============================================ */
+
+/* Problem statement section */
+.problem-section {
+  background: var(--vp-c-bg-soft);
+  border-left: 4px solid var(--vp-c-accent);
+  padding: 2rem;
+  margin: 3rem 0;
+  border-radius: 8px;
+}
+
+.problem-section h2 {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* Social proof stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+  text-align: center;
+}
+
+.stats-grid > div {
+  padding: 1.5rem;
+  background: var(--vp-c-bg-soft);
+  border-radius: 8px;
+  border: 1px solid var(--vp-c-divider);
+}
+
+.stats-grid strong {
+  font-size: 2rem;
+  color: var(--vp-c-accent);
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.stats-grid a {
+  color: var(--vp-c-accent);
+  text-decoration: none;
+}
+
+.stats-grid a:hover {
+  text-decoration: underline;
+}
+
+/* Persona cards */
+.persona-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+.persona-card {
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.2s;
+}
+
+.persona-card:hover {
+  border-color: var(--vp-c-accent);
+  box-shadow: var(--vp-shadow-2);
+  transform: translateY(-2px);
+}
+
+.persona-card h3 {
+  font-size: 1.25rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--vp-c-text-1);
+}
+
+.persona-card p {
+  margin-bottom: 1rem;
+  color: var(--vp-c-text-2);
+  line-height: 1.6;
+}
+
+.persona-card a {
+  color: var(--vp-c-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.persona-card a:hover {
+  text-decoration: underline;
+}
+
+/* Primary CTA */
+.cta-primary {
+  background: linear-gradient(135deg, var(--vp-c-accent-soft) 0%, var(--vp-c-bg-soft) 100%);
+  border: 2px solid var(--vp-c-accent);
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+  margin: 4rem 0;
+}
+
+.cta-primary h3 {
+  font-size: 2rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--vp-c-text-1);
+}
+
+.cta-primary p {
+  font-size: 1.125rem;
+  color: var(--vp-c-text-2);
+  margin-bottom: 1.5rem;
+}
+
+.button-primary {
+  display: inline-block;
+  background: var(--vp-c-accent);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-top: 1rem;
+  transition: all 0.2s;
+  font-size: 1.0625rem;
+}
+
+.button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--vp-shadow-2);
+}
+
+.dark .button-primary {
+  background: var(--vp-c-accent);
+  color: var(--vp-c-bg);
+}
+
+.dark .button-primary:hover {
+  background: var(--vp-c-accent-hover);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.VPFooter {
+  border-top: 1px solid var(--vp-c-divider);
+  padding: 2rem 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--vp-c-text-3);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .vp-doc h1 {
+    font-size: 2rem;
+  }
+  
+  .vp-doc h2 {
+    font-size: 1.5rem;
+  }
+  
+  .VPHomeHero .name {
+    font-size: 2.5rem;
+  }
+  
+  .VPHomeHero .text {
+    font-size: 1.25rem;
+  }
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+.vp-doc ul,
+.vp-doc ol {
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.vp-doc li {
+  margin: 0.5rem 0;
+}
+
+.vp-doc li > p {
+  margin: 0.25rem 0;
+}
+
+.vp-doc hr {
+  border: none;
+  border-top: 1px solid var(--vp-c-divider);
+  margin: 2rem 0;
+}
+
+.vp-doc img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+/* ============================================
+   SEARCH
+   ============================================ */
+
+.DocSearch-Button {
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  font-weight: 500;
+}
+
+.DocSearch-Button:hover {
+  background: var(--vp-c-bg-mute);
+  border-color: var(--vp-c-brand-1);
+}

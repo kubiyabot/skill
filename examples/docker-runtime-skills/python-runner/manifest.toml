@@ -1,0 +1,31 @@
+# Python Runner - Docker Runtime Configuration
+# Copy this to your .skill-engine.toml
+
+[skills.python-runner]
+source = "docker:python:3.12-slim"
+runtime = "docker"
+description = "Python script execution (sandboxed)"
+
+[skills.python-runner.docker]
+image = "python:3.12-slim"
+entrypoint = "python3"
+volumes = ["${PWD}:/workdir"]
+working_dir = "/workdir"
+memory = "512m"
+network = "none"
+rm = true
+
+# Variant with network access for pip/APIs
+[skills.python-runner-net]
+source = "docker:python:3.12-slim"
+runtime = "docker"
+description = "Python with network access"
+
+[skills.python-runner-net.docker]
+image = "python:3.12-slim"
+entrypoint = "python3"
+volumes = ["${PWD}:/workdir"]
+working_dir = "/workdir"
+memory = "512m"
+network = "bridge"
+rm = true

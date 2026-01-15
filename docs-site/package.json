@@ -1,0 +1,19 @@
+{
+  "name": "skill-engine-docs",
+  "version": "1.0.0",
+  "description": "Skill Engine Documentation Site",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "keywords": ["skill-engine", "wasm", "mcp", "documentation"],
+  "author": "Skill Engine Team",
+  "license": "MIT",
+  "devDependencies": {
+    "vitepress": "^1.0.0",
+    "vue": "^3.4.0",
+    "typescript": "^5.3.0"
+  }
+}

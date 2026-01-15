@@ -1,0 +1,12 @@
+package skill:prometheus;
+
+world skill {
+  import wasi:io/streams@0.2.0;
+  import wasi:http/types@0.2.0;
+  import wasi:http/outgoing-handler@0.2.0;
+
+  export get-metadata: func() -> string;
+  export get-tools: func() -> string;
+  export execute-tool: func(name: string, args: string) -> string;
+  export validate-config: func() -> string;
+}

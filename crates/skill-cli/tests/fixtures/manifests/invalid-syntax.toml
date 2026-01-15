@@ -1,0 +1,17 @@
+# Invalid Syntax Test Fixture
+# This file has intentional TOML syntax errors
+
+[[skill]]
+name = "broken-skill"
+description = "This skill has syntax errors
+# Missing closing quote above
+
+[[skill.tool]]
+name = "broken_tool"
+description = "Tool with malformed config"
+invalid_field_without_value =
+
+[[skill.tool.parameter
+# Missing closing bracket
+name = "param"
+type = "string"

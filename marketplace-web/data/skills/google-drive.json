@@ -1,0 +1,71 @@
+{
+    "id": "google-drive",
+    "name": "Google Drive",
+    "icon": "https://cdn.simpleicons.org/googledrive",
+    "type": "wasm",
+    "description": "Manage files and folders in Google Drive.",
+    "longDescription": "Upload, download, and organize files in your Google Drive using your AI agent.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Skill Engine Team",
+        "github": "kubiyabot",
+        "url": "https://github.com/kubiyabot/skill"
+    },
+    "categories": [
+        "productivity",
+        "storage"
+    ],
+    "badges": [
+        "verified"
+    ],
+    "installation": {
+        "source": "registry.kubiya.sh/skills/google-drive:latest",
+        "requiresAuth": true,
+        "envVars": [
+            {
+                "name": "GOOGLE_APPLICATION_CREDENTIALS",
+                "required": true,
+                "description": "Google Service Account JSON"
+            }
+        ]
+    },
+    "tools": [
+        {
+            "name": "list_files",
+            "description": "List files in a folder",
+            "parameters": [
+                {
+                    "name": "query",
+                    "type": "string",
+                    "required": false,
+                    "description": "Search query"
+                }
+            ]
+        },
+        {
+            "name": "upload_file",
+            "description": "Upload a file (content as string for demo)",
+            "parameters": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "required": true,
+                    "description": "File name"
+                },
+                {
+                    "name": "content",
+                    "type": "string",
+                    "required": true,
+                    "description": "File text content"
+                }
+            ]
+        }
+    ],
+    "examples": [
+        {
+            "title": "Find a spreadsheet",
+            "description": "Search for spreadsheets in Drive",
+            "code": "skill run google-drive:list_files query=\"mimeType = 'application/vnd.google-apps.spreadsheet'\""
+        }
+    ]
+}

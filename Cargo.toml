@@ -1,0 +1,142 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/skill-cli",
+    "crates/skill-context",
+    "crates/skill-runtime",
+    "crates/skill-mcp",
+    "crates/skill-http",
+    "crates/skill-web",
+]
+
+[workspace.package]
+version = "0.3.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["Skill Engine Contributors"]
+license = "MIT"
+repository = "https://github.com/kubiyabot/skill"
+homepage = "https://www.skill-ai.dev/"
+documentation = "https://www.skill-ai.dev/api/"
+readme = "README.md"
+keywords = ["wasm", "skills", "mcp", "plugin-system", "ai-agents"]
+categories = ["development-tools", "wasm", "command-line-utilities"]
+description = "Universal skill runtime for AI agents - execute tools in sandboxed WASM environments"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+tokio-util = { version = "0.7", features = ["io"] }
+futures = "0.3"
+
+# WASM runtime
+wasmtime = { version = "26.0", features = ["component-model", "async", "cache"] }
+wasmtime-wasi = "26.0"
+wasmtime-wasi-http = "26.0"
+wit-bindgen = "0.35"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+serde_yaml = "0.9"
+
+# HTTP server
+axum = "0.7"
+tower = "0.5"
+tower-http = { version = "0.6", features = ["trace", "cors", "compression-full"] }
+hyper = { version = "1.5", features = ["full"] }
+
+# CLI
+clap = { version = "4.5", features = ["derive", "env", "color", "suggestions"] }
+dialoguer = "0.11"
+indicatif = "0.17"
+console = "0.15"
+colored = "2.1"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+color-eyre = "0.6"
+
+# Logging & tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-appender = "0.2"
+
+# Security
+keyring = { version = "3.6", features = ["apple-native", "windows-native", "linux-native"] }
+ring = "0.17"
+zeroize = "1.8"
+secrecy = "0.10"
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+url = "2.5"
+
+# Async utilities
+async-trait = "0.1"
+
+# Utilities
+bytes = "1.8"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.11", features = ["v4", "serde"] }
+dirs = "5.0"
+walkdir = "2.5"
+cap-std = "3.4"
+blake3 = "1.5"
+pulldown-cmark = "0.11"
+regex = "1.11"
+
+# AI/ML - Vector search and embeddings
+rig-core = { version = "0.27", features = ["derive"] }
+rig-fastembed = "0.2.19"
+fastembed = "4.4"
+qdrant-client = "1.13"
+tantivy = "0.22"
+tiktoken-rs = "0.6"
+
+# AI/ML - LLM providers for generation
+ollama-rs = { version = "0.3", features = ["stream"] }
+async-openai = { version = "0.32", default-features = false, features = ["rustls"] }
+
+# Background job processing (apalis)
+apalis = { version = "0.6", default-features = false, features = ["limit", "retry", "tracing", "timeout", "catch-panic"] }
+apalis-sql = { version = "0.6", default-features = false }
+apalis-redis = { version = "0.6" }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio"] }
+
+# Streaming
+tokio-stream = "0.1"
+async-stream = "0.3"
+futures-util = "0.3"
+pin-project-lite = "0.2"
+
+# MCP (Model Context Protocol)
+rmcp = { version = "0.12", features = ["server", "transport-io", "transport-streamable-http-server", "axum"] }
+schemars = "1.0"
+
+# Testing
+tempfile = "3.14"
+mockall = "0.13"
+
+[profile.release]
+opt-level = "z"      # Optimize for size (was 3 for speed)
+lto = "fat"          # Full link-time optimization
+codegen-units = 1    # Better optimization, slower compile
+strip = true         # Strip symbols from binary
+panic = "abort"      # Smaller binary, no unwinding
+
+# Profile for fast compilation during development
+[profile.release-fast]
+inherits = "release"
+opt-level = 3        # Optimize for speed
+lto = "thin"         # Faster LTO
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.bench]
+inherits = "release"
+

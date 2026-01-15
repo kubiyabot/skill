@@ -1,0 +1,59 @@
+# MongoDB Skill - Docker Configuration
+# Provides MongoDB database client through containerized mongosh CLI
+
+[skills.mongodb]
+source = "docker:mongo:7"
+runtime = "docker"
+description = "MongoDB database client for queries and administration"
+
+[skills.mongodb.docker]
+image = "mongo:7"
+entrypoint = "mongosh"
+network = "bridge"
+memory = "256m"
+rm = true
+
+# MongoDB Dump variant for backups
+[skills.mongodump]
+source = "docker:mongo:7"
+runtime = "docker"
+description = "MongoDB database backup utility"
+
+[skills.mongodump.docker]
+image = "mongo:7"
+entrypoint = "mongodump"
+network = "bridge"
+memory = "512m"
+rm = true
+volumes = ["${PWD}:/backup"]
+working_dir = "/backup"
+
+# MongoDB Restore variant for restoring backups
+[skills.mongorestore]
+source = "docker:mongo:7"
+runtime = "docker"
+description = "MongoDB database restore utility"
+
+[skills.mongorestore.docker]
+image = "mongo:7"
+entrypoint = "mongorestore"
+network = "bridge"
+memory = "512m"
+rm = true
+volumes = ["${PWD}:/backup"]
+working_dir = "/backup"
+
+# MongoDB Export variant for exporting data
+[skills.mongoexport]
+source = "docker:mongo:7"
+runtime = "docker"
+description = "MongoDB data export utility"
+
+[skills.mongoexport.docker]
+image = "mongo:7"
+entrypoint = "mongoexport"
+network = "bridge"
+memory = "256m"
+rm = true
+volumes = ["${PWD}:/export"]
+working_dir = "/export"

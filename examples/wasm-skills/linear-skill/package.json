@@ -1,0 +1,22 @@
+{
+  "name": "linear-skill",
+  "version": "1.0.0",
+  "description": "Linear issue tracking and project management skill",
+  "type": "module",
+  "main": "dist/skill.js",
+  "scripts": {
+    "build": "tsc",
+    "build:wasm": "npm run build && npx @bytecodealliance/jco componentize dist/skill.js -w ../../wit -o dist/skill.wasm",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@skill-engine/sdk": "file:../../../sdk/javascript"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  },
+  "keywords": ["skill-engine", "linear", "issues", "project-management"],
+  "author": "Skill Engine",
+  "license": "MIT"
+}

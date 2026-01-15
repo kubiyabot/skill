@@ -1,0 +1,137 @@
+name: Publish to crates.io
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no actual publish)'
+        required: false
+        default: 'true'
+        type: boolean
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  publish:
+    # Using macOS due to Linux proc-macro compatibility issue with arg_enum_proc_macro
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Verify versions match
+        run: |
+          CARGO_VERSION=$(grep '^version' Cargo.toml | head -1 | cut -d'"' -f2)
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            TAG_VERSION="${{ github.ref_name }}"
+            TAG_VERSION="${TAG_VERSION#v}"  # Remove 'v' prefix if present
+            if [[ "$CARGO_VERSION" != "$TAG_VERSION" ]]; then
+              echo "::error::Version mismatch: Cargo.toml=$CARGO_VERSION, tag=$TAG_VERSION"
+              exit 1
+            fi
+          fi
+          echo "Publishing version: $CARGO_VERSION"
+
+      # Publish crates in dependency order
+      # skill-context, skill-runtime, skill-web have no internal deps
+      # skill-mcp and skill-http depend on skill-runtime
+      # skill-cli depends on skill-runtime, skill-mcp, skill-http
+
+      - name: Publish skill-context
+        run: |
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            cargo publish -p skill-context --dry-run
+          else
+            cargo publish -p skill-context
+          fi
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Wait for crates.io index
+        if: github.event.inputs.dry_run != 'true'
+        run: sleep 30
+
+      - name: Publish skill-runtime
+        run: |
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            cargo publish -p skill-runtime --dry-run
+          else
+            cargo publish -p skill-runtime
+          fi
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish skill-web
+        run: |
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            cargo publish -p skill-web --dry-run
+          else
+            cargo publish -p skill-web
+          fi
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Wait for crates.io index
+        if: github.event.inputs.dry_run != 'true'
+        run: sleep 30
+
+      - name: Publish skill-mcp
+        run: |
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            cargo publish -p skill-mcp --dry-run
+          else
+            cargo publish -p skill-mcp
+          fi
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish skill-http
+        run: |
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            cargo publish -p skill-http --dry-run
+          else
+            cargo publish -p skill-http
+          fi
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Wait for crates.io index
+        if: github.event.inputs.dry_run != 'true'
+        run: sleep 30
+
+      - name: Publish skill-cli
+        run: |
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            cargo publish -p skill-cli --dry-run
+          else
+            cargo publish -p skill-cli
+          fi
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## Publish Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            echo "✅ Dry run completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Published to crates.io:" >> $GITHUB_STEP_SUMMARY
+            echo "- skill-context" >> $GITHUB_STEP_SUMMARY
+            echo "- skill-runtime" >> $GITHUB_STEP_SUMMARY
+            echo "- skill-web" >> $GITHUB_STEP_SUMMARY
+            echo "- skill-mcp" >> $GITHUB_STEP_SUMMARY
+            echo "- skill-http" >> $GITHUB_STEP_SUMMARY
+            echo "- skill-cli" >> $GITHUB_STEP_SUMMARY
+          fi

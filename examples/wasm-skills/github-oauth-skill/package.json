@@ -1,0 +1,25 @@
+{
+  "name": "github-oauth-skill",
+  "version": "1.0.0",
+  "description": "GitHub skill with OAuth2 Device Flow authentication",
+  "type": "module",
+  "main": "dist/skill.js",
+  "scripts": {
+    "build": "tsc",
+    "build:wasm": "npm run build && npx @bytecodealliance/jco componentize dist/skill.js -w ../../wit -o dist/skill.wasm",
+    "test": "node --test"
+  },
+  "keywords": [
+    "skill-engine",
+    "github",
+    "oauth",
+    "wasm"
+  ],
+  "dependencies": {
+    "@skill-engine/sdk": "file:../../sdk/javascript"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

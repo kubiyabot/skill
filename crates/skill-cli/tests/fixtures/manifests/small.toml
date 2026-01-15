@@ -1,0 +1,229 @@
+# Small Test Fixture - 3 Skills with 5 Tools Each
+# Used for testing typical skill collections
+
+# Skill 1: User Management
+[[skill]]
+name = "user-management"
+description = "Manage users and their permissions"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "create_user"
+description = "Create a new user account"
+command = "useradd {{username}}"
+
+[[skill.tool.parameter]]
+name = "username"
+description = "Username for the new account"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "email"
+description = "Email address"
+type = "string"
+required = false
+
+[[skill.tool]]
+name = "delete_user"
+description = "Delete an existing user account"
+command = "userdel {{username}}"
+
+[[skill.tool.parameter]]
+name = "username"
+description = "Username to delete"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "list_users"
+description = "List all users in the system"
+command = "cat /etc/passwd"
+
+[[skill.tool]]
+name = "grant_permission"
+description = "Grant permissions to a user"
+command = "usermod -aG {{group}} {{username}}"
+
+[[skill.tool.parameter]]
+name = "username"
+description = "Username to grant permissions to"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "group"
+description = "Group name for permissions"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "revoke_permission"
+description = "Revoke permissions from a user"
+command = "gpasswd -d {{username}} {{group}}"
+
+[[skill.tool.parameter]]
+name = "username"
+description = "Username to revoke permissions from"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "group"
+description = "Group name"
+type = "string"
+required = true
+
+# Skill 2: File Operations
+[[skill]]
+name = "file-operations"
+description = "Perform file and directory operations"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "create_file"
+description = "Create a new file with content"
+command = "echo '{{content}}' > {{path}}"
+
+[[skill.tool.parameter]]
+name = "path"
+description = "Path to the new file"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "content"
+description = "Content for the file"
+type = "string"
+required = false
+
+[[skill.tool]]
+name = "read_file"
+description = "Read contents of a file"
+command = "cat {{path}}"
+
+[[skill.tool.parameter]]
+name = "path"
+description = "Path to the file"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "delete_file"
+description = "Delete a file"
+command = "rm {{path}}"
+
+[[skill.tool.parameter]]
+name = "path"
+description = "Path to the file to delete"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "list_directory"
+description = "List contents of a directory"
+command = "ls -la {{path}}"
+
+[[skill.tool.parameter]]
+name = "path"
+description = "Directory path"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "copy_file"
+description = "Copy a file to another location"
+command = "cp {{source}} {{destination}}"
+
+[[skill.tool.parameter]]
+name = "source"
+description = "Source file path"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "destination"
+description = "Destination path"
+type = "string"
+required = true
+
+# Skill 3: Network Tools
+[[skill]]
+name = "network-tools"
+description = "Network diagnostics and utilities"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "ping"
+description = "Ping a host to check connectivity"
+command = "ping -c {{count}} {{host}}"
+
+[[skill.tool.parameter]]
+name = "host"
+description = "Hostname or IP address"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "count"
+description = "Number of ping requests"
+type = "number"
+required = false
+default = "4"
+
+[[skill.tool]]
+name = "curl"
+description = "Make an HTTP request"
+command = "curl {{url}}"
+
+[[skill.tool.parameter]]
+name = "url"
+description = "URL to request"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "method"
+description = "HTTP method (GET, POST, etc.)"
+type = "string"
+required = false
+default = "GET"
+
+[[skill.tool]]
+name = "dns_lookup"
+description = "Perform DNS lookup for a domain"
+command = "nslookup {{domain}}"
+
+[[skill.tool.parameter]]
+name = "domain"
+description = "Domain name to lookup"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "port_scan"
+description = "Scan open ports on a host"
+command = "nmap {{host}}"
+
+[[skill.tool.parameter]]
+name = "host"
+description = "Host to scan"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "ports"
+description = "Port range to scan"
+type = "string"
+required = false
+
+[[skill.tool]]
+name = "traceroute"
+description = "Trace network route to a host"
+command = "traceroute {{host}}"
+
+[[skill.tool.parameter]]
+name = "host"
+description = "Destination host"
+type = "string"
+required = true

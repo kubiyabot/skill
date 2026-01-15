@@ -1,0 +1,23 @@
+# Invalid Types Test Fixture
+# This file has incorrect parameter types
+
+[[skill]]
+name = "type-mismatch"
+description = "Skill with type errors"
+version = 123  # Should be string
+
+[[skill.tool]]
+name = "bad_types"
+description = "Tool with wrong parameter types"
+command = 456  # Should be string
+
+[[skill.tool.parameter]]
+name = "param1"
+description = "Parameter with wrong type"
+type = "invalid_type"  # Invalid type value
+required = "yes"  # Should be boolean
+
+[[skill.tool.parameter]]
+name = "param2"
+type = 789  # Should be string
+required = true

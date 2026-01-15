@@ -1,0 +1,253 @@
+{
+	"meta": {
+		"generatedAt": "2026-01-04T18:25:06.421Z",
+		"tasksAnalyzed": 30,
+		"totalTasks": 30,
+		"analysisCount": 30,
+		"thresholdScore": 5,
+		"projectName": "Task Master",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Set Up Testing Infrastructure with Jest and React Testing Library",
+			"complexityScore": 3,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down Jest and RTL setup into: 1) Install dependencies (jest, @testing-library/react, @testing-library/jest-dom, @types/jest, jest-environment-jsdom, ts-jest), 2) Create jest.config.js with next/jest configuration including module aliases and coverage paths, 3) Create jest.setup.js with testing-library imports, 4) Add test scripts to package.json and create sample test file",
+			"reasoning": "The project has no existing test infrastructure (no tests/, e2e/ directories, no jest.config.js). However, Next.js 14 has built-in Jest support via next/jest which simplifies setup. The task is straightforward with well-documented steps. Package.json shows standard Next.js setup that's compatible with Jest. Low complexity due to standard configuration patterns."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Set Up Playwright for End-to-End Testing",
+			"complexityScore": 3,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down Playwright setup into: 1) Install @playwright/test and run browser installation, 2) Create playwright.config.ts with project configuration for Chromium/Firefox, baseURL, and webServer settings, 3) Create e2e/ directory structure and initial homepage.spec.ts test, 4) Add test:e2e script to package.json and verify test execution",
+			"reasoning": "No existing E2E test infrastructure. Playwright setup is standardized and well-documented. The existing app has simple routes (/, /skills/[id]) making initial tests straightforward. The homepage already has clear testable elements ('Agentic Skills Library' heading, skill cards). Low complexity due to Playwright's excellent Next.js integration."
+		},
+		{
+			"taskId": 15,
+			"taskTitle": "Install and Configure Zod for Runtime Validation",
+			"complexityScore": 4,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down Zod setup into: 1) Install zod package, 2) Create base schemas for SkillType, SkillBadge, CategoryId enums in /lib/validation/schemas.ts, 3) Create ToolParameter and Tool schemas with proper validation constraints, 4) Create full SkillManifestSchema composing all sub-schemas with regex patterns for id/version, 5) Add validateSkillManifest helper function and unit tests",
+			"reasoning": "No existing validation library - will need to create from scratch. However, the types already exist in lib/types.ts which provides a clear blueprint. The SkillManifest type has 20+ fields with nested objects (author, installation, tools, etc.) requiring careful schema design. Need to handle optional fields, arrays, and regex patterns. Medium complexity due to schema composition."
+		},
+		{
+			"taskId": 19,
+			"taskTitle": "Create Test Results Display Component",
+			"complexityScore": 3,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down TestResults component into: 1) Create TypeScript interfaces for TestResult, TestCategory, and TestResultsProps, 2) Build status icon helper function with lucide-react icons (CheckCircle2, XCircle, AlertTriangle, Info), 3) Create main component with overall status banner and category grouping layout, 4) Add unit tests verifying icon rendering and status calculations",
+			"reasoning": "Component has clear structure from task details. The project already uses lucide-react (visible in existing components), cn utility exists, and Card component pattern is established. No external state management needed - pure presentational component. Dependencies on Task 17 suggest it will be called after generation progress. Low-medium complexity."
+		},
+		{
+			"taskId": 18,
+			"taskTitle": "Create Skill Preview Component with Diff Viewer",
+			"complexityScore": 5,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down SkillPreview component into: 1) Create component structure with tab switching between SKILL.md and manifest views, 2) Implement Shiki syntax highlighting for markdown content (shiki already in dependencies), 3) Implement Shiki highlighting for JSON manifest display, 4) Create approve/reject button actions with callback handling and loading states, 5) Add unit tests for tab switching and callback triggers",
+			"reasoning": "Shiki is already installed (package.json shows 'shiki': '^1.23.1'), reducing integration effort. However, async Shiki highlighting in client component requires useEffect management. The component needs state for tabs and async highlighted content. Dependencies on Tasks 16 and 17 indicate it's part of a larger generation flow. Medium complexity due to async rendering and multiple states."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Create Search Bar Component with Real-time Results",
+			"complexityScore": 6,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down SkillSearch component into: 1) Create base component with search input using existing Input component pattern, 2) Integrate Fuse.js (already in dependencies) with useMemo for search index creation, 3) Implement keyboard navigation (ArrowUp/Down, Enter, Escape) with selectedIndex state, 4) Build results dropdown with proper positioning and click-outside handling, 5) Add clear button and loading states, 6) Write unit tests for keyboard navigation and result selection",
+			"reasoning": "Fuse.js is already installed (package.json shows 'fuse.js': '^7.0.0'). However, the component has significant interaction complexity: real-time search, keyboard navigation, click-outside detection, and dropdown positioning. Need to integrate with existing SkillCardData type and router. Dependencies on Task 4 (Input) and Task 9 (search integration). Medium-high complexity due to interaction patterns."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Create Error Boundary Component",
+			"complexityScore": 4,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down ErrorBoundary into: 1) Create base ErrorBoundary class component with getDerivedStateFromError and componentDidCatch lifecycle methods, 2) Build default fallback UI with AlertCircle icon, error message, and retry button using existing Button component, 3) Create /app/error.tsx for Next.js app-level error handling, 4) Create /app/not-found.tsx for 404 pages, 5) Add ErrorBoundary to RootLayout wrapping children and write unit tests",
+			"reasoning": "Error boundaries must be class components in React. The project uses 'use client' directive where needed (seen in SkillTabs.tsx). Button component exists in /components/ui/Button.tsx pattern but will need to be created (Task 3 dependency). Next.js 14 has built-in error handling conventions. Medium complexity due to class component requirements and layout integration."
+		},
+		{
+			"taskId": 17,
+			"taskTitle": "Create Generation Progress Component",
+			"complexityScore": 4,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down GenerationProgress into: 1) Define TypeScript types for GenerationStep enum and StepStatus, 2) Create steps configuration array with id, label, and description for each step (parsing, generating, validating, testing, complete), 3) Build getStepIcon helper with lucide-react icons and appropriate colors, 4) Create main component rendering step list with animations using CSS transitions, 5) Add unit tests for step status rendering and transitions",
+			"reasoning": "Pure presentational component with no external API calls. The project already has lucide-react icons (Check, Loader2, AlertCircle visible in other components). cn utility exists for conditional styling. Depends on Task 16 (generation form) to provide step status props. Will likely need CSS animation additions to tailwind.config.js for spinner. Medium complexity."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Implement Loading States and Skeleton Components",
+			"complexityScore": 3,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down Skeleton components into: 1) Create base Skeleton component with variant props (text, circular, rectangular) and pulse animation, 2) Add animate-pulse animation to tailwind.config.js if not present, 3) Create SkillCardSkeleton component matching SkillCard dimensions (icon, title, description, footer), 4) Create LoadingSpinner component for inline states and add to exports",
+			"reasoning": "Simple presentational components. Tailwind already has built-in animate-pulse utility. SkillCard.tsx exists with clear dimensions to match (w-12 h-12 icon, line-clamp-2 description). No external dependencies needed. The project has established component patterns in /components/ui/. Low complexity."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Create Modal and Dialog Components",
+			"complexityScore": 5,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down Modal/Dialog into: 1) Create base Modal component using React Portal with createPortal, 2) Implement focus trap and body scroll lock using useEffect, 3) Add Escape key handler and backdrop click close functionality, 4) Create ConfirmDialog component wrapping Modal with confirm/cancel buttons, 5) Write unit tests for open/close, focus trap, keyboard handling, and ARIA attributes",
+			"reasoning": "Modal requires React Portal, focus management, keyboard handling, and scroll lock - all complex interactions. The project layout.tsx shows simple structure without existing modal portals. Dependencies on Task 3 (Button) and Task 5 (Toast for potential feedback). Need careful attention to accessibility (aria-modal, aria-labelledby). Medium-high complexity due to interaction requirements."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Create Reusable Design System Button Component",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create reusable design system button component.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Create Reusable Input and Form Components",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create reusable input and form components.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Implement Toast Notification System",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on implement toast notification system.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Implement Fuse.js Search Integration",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on implement fuse.js search integration.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "Add Filter Controls to Homepage",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on add filter controls to homepage.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Integrate Search and Filters into Homepage",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on integrate search and filters into homepage.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 13,
+			"taskTitle": "Write Unit Tests for Existing Components",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on write unit tests for existing components.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 14,
+			"taskTitle": "Write Unit Tests for Data Loading Functions",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on write unit tests for data loading functions.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 16,
+			"taskTitle": "Create Skill Generation Form Component",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create skill generation form component.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 20,
+			"taskTitle": "Create Skill Generation API Route",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create skill generation api route.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 21,
+			"taskTitle": "Create Claude SDK Integration Module",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create claude sdk integration module.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 22,
+			"taskTitle": "Create Validation API Route",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create validation api route.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 23,
+			"taskTitle": "Create Test Runner API Route",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create test runner api route.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 24,
+			"taskTitle": "Create Skill Quality Scoring System",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create skill quality scoring system.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 25,
+			"taskTitle": "Create Skill Comparison Feature",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create skill comparison feature.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 26,
+			"taskTitle": "Add Accessibility Improvements",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on add accessibility improvements.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 27,
+			"taskTitle": "Add Performance Optimizations",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on add performance optimizations.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 28,
+			"taskTitle": "Create Test with Claude Code Button Feature",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create test with claude code button feature.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 29,
+			"taskTitle": "Write E2E Tests for Critical User Flows",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on write e2e tests for critical user flows.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		},
+		{
+			"taskId": 30,
+			"taskTitle": "Create Documentation and README Updates",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Break down this task with a focus on create documentation and readme updates.",
+			"reasoning": "Automatically added due to missing analysis in AI response."
+		}
+	]
+}

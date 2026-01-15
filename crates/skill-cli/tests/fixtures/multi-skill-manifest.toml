@@ -1,0 +1,15 @@
+# Multi-skill test manifest
+[skills.kubernetes]
+source = "./kubernetes"
+runtime = "wasm"
+description = "Kubernetes cluster management"
+
+[skills.docker]
+source = "./docker"
+runtime = "native"
+description = "Docker container operations"
+
+[skills.terraform]
+source = "./terraform"
+runtime = "native"
+description = "Infrastructure as Code with Terraform"

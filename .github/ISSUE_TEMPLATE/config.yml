@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask a question
+    url: https://github.com/kubiyabot/skill/discussions/new?category=q-a
+    about: Please ask and answer questions here.
+  - name: Request a feature
+    url: https://github.com/kubiyabot/skill/issues/new?template=feature_request.md
+    about: Share ideas for new features.
+  - name: Report a bug
+    url: https://github.com/kubiyabot/skill/issues/new?template=bug_report.md
+    about: Report reproducible bugs.

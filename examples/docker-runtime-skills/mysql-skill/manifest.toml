@@ -1,0 +1,51 @@
+# MySQL Skill - Docker Configuration
+# Provides MySQL database client through containerized mysql CLI
+
+[skills.mysql]
+source = "docker:mysql:8"
+runtime = "docker"
+description = "MySQL database client for queries and administration"
+
+[skills.mysql.docker]
+image = "mysql:8"
+entrypoint = "mysql"
+network = "bridge"
+memory = "256m"
+rm = true
+environment = [
+  "MYSQL_PWD=${MYSQL_PASSWORD:-}"
+]
+
+# MySQL Dump variant for backups
+[skills.mysqldump]
+source = "docker:mysql:8"
+runtime = "docker"
+description = "MySQL database backup utility"
+
+[skills.mysqldump.docker]
+image = "mysql:8"
+entrypoint = "mysqldump"
+network = "bridge"
+memory = "512m"
+rm = true
+volumes = ["${PWD}:/backup"]
+working_dir = "/backup"
+environment = [
+  "MYSQL_PWD=${MYSQL_PASSWORD:-}"
+]
+
+# MySQL Admin variant for server administration
+[skills.mysqladmin]
+source = "docker:mysql:8"
+runtime = "docker"
+description = "MySQL server administration utility"
+
+[skills.mysqladmin.docker]
+image = "mysql:8"
+entrypoint = "mysqladmin"
+network = "bridge"
+memory = "128m"
+rm = true
+environment = [
+  "MYSQL_PWD=${MYSQL_PASSWORD:-}"
+]

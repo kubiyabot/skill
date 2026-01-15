@@ -1,0 +1,74 @@
+{
+  "categories": [
+    {
+      "id": "featured",
+      "name": "Featured",
+      "icon": "star",
+      "color": "yellow",
+      "description": "Hand-picked essential skills for everyday use"
+    },
+    {
+      "id": "devops",
+      "name": "DevOps",
+      "icon": "cog",
+      "color": "blue",
+      "description": "Kubernetes, Docker, Terraform, and infrastructure tools"
+    },
+    {
+      "id": "cloud",
+      "name": "Cloud Services",
+      "icon": "cloud",
+      "color": "sky",
+      "description": "AWS, Azure, GCP, and cloud platform integrations"
+    },
+    {
+      "id": "database",
+      "name": "Database",
+      "icon": "database",
+      "color": "green",
+      "description": "PostgreSQL, Redis, MongoDB, and database management"
+    },
+    {
+      "id": "api",
+      "name": "APIs & Integration",
+      "icon": "link",
+      "color": "purple",
+      "description": "GitHub, Slack, HTTP client, and API integrations"
+    },
+    {
+      "id": "messaging",
+      "name": "Messaging",
+      "icon": "message-square",
+      "color": "indigo",
+      "description": "Slack, email, notifications, and communication tools"
+    },
+    {
+      "id": "monitoring",
+      "name": "Monitoring & Observability",
+      "icon": "chart",
+      "color": "orange",
+      "description": "Prometheus, metrics, logs, and monitoring solutions"
+    },
+    {
+      "id": "media",
+      "name": "Media Processing",
+      "icon": "film",
+      "color": "red",
+      "description": "FFmpeg, ImageMagick, video, and image processing"
+    },
+    {
+      "id": "development",
+      "name": "Development Tools",
+      "icon": "code",
+      "color": "slate",
+      "description": "Git, CI/CD, testing, and developer tools"
+    },
+    {
+      "id": "utilities",
+      "name": "Utilities",
+      "icon": "wrench",
+      "color": "gray",
+      "description": "Python runner, Node.js runner, and utility scripts"
+    }
+  ]
+}

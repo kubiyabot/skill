@@ -1,0 +1,14 @@
+{
+  "name": "docker-skill",
+  "version": "1.0.0",
+  "description": "Docker container and image management skill for Skill Engine",
+  "type": "module",
+  "main": "skill.js",
+  "scripts": {
+    "componentize": "npx @bytecodealliance/jco componentize skill.js --wit skill.wit --world-name skill --out skill.wasm",
+    "clean": "rm -f skill.wasm"
+  },
+  "devDependencies": {
+    "@bytecodealliance/jco": "^1.6.5"
+  }
+}

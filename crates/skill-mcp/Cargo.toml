@@ -1,0 +1,56 @@
+[package]
+name = "skill-mcp"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "MCP (Model Context Protocol) server implementation for Skill - AI agent integration"
+keywords = ["mcp", "ai-agents", "llm", "claude", "skills"]
+categories = ["development-tools", "api-bindings"]
+
+[features]
+default = []
+ai-ingestion = ["skill-runtime/ai-ingestion"]
+
+[dependencies]
+# Workspace dependencies
+skill-runtime = "0.3.0"
+
+# Streaming for AI generation
+tokio-stream = { workspace = true }
+
+# MCP SDK
+rmcp = { workspace = true }
+schemars = { workspace = true }
+
+# Async
+tokio = { workspace = true }
+futures = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Utilities
+dirs = { workspace = true }
+regex = { workspace = true }
+
+# HTTP server
+axum = { workspace = true }
+
+# AI/ML - Vector search and embeddings
+rig-core = { workspace = true }
+rig-fastembed = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

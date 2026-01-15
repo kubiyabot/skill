@@ -1,0 +1,215 @@
+# Team Skill Engine Manifest
+#
+# Perfect for: Development teams, full-stack projects
+# Skills: 12 skills covering version control, CI/CD, infrastructure, databases
+#
+# Copy this to your project root and commit to git:
+#   cp examples/manifests/team.toml .skill-engine.toml
+#   git add .skill-engine.toml
+#   git commit -m "Add skill-engine team configuration"
+
+version = "1"
+
+# =============================================================================
+# Version Control & Code Hosting
+# =============================================================================
+
+[skills.git]
+source = "./examples/native-skills/git-skill"
+description = "Git version control operations"
+runtime = "native"
+
+[skills.git.instances.default]
+# Uses system git
+
+[skills.github]
+source = "./examples/wasm-skills/github-skill"
+description = "GitHub API integration - repos, issues, PRs, actions, workflows"
+
+[skills.github.instances.default]
+env.GITHUB_TOKEN = "${SKILL_GITHUB_TOKEN}"
+config.api_url = "${GITHUB_API_URL:-https://api.github.com}"
+capabilities.network_access = true
+
+# =============================================================================
+# CI/CD
+# =============================================================================
+
+[skills.circleci]
+source = "./examples/wasm-skills/circleci-skill"
+description = "CircleCI pipeline management - workflows, jobs, artifacts"
+
+[skills.circleci.instances.default]
+env.CIRCLECI_TOKEN = "${SKILL_CIRCLECI_TOKEN}"
+config.api_url = "${CIRCLECI_API_URL:-https://circleci.com/api/v2}"
+capabilities.network_access = true
+
+# =============================================================================
+# Container & Orchestration
+# =============================================================================
+
+[skills.docker]
+source = "./examples/native-skills/docker-skill"
+description = "Docker container and image management"
+runtime = "native"
+
+[skills.docker.instances.default]
+# Uses system Docker
+
+[skills.kubernetes]
+source = "./examples/native-skills/kubernetes-skill"
+description = "Kubernetes cluster management"
+runtime = "native"
+
+# Service dependencies
+[[skills.kubernetes.services]]
+name = "kubectl-proxy"
+description = "Kubernetes API proxy for command execution"
+optional = false
+default_port = 8001
+
+[skills.kubernetes.instances.default]
+config.cluster = "minikube"
+config.kubeconfig = "${KUBECONFIG:-~/.kube/config}"
+capabilities.network_access = true
+
+# =============================================================================
+# Infrastructure as Code
+# =============================================================================
+
+[skills.terraform]
+source = "./examples/native-skills/terraform-skill"
+description = "Terraform infrastructure management"
+runtime = "native"
+
+[skills.terraform.instances.default]
+# Uses system terraform
+
+# =============================================================================
+# Databases
+# =============================================================================
+
+[skills.postgres-native]
+source = "./examples/native-skills/postgres-skill"
+description = "PostgreSQL database operations via psql"
+runtime = "native"
+
+[[skills.postgres-native.services]]
+name = "postgres"
+description = "PostgreSQL database server"
+optional = false
+default_port = 5432
+
+[skills.postgres-native.instances.default]
+config.host = "${POSTGRES_HOST:-localhost}"
+config.port = "${POSTGRES_PORT:-5432}"
+config.database = "${POSTGRES_DB:-postgres}"
+config.username = "${POSTGRES_USER:-postgres}"
+capabilities.network_access = true
+
+# =============================================================================
+# Project Management & Communication
+# =============================================================================
+
+[skills.jira]
+source = "./examples/wasm-skills/jira-skill"
+description = "Jira issue tracking and project management"
+
+[skills.jira.instances.default]
+config.url = "${SKILL_JIRA_URL}"
+config.email = "${SKILL_JIRA_EMAIL}"
+env.JIRA_TOKEN = "${SKILL_JIRA_TOKEN}"
+capabilities.network_access = true
+
+[skills.slack]
+source = "./examples/wasm-skills/slack-skill"
+description = "Slack messaging and channel management"
+
+[skills.slack.instances.default]
+env.SLACK_TOKEN = "${SKILL_SLACK_TOKEN}"
+config.api_url = "${SLACK_API_URL:-https://slack.com/api}"
+capabilities.network_access = true
+
+# =============================================================================
+# Monitoring
+# =============================================================================
+
+[skills.prometheus]
+source = "./examples/wasm-skills/prometheus-skill"
+description = "Prometheus metrics querying and monitoring"
+
+[[skills.prometheus.services]]
+name = "prometheus"
+description = "Prometheus server for metrics collection"
+optional = false
+default_port = 9090
+
+[skills.prometheus.instances.default]
+config.prometheus_url = "${SKILL_PROMETHEUS_URL:-http://localhost:9090}"
+capabilities.network_access = true
+
+# =============================================================================
+# HTTP Client (Universal)
+# =============================================================================
+
+[skills.http]
+source = "./examples/wasm-skills/http-skill"
+description = "Universal HTTP client for API requests"
+
+[skills.http.instances.default]
+capabilities.network_access = true
+
+# =============================================================================
+# Environment Variables Required
+# =============================================================================
+#
+# Create a .env file (don't commit to git):
+#
+# # GitHub
+# SKILL_GITHUB_TOKEN=ghp_xxxxx
+#
+# # CircleCI
+# SKILL_CIRCLECI_TOKEN=xxxxx
+#
+# # Database
+# POSTGRES_HOST=localhost
+# POSTGRES_DB=myapp
+# POSTGRES_USER=admin
+# POSTGRES_PASSWORD=secret
+#
+# # Jira
+# SKILL_JIRA_URL=https://yourorg.atlassian.net
+# SKILL_JIRA_EMAIL=you@company.com
+# SKILL_JIRA_TOKEN=xxxxx
+#
+# # Slack
+# SKILL_SLACK_TOKEN=xoxb-xxxxx
+#
+# # Prometheus (optional, defaults to localhost)
+# SKILL_PROMETHEUS_URL=http://localhost:9090
+
+# =============================================================================
+# Usage with Claude Code
+# =============================================================================
+#
+# Configure Claude Code:
+#   cat > .mcp.json <<EOF
+#   {
+#     "mcpServers": {
+#       "skill-engine": {
+#         "command": "skill",
+#         "args": ["serve"]
+#       }
+#     }
+#   }
+#   EOF
+#
+# Start Claude Code:
+#   claude
+#
+# Example prompts:
+#   > Show me the git status and recent commits
+#   > List all open GitHub pull requests
+#   > Get kubernetes pods in default namespace
+#   > Query Jira for open issues assigned to me
+#   > Send a message to the #engineering Slack channel

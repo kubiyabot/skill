@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Skill Engine - Web Interface for managing AI agent skills">
+    <meta name="theme-color" content="#0ea5e9">
+
+    <title>Skill Engine</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- TailwindCSS - processed by Trunk -->
+    <link data-trunk rel="tailwind-css" href="input.css">
+
+    <!-- Base styles for loading state -->
+    <style>
+        /* Loading screen styles */
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0c4a6e 0%, #082f49 100%);
+            color: white;
+            font-family: 'Inter', system-ui, sans-serif;
+            z-index: 9999;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-logo {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .loading-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .loading-subtitle {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .loading-spinner {
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Hide loading screen once app is ready */
+        body.app-ready .loading-screen {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen - hidden once WASM loads -->
+    <div id="loading" class="loading-screen">
+        <div class="loading-logo">⚡</div>
+        <div class="loading-title">Skill Engine</div>
+        <div class="loading-subtitle">Loading web interface...</div>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Main application container -->
+    <div id="app"></div>
+
+    <!-- Trunk will inject the WASM bundle here -->
+    <link data-trunk rel="rust" href="Cargo.toml" data-bin="skill-web" data-wasm-opt="z" />
+
+    <!-- Remove loading screen once app initializes -->
+    <script>
+        // The app will call this function when ready
+        window.hideLoadingScreen = function() {
+            const loading = document.getElementById('loading');
+            if (loading) {
+                loading.classList.add('fade-out');
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    document.body.classList.add('app-ready');
+                }, 300);
+            }
+        };
+
+        // Fallback: hide loading screen after 10 seconds
+        setTimeout(window.hideLoadingScreen, 10000);
+    </script>
+
+    <!-- Noscript fallback -->
+    <noscript>
+        <style>
+            .loading-screen { display: none !important; }
+        </style>
+        <div style="padding: 2rem; text-align: center; font-family: system-ui, sans-serif;">
+            <h1>JavaScript Required</h1>
+            <p>Skill Engine requires JavaScript to be enabled.</p>
+            <p>Please enable JavaScript and reload the page.</p>
+        </div>
+    </noscript>
+</body>
+</html>

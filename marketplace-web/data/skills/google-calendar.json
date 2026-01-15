@@ -1,0 +1,85 @@
+{
+    "id": "google-calendar",
+    "name": "Google Calendar",
+    "icon": "https://cdn.simpleicons.org/googlecalendar",
+    "type": "wasm",
+    "description": "Manage events and calendars.",
+    "longDescription": "Schedule meetings, list events, and manage your Google Calendar directly from your agent.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Skill Engine Team",
+        "github": "kubiyabot",
+        "url": "https://github.com/kubiyabot/skill"
+    },
+    "categories": [
+        "productivity",
+        "calendar"
+    ],
+    "badges": [
+        "verified"
+    ],
+    "installation": {
+        "source": "registry.kubiya.sh/skills/google-calendar:latest",
+        "requiresAuth": true,
+        "envVars": [
+            {
+                "name": "GOOGLE_APPLICATION_CREDENTIALS",
+                "required": true,
+                "description": "Google Service Account JSON"
+            }
+        ]
+    },
+    "tools": [
+        {
+            "name": "list_events",
+            "description": "List upcoming events",
+            "parameters": [
+                {
+                    "name": "calendarId",
+                    "type": "string",
+                    "required": false,
+                    "default": "primary",
+                    "description": "Calendar ID"
+                },
+                {
+                    "name": "maxResults",
+                    "type": "number",
+                    "required": false,
+                    "default": 10,
+                    "description": "Maximum number of events"
+                }
+            ]
+        },
+        {
+            "name": "create_event",
+            "description": "Create a new event",
+            "parameters": [
+                {
+                    "name": "summary",
+                    "type": "string",
+                    "required": true,
+                    "description": "Event title"
+                },
+                {
+                    "name": "startTime",
+                    "type": "string",
+                    "required": true,
+                    "description": "Start time (ISO 8601)"
+                },
+                {
+                    "name": "endTime",
+                    "type": "string",
+                    "required": true,
+                    "description": "End time (ISO 8601)"
+                }
+            ]
+        }
+    ],
+    "examples": [
+        {
+            "title": "List events today",
+            "description": "See what's on the agenda",
+            "code": "skill run google-calendar:list_events"
+        }
+    ]
+}

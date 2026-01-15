@@ -1,0 +1,72 @@
+{
+    "id": "stripe",
+    "name": "Stripe",
+    "icon": "https://cdn.simpleicons.org/stripe",
+    "type": "wasm",
+    "description": "Process payments, manage customers, and view subscriptions.",
+    "longDescription": "Seamlessly integrate Stripe payments and subscription management into your agentic workflows.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Skill Engine Team",
+        "github": "kubiyabot",
+        "url": "https://github.com/kubiyabot/skill"
+    },
+    "categories": [
+        "payment",
+        "business"
+    ],
+    "badges": [
+        "official"
+    ],
+    "installation": {
+        "source": "registry.kubiya.sh/skills/stripe:latest",
+        "requiresAuth": true,
+        "envVars": [
+            {
+                "name": "STRIPE_SECRET_KEY",
+                "required": true,
+                "description": "Stripe Secret Key"
+            }
+        ]
+    },
+    "tools": [
+        {
+            "name": "create_customer",
+            "description": "Create a new customer",
+            "parameters": [
+                {
+                    "name": "email",
+                    "type": "string",
+                    "required": true,
+                    "description": "Customer email"
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "required": false,
+                    "description": "Customer full name"
+                }
+            ]
+        },
+        {
+            "name": "list_charges",
+            "description": "List recent charges",
+            "parameters": [
+                {
+                    "name": "limit",
+                    "type": "number",
+                    "required": false,
+                    "default": 10,
+                    "description": "Number of charges to return"
+                }
+            ]
+        }
+    ],
+    "examples": [
+        {
+            "title": "Create a customer",
+            "description": "Register a new customer in Stripe",
+            "code": "skill run stripe:create_customer email=\"newuser@example.com\" name=\"John Doe\""
+        }
+    ]
+}

@@ -1,0 +1,65 @@
+{
+    "id": "sendgrid",
+    "name": "SendGrid",
+    "icon": "https://cdn.simpleicons.org/sendgrid",
+    "type": "wasm",
+    "description": "Send transactional emails and manage contacts.",
+    "longDescription": "Integrate email capabilities into your agent's toolkit with SendGrid. Send transaction emails, password resets, and notifications.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Skill Engine Team",
+        "github": "kubiyabot",
+        "url": "https://github.com/kubiyabot/skill"
+    },
+    "categories": [
+        "communication",
+        "marketing"
+    ],
+    "badges": [
+        "verified"
+    ],
+    "installation": {
+        "source": "registry.kubiya.sh/skills/sendgrid:latest",
+        "requiresAuth": true,
+        "envVars": [
+            {
+                "name": "SENDGRID_API_KEY",
+                "required": true,
+                "description": "SendGrid API Key"
+            }
+        ]
+    },
+    "tools": [
+        {
+            "name": "send_email",
+            "description": "Send an email",
+            "parameters": [
+                {
+                    "name": "to",
+                    "type": "string",
+                    "required": true,
+                    "description": "Recipient email address"
+                },
+                {
+                    "name": "subject",
+                    "type": "string",
+                    "required": true,
+                    "description": "Email subject"
+                },
+                {
+                    "name": "text",
+                    "type": "string",
+                    "required": true,
+                    "description": "Email body content"
+                }
+            ]
+        }
+    ],
+    "examples": [
+        {
+            "title": "Send welcome email",
+            "description": "Send a welcome email to a new user",
+            "code": "skill run sendgrid:send_email to=\"user@example.com\" subject=\"Welcome!\" text=\"Thanks for signing up.\""
+        }
+    ]
+}

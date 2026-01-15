@@ -1,0 +1,18 @@
+{
+  "name": "simple-skill",
+  "version": "1.0.0",
+  "description": "A simple example skill using Skill Engine SDK",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "componentize": "npm run build && npx skill-sdk componentize dist/skill.js -o skill.wasm"
+  },
+  "dependencies": {
+    "@skill-engine/sdk": "file:../../sdk/javascript",
+    "@bytecodealliance/jco": "^1.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,31 @@
+version = "1"
+
+[skills.test-skill]
+source = "./test-skill"
+runtime = "wasm"
+description = "Test skill for integration tests"
+
+[skills.test-skill.instances.default]
+
+[skills.test-skill.instances.production]
+region = "us-east-1"
+
+[skills.aws-skill]
+source = "github:test/aws-skill"
+runtime = "wasm"
+description = "AWS operations skill"
+
+[skills.aws-skill.instances.default]
+
+[skills.kubernetes-skill]
+source = "github:test/k8s-skill"
+runtime = "wasm"
+description = "Kubernetes management"
+
+[[skills.kubernetes-skill.services]]
+name = "kubectl-proxy"
+description = "Kubernetes API proxy"
+optional = false
+default_port = 8001
+
+[skills.kubernetes-skill.instances.default]

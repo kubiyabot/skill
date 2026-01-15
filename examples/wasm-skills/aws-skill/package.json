@@ -1,0 +1,19 @@
+{
+  "name": "aws-skill",
+  "version": "1.0.0",
+  "description": "AWS skill for Skill Engine - S3, EC2, Lambda operations",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "componentize": "npm run build && npx @bytecodealliance/jco componentize dist/skill.js --wit ../../wit/skill.wit --world-name skill --out aws-skill.wasm"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.679.0",
+    "@aws-sdk/client-ec2": "^3.679.0",
+    "@aws-sdk/client-lambda": "^3.679.0"
+  },
+  "devDependencies": {
+    "@bytecodealliance/jco": "^1.6.5",
+    "typescript": "^5.7.2"
+  }
+}

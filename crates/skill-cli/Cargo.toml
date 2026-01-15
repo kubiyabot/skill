@@ -1,0 +1,84 @@
+[package]
+name = "skill-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Command-line interface for the Skill runtime - install, run, and manage AI agent skills"
+keywords = ["cli", "wasm", "skills", "mcp", "ai-agents"]
+categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "skill"
+path = "src/main.rs"
+
+[features]
+default = []
+ai-ingestion = ["skill-runtime/ai-ingestion"]
+test-utils = []  # Enable test utilities for integration tests
+
+[dependencies]
+# Workspace dependencies
+skill-runtime = "0.3.0"
+skill-mcp = "0.3.0"
+skill-http = "0.3.0"
+
+# Streaming for AI generation
+tokio-stream = { workspace = true }
+
+# External dependencies
+tokio = { workspace = true }
+clap = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+toml = { workspace = true }
+dialoguer = { workspace = true }
+indicatif = { workspace = true }
+console = { workspace = true }
+colored = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+dirs = { workspace = true }
+walkdir = { workspace = true }
+chrono = { workspace = true }
+rig-core = { workspace = true }
+rig-fastembed = { workspace = true }
+serde_yaml = { workspace = true }
+regex = { workspace = true }
+keyring = { workspace = true }
+secrecy = { workspace = true }
+reqwest = { workspace = true }
+async-trait = { workspace = true }
+blake3 = { workspace = true }
+flate2 = "1.0"
+tar = "0.4"
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+# CLI testing framework
+assert_cmd = "2.0"
+predicates = "3.0"
+
+# Mocking framework
+mockall = "0.12"
+
+# Async testing
+tokio-test = "0.4"
+
+# Property-based testing
+proptest = "1.4"
+
+# Snapshot testing
+insta = { version = "1.34", features = ["yaml"] }
+
+# Performance benchmarking
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "claude_bridge_bench"
+harness = false

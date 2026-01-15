@@ -1,0 +1,27 @@
+{
+  "name": "http-skill",
+  "version": "1.0.0",
+  "description": "Universal HTTP client for API requests",
+  "main": "src/skill.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && jco componentize dist/skill.js -w skill.wit -o dist/skill.wasm",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@skill-engine/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@bytecodealliance/jco": "^1.0.0"
+  },
+  "keywords": [
+    "skill",
+    "http",
+    "api",
+    "rest",
+    "client"
+  ],
+  "author": "Skill Engine Team",
+  "license": "MIT"
+}

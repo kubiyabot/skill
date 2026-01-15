@@ -1,0 +1,22 @@
+# GitHub Skill Configuration Template
+#
+# Copy this file and fill in your GitHub credentials:
+# cp skill.config.toml.example skill.config.toml
+#
+# Or use the interactive configuration wizard:
+# skill config github-skill
+
+[config]
+# GitHub Personal Access Token (will be stored securely in system keychain)
+# Get one at: https://github.com/settings/tokens
+github_token = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Your GitHub username
+github_username = "your-username"
+
+# Default organization (optional)
+# default_org = "your-org"
+
+[metadata]
+skill_name = "github-skill"
+instance_name = "default"

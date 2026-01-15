@@ -1,0 +1,14 @@
+{
+  "name": "kubernetes-skill",
+  "version": "0.1.0",
+  "description": "Kubernetes cluster management skill for Skill Engine",
+  "type": "module",
+  "main": "skill.js",
+  "scripts": {
+    "componentize": "npx @bytecodealliance/jco componentize skill.js --wit skill.wit --world-name skill --out skill.wasm",
+    "clean": "rm -f skill.wasm"
+  },
+  "devDependencies": {
+    "@bytecodealliance/jco": "^1.6.5"
+  }
+}

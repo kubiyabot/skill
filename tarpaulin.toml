@@ -1,0 +1,38 @@
+# Tarpaulin Configuration for Skill Engine
+# Code coverage tool for Rust
+
+[workspace]
+# Exclude files from coverage
+exclude-files = [
+    "tests/*",
+    "benches/*",
+    "examples/*",
+    "*/build.rs",
+    "*/main.rs"
+]
+
+[report]
+# Output formats
+out = ["Xml", "Html", "Lcov"]
+
+[coverage]
+# Run types to include
+run-types = ["Tests", "Doctests"]
+
+# Target directory for coverage artifacts
+target-dir = "target/tarpaulin"
+
+# Global minimum coverage threshold
+fail-under = 70.0
+
+# Exclude specific modules
+exclude = [
+    "tests::",
+    "benches::"
+]
+
+# Claude Bridge specific coverage requirements
+[[coverage.packages]]
+name = "skill-cli"
+modules = ["commands::claude_bridge"]
+fail-under = 80.0  # Higher threshold for new Claude Bridge code

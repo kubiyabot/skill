@@ -1,0 +1,18 @@
+# Minimal Test Fixture - Single Skill with One Tool
+# Used for baseline testing and quick validation
+
+[[skill]]
+name = "hello"
+description = "Simple hello world skill for testing basic functionality"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "greet"
+description = "Greet a user by name"
+command = "echo 'Hello, {{name}}!'"
+
+[[skill.tool.parameter]]
+name = "name"
+description = "Name of the person to greet"
+type = "string"
+required = true

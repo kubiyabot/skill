@@ -1,0 +1,8 @@
+package skill-engine:docker-skill@1.0.0;
+
+world skill {
+  export get-metadata: func() -> string;
+  export get-tools: func() -> string;
+  export execute-tool: func(tool-name: string, args: string) -> string;
+  export validate-config: func(config: string) -> string;
+}

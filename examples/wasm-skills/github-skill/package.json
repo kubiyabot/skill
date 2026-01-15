@@ -1,0 +1,29 @@
+{
+  "name": "github-skill",
+  "version": "2.0.0",
+  "description": "GitHub integration for repositories, issues, pull requests, branches, releases, and actions",
+  "main": "src/skill.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && jco componentize dist/skill.js -w skill.wit -o dist/skill.wasm",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@skill-engine/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@bytecodealliance/jco": "^1.0.0"
+  },
+  "keywords": [
+    "skill",
+    "github",
+    "git",
+    "repository",
+    "issues",
+    "pull-request",
+    "ci-cd"
+  ],
+  "author": "Skill Engine Team",
+  "license": "MIT"
+}

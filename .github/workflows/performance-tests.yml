@@ -1,0 +1,322 @@
+name: Performance Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run performance tests weekly on Sunday at 3 AM UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  criterion-benchmarks:
+    name: Criterion Benchmarks
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Cache cargo registry
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo index
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo build
+      uses: actions/cache@v4
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-bench-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Run Criterion benchmarks
+      run: cargo bench --bench claude_bridge_bench --no-fail-fast -- --output-format bencher | tee benchmark-results.txt
+
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: criterion-reports
+        path: target/criterion/
+        retention-days: 30
+
+    - name: Comment benchmark results on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const results = fs.readFileSync('benchmark-results.txt', 'utf8');
+          const body = `## 📊 Criterion Benchmark Results\n\n\`\`\`\n${results}\n\`\`\`\n\nFull HTML reports available in artifacts.`;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });
+
+  performance-test-suite:
+    name: Performance Test Suite
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+    timeout-minutes: 45
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Cache cargo registry
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo index
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo build
+      uses: actions/cache@v4
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-perf-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build skill binary (release)
+      run: cargo build --release --bin skill
+
+    - name: Generate large test manifests
+      run: ./tests/claude_bridge/generate-large-manifest.sh
+
+    - name: Run performance test suite
+      run: ./tests/claude_bridge/test-performance.sh
+
+    - name: Upload performance results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-test-results
+        path: |
+          /tmp/perf-*.log
+        retention-days: 30
+        if-no-files-found: ignore
+
+  memory-profiling:
+    name: Memory Profiling
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install Valgrind
+      run: sudo apt-get update && sudo apt-get install -y valgrind
+
+    - name: Cache cargo registry
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo build
+      uses: actions/cache@v4
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-mem-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build skill binary (release with debug info)
+      run: cargo build --release --bin skill
+
+    - name: Generate test manifest
+      run: ./tests/claude_bridge/generate-large-manifest.sh
+
+    - name: Run memory profiling with Valgrind
+      run: |
+        valgrind --tool=massif \
+          --massif-out-file=massif.out \
+          --pages-as-heap=yes \
+          target/release/skill claude generate \
+            --manifest /tmp/large-manifest-10.toml \
+            --output /tmp/mem-test \
+            --force
+
+    - name: Analyze memory usage
+      run: |
+        # Get peak memory from massif output
+        ms_print massif.out > massif-report.txt
+        echo "## Memory Profiling Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        head -50 massif-report.txt >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+    - name: Upload memory profiling results
+      uses: actions/upload-artifact@v4
+      with:
+        name: memory-profiling
+        path: |
+          massif.out
+          massif-report.txt
+        retention-days: 30
+
+  scalability-test:
+    name: Scalability Test (100 Skills)
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+    timeout-minutes: 60
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Cache cargo registry
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo build
+      uses: actions/cache@v4
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-scale-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build skill binary (release)
+      run: cargo build --release --bin skill
+
+    - name: Generate 100-skill manifest
+      run: ./tests/claude_bridge/generate-large-manifest.sh
+
+    - name: Test 100 skill generation
+      run: |
+        echo "## 100 Skill Scalability Test" >> $GITHUB_STEP_SUMMARY
+
+        start=$(date +%s)
+        target/release/skill claude generate \
+          --manifest /tmp/large-manifest-100.toml \
+          --output /tmp/scale-test-100 \
+          --force
+        end=$(date +%s)
+
+        duration=$((end - start))
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "⏱️ **Duration**: ${duration}s" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        # Count generated skills
+        skill_count=$(find /tmp/scale-test-100 -name "SKILL.md" | wc -l)
+        echo "📦 **Skills Generated**: ${skill_count}/100" >> $GITHUB_STEP_SUMMARY
+
+        # Check if all skills were generated
+        if [ $skill_count -eq 100 ]; then
+          echo "✅ **Status**: All skills generated successfully" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Status**: Generation incomplete" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+
+        # Calculate per-skill time
+        per_skill=$((duration / 100))
+        echo "⚡ **Per-Skill Time**: ~${per_skill}s" >> $GITHUB_STEP_SUMMARY
+
+    - name: Verify generated skills
+      run: |
+        # Check SKILL.md files are valid
+        for skill_md in /tmp/scale-test-100/*/SKILL.md; do
+          if [ -f "$skill_md" ]; then
+            # Check for YAML frontmatter
+            if ! grep -q "^---" "$skill_md"; then
+              echo "ERROR: $skill_md missing YAML frontmatter"
+              exit 1
+            fi
+          fi
+        done
+        echo "✅ All SKILL.md files validated" >> $GITHUB_STEP_SUMMARY
+
+  performance-regression-check:
+    name: Performance Regression Detection
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+    needs: [criterion-benchmarks, performance-test-suite]
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for comparison
+
+    - name: Download benchmark results
+      uses: actions/download-artifact@v4
+      with:
+        name: criterion-reports
+        path: criterion-new/
+
+    - name: Checkout base branch
+      run: |
+        git checkout ${{ github.base_ref }}
+        cargo bench --bench claude_bridge_bench --no-fail-fast
+
+    - name: Compare performance
+      run: |
+        echo "## 📈 Performance Regression Analysis" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Comparing PR branch against ${{ github.base_ref }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        # This is a placeholder - Criterion generates comparison automatically
+        # In practice, you'd parse criterion output or use critcmp tool
+        echo "⚠️ See Criterion reports in artifacts for detailed comparison" >> $GITHUB_STEP_SUMMARY
+
+  performance-summary:
+    name: Performance Test Summary
+    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+    needs: [criterion-benchmarks, performance-test-suite, memory-profiling, scalability-test]
+    if: always()
+
+    steps:
+    - name: Generate summary
+      run: |
+        echo "### 📊 Performance Test Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Criterion Benchmarks | ${{ needs.criterion-benchmarks.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Performance Tests | ${{ needs.performance-test-suite.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Memory Profiling | ${{ needs.memory-profiling.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Scalability (100 skills) | ${{ needs.scalability-test.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        if [[ "${{ needs.criterion-benchmarks.result }}" == "failure" ]] || \
+           [[ "${{ needs.performance-test-suite.result }}" == "failure" ]] || \
+           [[ "${{ needs.memory-profiling.result }}" == "failure" ]] || \
+           [[ "${{ needs.scalability-test.result }}" == "failure" ]]; then
+          echo "❌ **Some performance tests failed**" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        else
+          echo "✅ **All performance tests passed**" >> $GITHUB_STEP_SUMMARY
+        fi

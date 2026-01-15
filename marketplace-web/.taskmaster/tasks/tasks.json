@@ -1,0 +1,515 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Set Up Testing Infrastructure with Jest and React Testing Library",
+        "description": "Configure Jest and React Testing Library for unit and component testing in the Next.js 14 application.",
+        "details": "Install and configure testing dependencies:\n\n```bash\nnpm install -D jest @testing-library/react @testing-library/jest-dom @types/jest jest-environment-jsdom ts-jest\n```\n\nCreate `jest.config.js`:\n```javascript\nconst nextJest = require('next/jest');\n\nconst createJestConfig = nextJest({ dir: './' });\n\nconst customJestConfig = {\n  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],\n  testEnvironment: 'jest-environment-jsdom',\n  moduleNameMapper: {\n    '^@/(.*)$': '<rootDir>/$1',\n  },\n  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/'],\n  collectCoverageFrom: [\n    'app/**/*.{ts,tsx}',\n    'components/**/*.{ts,tsx}',\n    'lib/**/*.{ts,tsx}',\n    '!**/*.d.ts',\n  ],\n};\n\nmodule.exports = createJestConfig(customJestConfig);\n```\n\nCreate `jest.setup.js`:\n```javascript\nimport '@testing-library/jest-dom';\n```\n\nAdd scripts to `package.json`:\n```json\n\"test\": \"jest\",\n\"test:watch\": \"jest --watch\",\n\"test:coverage\": \"jest --coverage\"\n```\n\nCreate `tests/` directory structure for unit and integration tests.",
+        "testStrategy": "Verify Jest runs successfully with `npm test`. Create a sample test file `tests/setup.test.ts` that passes to confirm configuration is correct.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 3,
+        "recommendedSubtasks": 4,
+        "expansionPrompt": "Break down Jest and RTL setup into: 1) Install dependencies (jest, @testing-library/react, @testing-library/jest-dom, @types/jest, jest-environment-jsdom, ts-jest), 2) Create jest.config.js with next/jest configuration including module aliases and coverage paths, 3) Create jest.setup.js with testing-library imports, 4) Add test scripts to package.json and create sample test file",
+        "updatedAt": "2026-01-04T18:29:41.627Z"
+      },
+      {
+        "id": "2",
+        "title": "Set Up Playwright for End-to-End Testing",
+        "description": "Configure Playwright for E2E testing of the marketplace UI flows.",
+        "details": "Install Playwright:\n```bash\nnpm install -D @playwright/test\nnpx playwright install\n```\n\nCreate `playwright.config.ts`:\n```typescript\nimport { defineConfig, devices } from '@playwright/test';\n\nexport default defineConfig({\n  testDir: './e2e',\n  fullyParallel: true,\n  forbidOnly: !!process.env.CI,\n  retries: process.env.CI ? 2 : 0,\n  workers: process.env.CI ? 1 : undefined,\n  reporter: 'html',\n  use: {\n    baseURL: 'http://localhost:3000',\n    trace: 'on-first-retry',\n  },\n  projects: [\n    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },\n    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },\n  ],\n  webServer: {\n    command: 'npm run dev',\n    url: 'http://localhost:3000',\n    reuseExistingServer: !process.env.CI,\n  },\n});\n```\n\nCreate `e2e/` directory and initial test file `e2e/homepage.spec.ts` to verify homepage loads correctly.\n\nAdd script to `package.json`: `\"test:e2e\": \"playwright test\"`",
+        "testStrategy": "Run `npx playwright test` to verify E2E tests execute. Create basic homepage navigation test that visits '/' and checks for 'Agentic Skills Library' heading.",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 3,
+        "recommendedSubtasks": 4,
+        "expansionPrompt": "Break down Playwright setup into: 1) Install @playwright/test and run browser installation, 2) Create playwright.config.ts with project configuration for Chromium/Firefox, baseURL, and webServer settings, 3) Create e2e/ directory structure and initial homepage.spec.ts test, 4) Add test:e2e script to package.json and verify test execution",
+        "updatedAt": "2026-01-04T18:45:59.016Z"
+      },
+      {
+        "id": "3",
+        "title": "Create Reusable Design System Button Component",
+        "description": "Build a standardized Button component with variants (primary, secondary, ghost, danger) and sizes for consistent UI.",
+        "details": "Create `/components/ui/Button.tsx`:\n```typescript\nimport { ButtonHTMLAttributes, forwardRef } from 'react';\nimport { cn } from '@/lib/utils/cn';\n\ntype ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';\ntype ButtonSize = 'sm' | 'md' | 'lg';\n\ninterface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {\n  variant?: ButtonVariant;\n  size?: ButtonSize;\n  isLoading?: boolean;\n}\n\nconst variants = {\n  primary: 'bg-primary text-white hover:bg-blue-700 focus:ring-primary',\n  secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500',\n  ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500',\n  danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',\n};\n\nconst sizes = {\n  sm: 'px-3 py-1.5 text-sm',\n  md: 'px-4 py-2 text-sm',\n  lg: 'px-6 py-3 text-base',\n};\n\nexport const Button = forwardRef<HTMLButtonElement, ButtonProps>(\n  ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {\n    return (\n      <button\n        ref={ref}\n        className={cn(\n          'inline-flex items-center justify-center rounded-lg font-medium transition-colors',\n          'focus:outline-none focus:ring-2 focus:ring-offset-2',\n          'disabled:opacity-50 disabled:cursor-not-allowed',\n          variants[variant],\n          sizes[size],\n          className\n        )}\n        disabled={disabled || isLoading}\n        {...props}\n      >\n        {isLoading && <LoadingSpinner className=\"mr-2 h-4 w-4\" />}\n        {children}\n      </button>\n    );\n  }\n);\n\nButton.displayName = 'Button';\n```",
+        "testStrategy": "Write unit tests for Button component verifying all variants render correctly, loading state shows spinner, and disabled state prevents clicks.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create reusable design system button component.",
+        "updatedAt": "2026-01-04T18:35:31.071Z"
+      },
+      {
+        "id": "4",
+        "title": "Create Reusable Input and Form Components",
+        "description": "Build standardized Input, Textarea, and Select components with validation states for form handling.",
+        "details": "Create `/components/ui/Input.tsx`:\n```typescript\nimport { InputHTMLAttributes, forwardRef } from 'react';\nimport { cn } from '@/lib/utils/cn';\n\ninterface InputProps extends InputHTMLAttributes<HTMLInputElement> {\n  label?: string;\n  error?: string;\n  hint?: string;\n}\n\nexport const Input = forwardRef<HTMLInputElement, InputProps>(\n  ({ className, label, error, hint, id, ...props }, ref) => {\n    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;\n    return (\n      <div className=\"w-full\">\n        {label && (\n          <label htmlFor={inputId} className=\"block text-sm font-medium text-gray-700 mb-1\">\n            {label}\n          </label>\n        )}\n        <input\n          ref={ref}\n          id={inputId}\n          className={cn(\n            'w-full px-3 py-2 border rounded-lg text-sm',\n            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent',\n            'disabled:bg-gray-100 disabled:cursor-not-allowed',\n            error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300',\n            className\n          )}\n          {...props}\n        />\n        {error && <p className=\"mt-1 text-sm text-red-600\">{error}</p>}\n        {hint && !error && <p className=\"mt-1 text-sm text-gray-500\">{hint}</p>}\n      </div>\n    );\n  }\n);\n```\n\nSimilarly create Textarea and Select components with consistent styling.",
+        "testStrategy": "Test input validation states (error, hint), accessibility attributes (aria-invalid, aria-describedby), and keyboard interactions.",
+        "priority": "medium",
+        "dependencies": [
+          "3"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create reusable input and form components.",
+        "updatedAt": "2026-01-04T18:55:10.531Z"
+      },
+      {
+        "id": "5",
+        "title": "Implement Toast Notification System",
+        "description": "Create a toast notification system for user feedback on actions like copy, save, and errors.",
+        "details": "Create `/lib/hooks/useToast.ts`:\n```typescript\nimport { create } from 'zustand';\n\ntype ToastType = 'success' | 'error' | 'warning' | 'info';\n\ninterface Toast {\n  id: string;\n  type: ToastType;\n  message: string;\n  duration?: number;\n}\n\ninterface ToastStore {\n  toasts: Toast[];\n  addToast: (toast: Omit<Toast, 'id'>) => void;\n  removeToast: (id: string) => void;\n}\n\nexport const useToastStore = create<ToastStore>((set) => ({\n  toasts: [],\n  addToast: (toast) => {\n    const id = Math.random().toString(36).substr(2, 9);\n    set((state) => ({ toasts: [...state.toasts, { ...toast, id }] }));\n    setTimeout(() => {\n      set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));\n    }, toast.duration || 5000);\n  },\n  removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),\n}));\n```\n\nInstall zustand: `npm install zustand`\n\nCreate `/components/ui/Toast.tsx` and `/components/ui/ToastContainer.tsx` components with enter/exit animations using CSS transitions.\n\nAdd ToastContainer to RootLayout.",
+        "testStrategy": "Test toast appears and auto-dismisses after duration. Verify multiple toasts stack correctly. Test manual dismiss functionality.",
+        "priority": "medium",
+        "dependencies": [
+          "3"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on implement toast notification system."
+      },
+      {
+        "id": "6",
+        "title": "Create Modal and Dialog Components",
+        "description": "Build accessible Modal and ConfirmDialog components for user confirmations and forms.",
+        "details": "Create `/components/ui/Modal.tsx` using React Portal and focus trap:\n```typescript\nimport { ReactNode, useEffect, useRef } from 'react';\nimport { createPortal } from 'react-dom';\nimport { X } from 'lucide-react';\nimport { cn } from '@/lib/utils/cn';\n\ninterface ModalProps {\n  isOpen: boolean;\n  onClose: () => void;\n  title?: string;\n  children: ReactNode;\n  size?: 'sm' | 'md' | 'lg' | 'xl';\n}\n\nexport function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {\n  const modalRef = useRef<HTMLDivElement>(null);\n\n  useEffect(() => {\n    if (isOpen) {\n      document.body.style.overflow = 'hidden';\n      modalRef.current?.focus();\n    }\n    return () => { document.body.style.overflow = 'unset'; };\n  }, [isOpen]);\n\n  useEffect(() => {\n    const handleEscape = (e: KeyboardEvent) => {\n      if (e.key === 'Escape') onClose();\n    };\n    if (isOpen) document.addEventListener('keydown', handleEscape);\n    return () => document.removeEventListener('keydown', handleEscape);\n  }, [isOpen, onClose]);\n\n  if (!isOpen) return null;\n\n  const sizes = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-lg', xl: 'max-w-xl' };\n\n  return createPortal(\n    <div className=\"fixed inset-0 z-50 flex items-center justify-center\">\n      <div className=\"fixed inset-0 bg-black/50\" onClick={onClose} />\n      <div\n        ref={modalRef}\n        tabIndex={-1}\n        role=\"dialog\"\n        aria-modal=\"true\"\n        aria-labelledby={title ? 'modal-title' : undefined}\n        className={cn('relative bg-white rounded-xl shadow-xl p-6 m-4 w-full', sizes[size])}\n      >\n        {/* Modal content */}\n      </div>\n    </div>,\n    document.body\n  );\n}\n```\n\nCreate ConfirmDialog component that uses Modal internally.",
+        "testStrategy": "Test modal opens/closes, focus trap works, Escape key closes modal, backdrop click closes modal, and aria attributes are correct.",
+        "priority": "medium",
+        "dependencies": [
+          "3",
+          "5"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Break down Modal/Dialog into: 1) Create base Modal component using React Portal with createPortal, 2) Implement focus trap and body scroll lock using useEffect, 3) Add Escape key handler and backdrop click close functionality, 4) Create ConfirmDialog component wrapping Modal with confirm/cancel buttons, 5) Write unit tests for open/close, focus trap, keyboard handling, and ARIA attributes"
+      },
+      {
+        "id": "7",
+        "title": "Implement Loading States and Skeleton Components",
+        "description": "Create skeleton loader components for cards, lists, and text to improve perceived performance.",
+        "details": "Create `/components/ui/Skeleton.tsx`:\n```typescript\nimport { cn } from '@/lib/utils/cn';\n\ninterface SkeletonProps {\n  className?: string;\n  variant?: 'text' | 'circular' | 'rectangular';\n  width?: string | number;\n  height?: string | number;\n}\n\nexport function Skeleton({ className, variant = 'text', width, height }: SkeletonProps) {\n  const variants = {\n    text: 'h-4 rounded',\n    circular: 'rounded-full',\n    rectangular: 'rounded-lg',\n  };\n\n  return (\n    <div\n      className={cn(\n        'bg-gray-200 animate-pulse',\n        variants[variant],\n        className\n      )}\n      style={{ width, height }}\n    />\n  );\n}\n```\n\nCreate `/components/home/SkillCardSkeleton.tsx` that matches SkillCard dimensions.\n\nCreate `/components/ui/LoadingSpinner.tsx` for inline loading states.\n\nAdd animation to tailwind.config.js:\n```javascript\nextend: {\n  animation: {\n    'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',\n  },\n}\n```",
+        "testStrategy": "Verify skeletons render with correct dimensions. Test that skeletons are visible during loading states and replaced when data loads.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 3,
+        "recommendedSubtasks": 4,
+        "expansionPrompt": "Break down Skeleton components into: 1) Create base Skeleton component with variant props (text, circular, rectangular) and pulse animation, 2) Add animate-pulse animation to tailwind.config.js if not present, 3) Create SkillCardSkeleton component matching SkillCard dimensions (icon, title, description, footer), 4) Create LoadingSpinner component for inline states and add to exports",
+        "updatedAt": "2026-01-04T18:49:50.892Z"
+      },
+      {
+        "id": "8",
+        "title": "Create Error Boundary Component",
+        "description": "Implement React Error Boundaries for graceful error handling and display of fallback UI.",
+        "details": "Create `/components/ErrorBoundary.tsx`:\n```typescript\n'use client';\n\nimport { Component, ReactNode } from 'react';\nimport { AlertCircle, RefreshCw } from 'lucide-react';\nimport { Button } from './ui/Button';\n\ninterface Props {\n  children: ReactNode;\n  fallback?: ReactNode;\n}\n\ninterface State {\n  hasError: boolean;\n  error: Error | null;\n}\n\nexport class ErrorBoundary extends Component<Props, State> {\n  constructor(props: Props) {\n    super(props);\n    this.state = { hasError: false, error: null };\n  }\n\n  static getDerivedStateFromError(error: Error): State {\n    return { hasError: true, error };\n  }\n\n  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {\n    console.error('Error caught by boundary:', error, errorInfo);\n    // Could send to error tracking service\n  }\n\n  render() {\n    if (this.state.hasError) {\n      if (this.props.fallback) return this.props.fallback;\n      return (\n        <div className=\"flex flex-col items-center justify-center p-8 text-center\">\n          <AlertCircle className=\"w-12 h-12 text-red-500 mb-4\" />\n          <h2 className=\"text-xl font-semibold text-gray-900 mb-2\">Something went wrong</h2>\n          <p className=\"text-gray-600 mb-4\">We're sorry, but something unexpected happened.</p>\n          <Button onClick={() => this.setState({ hasError: false, error: null })}>\n            <RefreshCw className=\"w-4 h-4 mr-2\" /> Try again\n          </Button>\n        </div>\n      );\n    }\n    return this.props.children;\n  }\n}\n```\n\nCreate `/app/error.tsx` for Next.js app-level error handling.\nCreate `/app/not-found.tsx` for 404 pages.\n\nWrap key components with ErrorBoundary in layout.",
+        "testStrategy": "Create test component that throws error and verify ErrorBoundary catches it and displays fallback UI. Test recovery functionality.",
+        "priority": "high",
+        "dependencies": [
+          "3",
+          "5"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 4,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Break down ErrorBoundary into: 1) Create base ErrorBoundary class component with getDerivedStateFromError and componentDidCatch lifecycle methods, 2) Build default fallback UI with AlertCircle icon, error message, and retry button using existing Button component, 3) Create /app/error.tsx for Next.js app-level error handling, 4) Create /app/not-found.tsx for 404 pages, 5) Add ErrorBoundary to RootLayout wrapping children and write unit tests"
+      },
+      {
+        "id": "9",
+        "title": "Implement Fuse.js Search Integration",
+        "description": "Wire up Fuse.js fuzzy search to enable skill search by name, description, and tools.",
+        "details": "Create `/lib/search/skillSearch.ts`:\n```typescript\nimport Fuse from 'fuse.js';\nimport { SkillCardData } from '@/lib/types';\n\nconst fuseOptions: Fuse.IFuseOptions<SkillCardData> = {\n  keys: [\n    { name: 'name', weight: 0.4 },\n    { name: 'description', weight: 0.3 },\n    { name: 'tools.name', weight: 0.2 },\n    { name: 'tools.description', weight: 0.1 },\n  ],\n  threshold: 0.3,\n  includeScore: true,\n  minMatchCharLength: 2,\n};\n\nexport function createSkillSearchIndex(skills: SkillCardData[]): Fuse<SkillCardData> {\n  return new Fuse(skills, fuseOptions);\n}\n\nexport function searchSkills(\n  searchIndex: Fuse<SkillCardData>,\n  query: string\n): SkillCardData[] {\n  if (!query.trim()) return [];\n  const results = searchIndex.search(query);\n  return results.map((result) => result.item);\n}\n```\n\nCreate `/lib/search/filterSkills.ts` for category and type filtering:\n```typescript\nimport { SkillCardData, SearchFilters } from '@/lib/types';\n\nexport function filterSkills(\n  skills: SkillCardData[],\n  filters: Partial<SearchFilters>\n): SkillCardData[] {\n  return skills.filter((skill) => {\n    if (filters.categories?.length && !filters.categories.some(c => skill.categories.includes(c))) {\n      return false;\n    }\n    if (filters.types?.length && !filters.types.includes(skill.type)) {\n      return false;\n    }\n    if (filters.badges?.length && !filters.badges.some(b => skill.badges?.includes(b))) {\n      return false;\n    }\n    return true;\n  });\n}\n```",
+        "testStrategy": "Test search finds skills by name, partial matches work, tools can be searched, and empty query returns empty array. Test filter combinations.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on implement fuse.js search integration.",
+        "updatedAt": "2026-01-04T18:33:51.973Z"
+      },
+      {
+        "id": "10",
+        "title": "Create Search Bar Component with Real-time Results",
+        "description": "Build the main search bar component with debounced input and instant search results dropdown.",
+        "details": "Create `/components/SkillSearch.tsx`:\n```typescript\n'use client';\n\nimport { useState, useMemo, useCallback, useRef, useEffect } from 'react';\nimport { Search, X } from 'lucide-react';\nimport { useRouter } from 'next/navigation';\nimport Fuse from 'fuse.js';\nimport { SkillCardData } from '@/lib/types';\nimport { createSkillSearchIndex, searchSkills } from '@/lib/search/skillSearch';\nimport { Input } from './ui/Input';\n\ninterface SkillSearchProps {\n  skills: SkillCardData[];\n  onResultClick?: (skill: SkillCardData) => void;\n}\n\nexport function SkillSearch({ skills, onResultClick }: SkillSearchProps) {\n  const [query, setQuery] = useState('');\n  const [isOpen, setIsOpen] = useState(false);\n  const [selectedIndex, setSelectedIndex] = useState(0);\n  const searchRef = useRef<HTMLDivElement>(null);\n  const router = useRouter();\n\n  const searchIndex = useMemo(() => createSkillSearchIndex(skills), [skills]);\n  const results = useMemo(\n    () => (query ? searchSkills(searchIndex, query).slice(0, 8) : []),\n    [searchIndex, query]\n  );\n\n  // Handle keyboard navigation\n  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {\n    if (e.key === 'ArrowDown') {\n      e.preventDefault();\n      setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));\n    } else if (e.key === 'ArrowUp') {\n      e.preventDefault();\n      setSelectedIndex((prev) => Math.max(prev - 1, 0));\n    } else if (e.key === 'Enter' && results[selectedIndex]) {\n      router.push(`/skills/${results[selectedIndex].id}`);\n      setIsOpen(false);\n    } else if (e.key === 'Escape') {\n      setIsOpen(false);\n    }\n  }, [results, selectedIndex, router]);\n\n  // Close on outside click\n  useEffect(() => {\n    const handleClickOutside = (e: MouseEvent) => {\n      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {\n        setIsOpen(false);\n      }\n    };\n    document.addEventListener('mousedown', handleClickOutside);\n    return () => document.removeEventListener('mousedown', handleClickOutside);\n  }, []);\n\n  return (\n    <div ref={searchRef} className=\"relative w-full max-w-xl\">\n      <div className=\"relative\">\n        <Search className=\"absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400\" />\n        <input\n          type=\"text\"\n          value={query}\n          onChange={(e) => { setQuery(e.target.value); setIsOpen(true); setSelectedIndex(0); }}\n          onFocus={() => setIsOpen(true)}\n          onKeyDown={handleKeyDown}\n          placeholder=\"Search skills, tools, categories...\"\n          className=\"w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent\"\n        />\n        {query && (\n          <button onClick={() => setQuery('')} className=\"absolute right-3 top-1/2 -translate-y-1/2\">\n            <X className=\"w-5 h-5 text-gray-400 hover:text-gray-600\" />\n          </button>\n        )}\n      </div>\n      {/* Dropdown results */}\n      {isOpen && results.length > 0 && (\n        <div className=\"absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden\">\n          {results.map((skill, index) => (\n            <button\n              key={skill.id}\n              onClick={() => { router.push(`/skills/${skill.id}`); setIsOpen(false); }}\n              className={`w-full px-4 py-3 text-left hover:bg-gray-50 ${index === selectedIndex ? 'bg-gray-50' : ''}`}\n            >\n              <div className=\"font-medium text-gray-900\">{skill.name}</div>\n              <div className=\"text-sm text-gray-500 truncate\">{skill.description}</div>\n            </button>\n          ))}\n        </div>\n      )}\n    </div>\n  );\n}\n```",
+        "testStrategy": "Test typing shows results, keyboard navigation works, clicking result navigates to skill page, and clicking outside closes dropdown.",
+        "priority": "high",
+        "dependencies": [
+          "4",
+          "9"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 6,
+        "recommendedSubtasks": 6,
+        "expansionPrompt": "Break down SkillSearch component into: 1) Create base component with search input using existing Input component pattern, 2) Integrate Fuse.js (already in dependencies) with useMemo for search index creation, 3) Implement keyboard navigation (ArrowUp/Down, Enter, Escape) with selectedIndex state, 4) Build results dropdown with proper positioning and click-outside handling, 5) Add clear button and loading states, 6) Write unit tests for keyboard navigation and result selection",
+        "updatedAt": "2026-01-04T19:02:36.828Z"
+      },
+      {
+        "id": "11",
+        "title": "Add Filter Controls to Homepage",
+        "description": "Implement category, type, and badge filter controls on the homepage with URL state persistence.",
+        "details": "Create `/components/home/SkillFilters.tsx`:\n```typescript\n'use client';\n\nimport { useRouter, useSearchParams } from 'next/navigation';\nimport { SkillType, CategoryId, SkillBadge } from '@/lib/types';\nimport { cn } from '@/lib/utils/cn';\n\ninterface SkillFiltersProps {\n  availableCategories: CategoryId[];\n  categoryCounts: Record<string, number>;\n}\n\nexport function SkillFilters({ availableCategories, categoryCounts }: SkillFiltersProps) {\n  const router = useRouter();\n  const searchParams = useSearchParams();\n\n  const activeTypes = searchParams.getAll('type') as SkillType[];\n  const activeCategories = searchParams.getAll('category') as CategoryId[];\n\n  const toggleFilter = (key: string, value: string) => {\n    const params = new URLSearchParams(searchParams.toString());\n    const current = params.getAll(key);\n    if (current.includes(value)) {\n      params.delete(key);\n      current.filter(v => v !== value).forEach(v => params.append(key, v));\n    } else {\n      params.append(key, value);\n    }\n    router.push(`?${params.toString()}`, { scroll: false });\n  };\n\n  const types: SkillType[] = ['native', 'wasm', 'docker'];\n\n  return (\n    <div className=\"space-y-4\">\n      <div>\n        <h3 className=\"text-sm font-medium text-gray-700 mb-2\">Type</h3>\n        <div className=\"flex flex-wrap gap-2\">\n          {types.map((type) => (\n            <button\n              key={type}\n              onClick={() => toggleFilter('type', type)}\n              className={cn(\n                'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',\n                activeTypes.includes(type)\n                  ? 'bg-primary text-white'\n                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'\n              )}\n            >\n              {type.toUpperCase()}\n            </button>\n          ))}\n        </div>\n      </div>\n      <div>\n        <h3 className=\"text-sm font-medium text-gray-700 mb-2\">Categories</h3>\n        <div className=\"flex flex-wrap gap-2\">\n          {availableCategories.map((category) => (\n            <button\n              key={category}\n              onClick={() => toggleFilter('category', category)}\n              className={cn(\n                'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',\n                activeCategories.includes(category)\n                  ? 'bg-primary text-white'\n                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'\n              )}\n            >\n              {category} ({categoryCounts[category] || 0})\n            </button>\n          ))}\n        </div>\n      </div>\n    </div>\n  );\n}\n```\n\nUpdate `/app/page.tsx` to read searchParams and filter skills accordingly.",
+        "testStrategy": "Test filter buttons toggle active state, URL updates with filter params, page reflects filtered results, and filters persist on refresh.",
+        "priority": "high",
+        "dependencies": [
+          "9",
+          "10"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on add filter controls to homepage.",
+        "updatedAt": "2026-01-04T19:54:32.748Z"
+      },
+      {
+        "id": "12",
+        "title": "Integrate Search and Filters into Homepage",
+        "description": "Combine search bar and filter controls on the homepage with coordinated state management.",
+        "details": "Update `/app/page.tsx`:\n```typescript\nimport { Suspense } from 'react';\nimport { loadAllSkills, getMarketplaceStats, loadCategories, getSkillCountsByCategory } from '@/lib/data/loadSkills';\nimport { HeroSection } from '@/components/home/HeroSection';\nimport { SkillGrid } from '@/components/home/SkillGrid';\nimport { SkillSearch } from '@/components/SkillSearch';\nimport { SkillFilters } from '@/components/home/SkillFilters';\nimport { filterSkills } from '@/lib/search/filterSkills';\nimport { SkillCardSkeleton } from '@/components/home/SkillCardSkeleton';\n\ninterface SearchParams {\n  q?: string;\n  type?: string | string[];\n  category?: string | string[];\n}\n\nexport default async function HomePage({ searchParams }: { searchParams: SearchParams }) {\n  const skills = await loadAllSkills();\n  const stats = await getMarketplaceStats();\n  const categories = await loadCategories();\n  const categoryCounts = await getSkillCountsByCategory();\n\n  // Apply filters from URL params\n  const types = Array.isArray(searchParams.type) ? searchParams.type : searchParams.type ? [searchParams.type] : [];\n  const categoryFilters = Array.isArray(searchParams.category) ? searchParams.category : searchParams.category ? [searchParams.category] : [];\n\n  const filteredSkills = filterSkills(skills, {\n    types: types as any[],\n    categories: categoryFilters as any[],\n  });\n\n  return (\n    <div className=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n      <HeroSection stats={stats} />\n\n      <div className=\"mb-8\">\n        <SkillSearch skills={skills} />\n      </div>\n\n      <div className=\"mb-8\">\n        <Suspense fallback={null}>\n          <SkillFilters\n            availableCategories={categories.categories.map(c => c.id)}\n            categoryCounts={categoryCounts}\n          />\n        </Suspense>\n      </div>\n\n      <div className=\"mt-10 mb-16\">\n        <div className=\"flex items-center justify-between mb-6\">\n          <h2 className=\"text-xl font-semibold text-gray-900\">\n            {types.length || categoryFilters.length ? 'Filtered Skills' : 'All Skills'}\n          </h2>\n          <span className=\"text-sm text-gray-500\">{filteredSkills.length} total</span>\n        </div>\n        <Suspense fallback={<SkillGridSkeleton />}>\n          <SkillGrid skills={filteredSkills} />\n        </Suspense>\n      </div>\n    </div>\n  );\n}\n```",
+        "testStrategy": "E2E test: search + filter combination works, URL state reflects current filters, browser back/forward navigates filter history correctly.",
+        "priority": "high",
+        "dependencies": [
+          "10",
+          "11"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on integrate search and filters into homepage.",
+        "updatedAt": "2026-01-04T20:08:41.930Z"
+      },
+      {
+        "id": "13",
+        "title": "Write Unit Tests for Existing Components",
+        "description": "Add comprehensive unit tests for SkillCard, SkillGrid, HeroSection, and other core components.",
+        "details": "Create `/tests/components/SkillCard.test.tsx`:\n```typescript\nimport { render, screen } from '@testing-library/react';\nimport { SkillCard } from '@/components/home/SkillCard';\n\nconst mockSkill = {\n  id: 'kubernetes',\n  name: 'Kubernetes',\n  description: 'CLI wrapper for kubectl',\n  type: 'native' as const,\n  categories: ['devops'],\n  version: '1.0.0',\n  author: { name: 'Test' },\n  installation: { source: 'github.com/test' },\n  toolsCount: 15,\n  slug: 'kubernetes',\n};\n\ndescribe('SkillCard', () => {\n  it('renders skill name and description', () => {\n    render(<SkillCard skill={mockSkill} />);\n    expect(screen.getByText('Kubernetes')).toBeInTheDocument();\n    expect(screen.getByText('CLI wrapper for kubectl')).toBeInTheDocument();\n  });\n\n  it('displays tools count badge', () => {\n    render(<SkillCard skill={mockSkill} />);\n    expect(screen.getByText('15 tools')).toBeInTheDocument();\n  });\n\n  it('shows type badge with correct styling', () => {\n    render(<SkillCard skill={mockSkill} />);\n    expect(screen.getByText('NATIVE')).toBeInTheDocument();\n  });\n\n  it('links to skill detail page', () => {\n    render(<SkillCard skill={mockSkill} />);\n    const link = screen.getByRole('link');\n    expect(link).toHaveAttribute('href', '/skills/kubernetes');\n  });\n});\n```\n\nCreate similar tests for SkillGrid, HeroSection, SkillTabs, and InstallationTabs. Target 70%+ coverage for components/.",
+        "testStrategy": "Run `npm run test:coverage` and verify coverage meets 70% threshold. All tests should pass without flakiness.",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on write unit tests for existing components.",
+        "updatedAt": "2026-01-04T18:59:01.026Z"
+      },
+      {
+        "id": "14",
+        "title": "Write Unit Tests for Data Loading Functions",
+        "description": "Add unit tests for loadSkills.ts functions with mocked file system.",
+        "details": "Create `/tests/lib/loadSkills.test.ts`:\n```typescript\nimport { loadAllSkills, loadSkillById, getAllSkillIds, getRelatedSkills } from '@/lib/data/loadSkills';\nimport fs from 'fs';\n\njest.mock('fs');\n\nconst mockSkillManifest = {\n  id: 'test-skill',\n  name: 'Test Skill',\n  description: 'A test skill',\n  type: 'native',\n  version: '1.0.0',\n  author: { name: 'Test' },\n  categories: ['devops'],\n  installation: { source: 'test' },\n  tools: [{ name: 'test', description: 'test' }],\n};\n\ndescribe('loadAllSkills', () => {\n  beforeEach(() => {\n    jest.resetAllMocks();\n  });\n\n  it('returns empty array when skills directory does not exist', async () => {\n    (fs.existsSync as jest.Mock).mockReturnValue(false);\n    const skills = await loadAllSkills();\n    expect(skills).toEqual([]);\n  });\n\n  it('loads and enriches skills from JSON files', async () => {\n    (fs.existsSync as jest.Mock).mockReturnValue(true);\n    (fs.readdirSync as jest.Mock).mockReturnValue(['test-skill.json']);\n    (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify(mockSkillManifest));\n\n    const skills = await loadAllSkills();\n    expect(skills).toHaveLength(1);\n    expect(skills[0].toolsCount).toBe(1);\n    expect(skills[0].slug).toBe('test-skill');\n  });\n\n  it('sorts featured skills first', async () => {\n    // Test sorting logic\n  });\n});\n\ndescribe('loadSkillById', () => {\n  it('returns null for non-existent skill', async () => {\n    (fs.existsSync as jest.Mock).mockReturnValue(false);\n    const skill = await loadSkillById('non-existent');\n    expect(skill).toBeNull();\n  });\n});\n```",
+        "testStrategy": "Verify all edge cases are covered: empty directory, invalid JSON, missing fields. Test sorting and filtering logic thoroughly.",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "status": "done",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on write unit tests for data loading functions.",
+        "updatedAt": "2026-01-04T19:00:51.410Z"
+      },
+      {
+        "id": "15",
+        "title": "Install and Configure Zod for Runtime Validation",
+        "description": "Set up Zod schemas for validating skill manifests and API payloads at runtime.",
+        "details": "Install Zod:\n```bash\nnpm install zod\n```\n\nCreate `/lib/validation/schemas.ts`:\n```typescript\nimport { z } from 'zod';\n\nexport const SkillTypeSchema = z.enum(['wasm', 'native', 'docker']);\nexport const SkillBadgeSchema = z.enum(['official', 'featured', 'community', 'verified']);\nexport const CategoryIdSchema = z.enum(['featured', 'devops', 'cloud', 'database', 'api', 'messaging', 'monitoring', 'media', 'development', 'utilities']);\n\nexport const ToolParameterSchema = z.object({\n  name: z.string().min(1).max(64),\n  type: z.enum(['string', 'number', 'boolean', 'array', 'object', 'file']),\n  required: z.boolean().optional(),\n  description: z.string().max(512).optional(),\n  default: z.any().optional(),\n  enum: z.array(z.string()).optional(),\n});\n\nexport const ToolSchema = z.object({\n  name: z.string().min(1).max(64).regex(/^[a-z_][a-z0-9_]*$/),\n  description: z.string().min(10).max(512),\n  parameters: z.array(ToolParameterSchema).optional(),\n});\n\nexport const SkillManifestSchema = z.object({\n  id: z.string().min(1).max(64).regex(/^[a-z][a-z0-9-]*$/),\n  name: z.string().min(2).max(64),\n  description: z.string().min(20).max(1024),\n  type: SkillTypeSchema,\n  version: z.string().regex(/^\\d+\\.\\d+\\.\\d+$/),\n  author: z.object({\n    name: z.string().min(1),\n    email: z.string().email().optional(),\n    github: z.string().optional(),\n  }),\n  categories: z.array(CategoryIdSchema).min(1),\n  badges: z.array(SkillBadgeSchema).optional(),\n  tools: z.array(ToolSchema).optional(),\n  installation: z.object({\n    source: z.string().min(1),\n    requiresAuth: z.boolean().optional(),\n  }),\n});\n\nexport type ValidatedSkillManifest = z.infer<typeof SkillManifestSchema>;\n\nexport function validateSkillManifest(data: unknown) {\n  return SkillManifestSchema.safeParse(data);\n}\n```",
+        "testStrategy": "Test validation passes for valid manifests and fails with helpful errors for invalid ones. Test edge cases like missing required fields.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 4,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Break down Zod setup into: 1) Install zod package, 2) Create base schemas for SkillType, SkillBadge, CategoryId enums in /lib/validation/schemas.ts, 3) Create ToolParameter and Tool schemas with proper validation constraints, 4) Create full SkillManifestSchema composing all sub-schemas with regex patterns for id/version, 5) Add validateSkillManifest helper function and unit tests"
+      },
+      {
+        "id": "16",
+        "title": "Create Skill Generation Form Component",
+        "description": "Build the main skill generator form with fields for name, description, tools, runtime type, and base CLI.",
+        "details": "Create `/app/generate/page.tsx`:\n```typescript\nimport { Metadata } from 'next';\nimport { SkillGeneratorForm } from '@/components/generate/SkillGeneratorForm';\n\nexport const metadata: Metadata = {\n  title: 'Generate New Skill',\n  description: 'Create a new agentic skill using AI-powered generation',\n};\n\nexport default function GeneratePage() {\n  return (\n    <div className=\"max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12\">\n      <div className=\"mb-8\">\n        <h1 className=\"text-3xl font-bold text-gray-900 mb-2\">Generate New Skill</h1>\n        <p className=\"text-lg text-gray-600\">\n          Describe your skill in natural language and we'll generate a production-ready skill for you.\n        </p>\n      </div>\n      <SkillGeneratorForm />\n    </div>\n  );\n}\n```\n\nCreate `/components/generate/SkillGeneratorForm.tsx`:\n```typescript\n'use client';\n\nimport { useState } from 'react';\nimport { useForm } from 'react-hook-form';\nimport { zodResolver } from '@hookform/resolvers/zod';\nimport { z } from 'zod';\nimport { Button } from '@/components/ui/Button';\nimport { Input } from '@/components/ui/Input';\nimport { Textarea } from '@/components/ui/Textarea';\nimport { Select } from '@/components/ui/Select';\n\nconst generatorSchema = z.object({\n  name: z.string().min(2).max(64),\n  description: z.string().min(20).max(500),\n  type: z.enum(['native', 'wasm', 'docker']),\n  baseCLI: z.string().min(1),\n  toolDescriptions: z.string().min(10),\n  categories: z.array(z.string()).min(1),\n});\n\ntype GeneratorFormData = z.infer<typeof generatorSchema>;\n\nexport function SkillGeneratorForm() {\n  const [isGenerating, setIsGenerating] = useState(false);\n  const { register, handleSubmit, formState: { errors } } = useForm<GeneratorFormData>({\n    resolver: zodResolver(generatorSchema),\n  });\n\n  const onSubmit = async (data: GeneratorFormData) => {\n    setIsGenerating(true);\n    try {\n      const response = await fetch('/api/generate', {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify(data),\n      });\n      // Handle response\n    } finally {\n      setIsGenerating(false);\n    }\n  };\n\n  return (\n    <form onSubmit={handleSubmit(onSubmit)} className=\"space-y-6\">\n      <Input label=\"Skill Name\" {...register('name')} error={errors.name?.message} placeholder=\"e.g., terraform, docker-compose\" />\n      <Textarea label=\"Description\" {...register('description')} error={errors.description?.message} placeholder=\"Describe what this skill does...\" />\n      <Select label=\"Runtime Type\" {...register('type')} options={[{ value: 'native', label: 'Native' }, { value: 'wasm', label: 'WASM' }, { value: 'docker', label: 'Docker' }]} />\n      <Input label=\"Base CLI Tool\" {...register('baseCLI')} error={errors.baseCLI?.message} placeholder=\"e.g., kubectl, aws, terraform\" />\n      <Textarea label=\"Tool Descriptions\" {...register('toolDescriptions')} placeholder=\"Describe the tools you want, one per line...\" hint=\"e.g., 'List all pods in a namespace', 'Deploy an application'\" />\n      <Button type=\"submit\" isLoading={isGenerating} size=\"lg\">Generate Skill</Button>\n    </form>\n  );\n}\n```\n\nInstall react-hook-form: `npm install react-hook-form @hookform/resolvers`",
+        "testStrategy": "Test form validation errors display correctly, submit button disables during generation, and successful submission calls API.",
+        "priority": "high",
+        "dependencies": [
+          "3",
+          "4",
+          "15"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create skill generation form component."
+      },
+      {
+        "id": "17",
+        "title": "Create Generation Progress Component",
+        "description": "Build a real-time progress indicator showing generation steps (parsing, generating, validating, testing).",
+        "details": "Create `/components/generate/GenerationProgress.tsx`:\n```typescript\n'use client';\n\nimport { Check, Loader2, AlertCircle, Clock } from 'lucide-react';\nimport { cn } from '@/lib/utils/cn';\n\nexport type GenerationStep = \n  | 'parsing'\n  | 'generating'\n  | 'validating'\n  | 'testing'\n  | 'complete';\n\nexport type StepStatus = 'pending' | 'in-progress' | 'complete' | 'error';\n\ninterface Step {\n  id: GenerationStep;\n  label: string;\n  description: string;\n}\n\nconst steps: Step[] = [\n  { id: 'parsing', label: 'Parsing Input', description: 'Analyzing your skill description...' },\n  { id: 'generating', label: 'Generating Skill', description: 'Creating SKILL.md and manifest...' },\n  { id: 'validating', label: 'Validating', description: 'Checking schema and naming conventions...' },\n  { id: 'testing', label: 'Testing', description: 'Running MCP integration tests...' },\n  { id: 'complete', label: 'Complete', description: 'Your skill is ready!' },\n];\n\ninterface GenerationProgressProps {\n  currentStep: GenerationStep;\n  stepStatuses: Record<GenerationStep, StepStatus>;\n  errors?: Record<GenerationStep, string>;\n}\n\nexport function GenerationProgress({ currentStep, stepStatuses, errors }: GenerationProgressProps) {\n  const getStepIcon = (step: Step) => {\n    const status = stepStatuses[step.id];\n    switch (status) {\n      case 'complete': return <Check className=\"w-5 h-5 text-green-600\" />;\n      case 'in-progress': return <Loader2 className=\"w-5 h-5 text-primary animate-spin\" />;\n      case 'error': return <AlertCircle className=\"w-5 h-5 text-red-600\" />;\n      default: return <Clock className=\"w-5 h-5 text-gray-400\" />;\n    }\n  };\n\n  return (\n    <div className=\"space-y-4\">\n      {steps.map((step, index) => (\n        <div key={step.id} className=\"flex items-start gap-4\">\n          <div className={cn(\n            'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center',\n            stepStatuses[step.id] === 'complete' ? 'bg-green-100' :\n            stepStatuses[step.id] === 'in-progress' ? 'bg-blue-100' :\n            stepStatuses[step.id] === 'error' ? 'bg-red-100' : 'bg-gray-100'\n          )}>\n            {getStepIcon(step)}\n          </div>\n          <div className=\"flex-grow\">\n            <h4 className=\"font-medium text-gray-900\">{step.label}</h4>\n            <p className=\"text-sm text-gray-500\">\n              {stepStatuses[step.id] === 'in-progress' ? step.description : \n               stepStatuses[step.id] === 'error' ? errors?.[step.id] : ''}\n            </p>\n          </div>\n        </div>\n      ))}\n    </div>\n  );\n}\n```\n\nUse Server-Sent Events (SSE) or polling to update progress in real-time.",
+        "testStrategy": "Test each step status renders correctly, animations play for in-progress steps, and error states display error messages.",
+        "priority": "medium",
+        "dependencies": [
+          "16"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 4,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Break down GenerationProgress into: 1) Define TypeScript types for GenerationStep enum and StepStatus, 2) Create steps configuration array with id, label, and description for each step (parsing, generating, validating, testing, complete), 3) Build getStepIcon helper with lucide-react icons and appropriate colors, 4) Create main component rendering step list with animations using CSS transitions, 5) Add unit tests for step status rendering and transitions"
+      },
+      {
+        "id": "18",
+        "title": "Create Skill Preview Component with Diff Viewer",
+        "description": "Build a preview component showing generated SKILL.md and manifest with syntax highlighting.",
+        "details": "Create `/components/generate/SkillPreview.tsx`:\n```typescript\n'use client';\n\nimport { useState } from 'react';\nimport { FileText, Code, Check, X } from 'lucide-react';\nimport { codeToHtml } from 'shiki';\nimport { Button } from '@/components/ui/Button';\nimport { cn } from '@/lib/utils/cn';\n\ninterface SkillPreviewProps {\n  skillMd: string;\n  manifest: Record<string, any>;\n  onApprove: () => void;\n  onReject: (feedback: string) => void;\n  isApproving?: boolean;\n}\n\nexport function SkillPreview({ skillMd, manifest, onApprove, onReject, isApproving }: SkillPreviewProps) {\n  const [activeTab, setActiveTab] = useState<'skillmd' | 'manifest'>('skillmd');\n  const [highlightedMd, setHighlightedMd] = useState<string>('');\n  const [highlightedJson, setHighlightedJson] = useState<string>('');\n\n  // Use Shiki for syntax highlighting (already in project)\n  useEffect(() => {\n    async function highlight() {\n      const mdHtml = await codeToHtml(skillMd, { lang: 'markdown', theme: 'github-dark' });\n      const jsonHtml = await codeToHtml(JSON.stringify(manifest, null, 2), { lang: 'json', theme: 'github-dark' });\n      setHighlightedMd(mdHtml);\n      setHighlightedJson(jsonHtml);\n    }\n    highlight();\n  }, [skillMd, manifest]);\n\n  return (\n    <div className=\"card\">\n      <div className=\"flex items-center justify-between mb-4\">\n        <div className=\"flex gap-2\">\n          <button\n            onClick={() => setActiveTab('skillmd')}\n            className={cn(\n              'px-4 py-2 rounded-lg text-sm font-medium transition-colors',\n              activeTab === 'skillmd' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700'\n            )}\n          >\n            <FileText className=\"w-4 h-4 inline mr-2\" /> SKILL.md\n          </button>\n          <button\n            onClick={() => setActiveTab('manifest')}\n            className={cn(\n              'px-4 py-2 rounded-lg text-sm font-medium transition-colors',\n              activeTab === 'manifest' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700'\n            )}\n          >\n            <Code className=\"w-4 h-4 inline mr-2\" /> Manifest\n          </button>\n        </div>\n      </div>\n\n      <div className=\"rounded-lg overflow-hidden bg-gray-900 max-h-[500px] overflow-y-auto\">\n        {activeTab === 'skillmd' ? (\n          <div dangerouslySetInnerHTML={{ __html: highlightedMd }} />\n        ) : (\n          <div dangerouslySetInnerHTML={{ __html: highlightedJson }} />\n        )}\n      </div>\n\n      <div className=\"flex gap-4 mt-6\">\n        <Button onClick={onApprove} isLoading={isApproving} className=\"flex-1\">\n          <Check className=\"w-4 h-4 mr-2\" /> Approve & Publish\n        </Button>\n        <Button variant=\"secondary\" onClick={() => onReject('')} className=\"flex-1\">\n          <X className=\"w-4 h-4 mr-2\" /> Reject & Revise\n        </Button>\n      </div>\n    </div>\n  );\n}\n```",
+        "testStrategy": "Test syntax highlighting renders correctly for both markdown and JSON. Test approve/reject buttons trigger callbacks.",
+        "priority": "medium",
+        "dependencies": [
+          "16",
+          "17"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 5,
+        "expansionPrompt": "Break down SkillPreview component into: 1) Create component structure with tab switching between SKILL.md and manifest views, 2) Implement Shiki syntax highlighting for markdown content (shiki already in dependencies), 3) Implement Shiki highlighting for JSON manifest display, 4) Create approve/reject button actions with callback handling and loading states, 5) Add unit tests for tab switching and callback triggers"
+      },
+      {
+        "id": "19",
+        "title": "Create Test Results Display Component",
+        "description": "Build a component to display skill validation and test results with pass/fail indicators.",
+        "details": "Create `/components/generate/TestResults.tsx`:\n```typescript\n'use client';\n\nimport { CheckCircle2, XCircle, AlertTriangle, Info } from 'lucide-react';\nimport { cn } from '@/lib/utils/cn';\n\ninterface TestResult {\n  name: string;\n  status: 'pass' | 'fail' | 'warning' | 'skip';\n  message?: string;\n  duration?: number;\n}\n\ninterface TestCategory {\n  name: string;\n  results: TestResult[];\n}\n\ninterface TestResultsProps {\n  categories: TestCategory[];\n  overallStatus: 'pass' | 'fail';\n  totalDuration: number;\n}\n\nexport function TestResults({ categories, overallStatus, totalDuration }: TestResultsProps) {\n  const getIcon = (status: TestResult['status']) => {\n    switch (status) {\n      case 'pass': return <CheckCircle2 className=\"w-5 h-5 text-green-600\" />;\n      case 'fail': return <XCircle className=\"w-5 h-5 text-red-600\" />;\n      case 'warning': return <AlertTriangle className=\"w-5 h-5 text-yellow-600\" />;\n      case 'skip': return <Info className=\"w-5 h-5 text-gray-400\" />;\n    }\n  };\n\n  const passCount = categories.flatMap(c => c.results).filter(r => r.status === 'pass').length;\n  const totalCount = categories.flatMap(c => c.results).length;\n\n  return (\n    <div className=\"space-y-6\">\n      <div className={cn(\n        'p-4 rounded-lg flex items-center justify-between',\n        overallStatus === 'pass' ? 'bg-green-50' : 'bg-red-50'\n      )}>\n        <div className=\"flex items-center gap-3\">\n          {overallStatus === 'pass' ? (\n            <CheckCircle2 className=\"w-8 h-8 text-green-600\" />\n          ) : (\n            <XCircle className=\"w-8 h-8 text-red-600\" />\n          )}\n          <div>\n            <h3 className=\"font-semibold text-gray-900\">\n              {overallStatus === 'pass' ? 'All Tests Passed' : 'Tests Failed'}\n            </h3>\n            <p className=\"text-sm text-gray-600\">\n              {passCount}/{totalCount} tests passed in {totalDuration}ms\n            </p>\n          </div>\n        </div>\n      </div>\n\n      {categories.map((category) => (\n        <div key={category.name} className=\"border border-gray-200 rounded-lg overflow-hidden\">\n          <div className=\"bg-gray-50 px-4 py-2 border-b border-gray-200\">\n            <h4 className=\"font-medium text-gray-900\">{category.name}</h4>\n          </div>\n          <div className=\"divide-y divide-gray-100\">\n            {category.results.map((result, index) => (\n              <div key={index} className=\"px-4 py-3 flex items-center justify-between\">\n                <div className=\"flex items-center gap-3\">\n                  {getIcon(result.status)}\n                  <span className=\"text-sm text-gray-900\">{result.name}</span>\n                </div>\n                {result.duration && (\n                  <span className=\"text-xs text-gray-500\">{result.duration}ms</span>\n                )}\n              </div>\n            ))}\n          </div>\n        </div>\n      ))}\n    </div>\n  );\n}\n```",
+        "testStrategy": "Test component renders different status icons, overall status summary is correct, and category grouping works properly.",
+        "priority": "medium",
+        "dependencies": [
+          "17"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 3,
+        "recommendedSubtasks": 4,
+        "expansionPrompt": "Break down TestResults component into: 1) Create TypeScript interfaces for TestResult, TestCategory, and TestResultsProps, 2) Build status icon helper function with lucide-react icons (CheckCircle2, XCircle, AlertTriangle, Info), 3) Create main component with overall status banner and category grouping layout, 4) Add unit tests verifying icon rendering and status calculations"
+      },
+      {
+        "id": "20",
+        "title": "Create Skill Generation API Route",
+        "description": "Build the Next.js API route that orchestrates skill generation using Claude SDK and Rust backend.",
+        "details": "Create `/app/api/generate/route.ts`:\n```typescript\nimport { NextRequest, NextResponse } from 'next/server';\nimport { z } from 'zod';\nimport { generateSkillSpec } from '@/lib/generation/claude-sdk-integration';\n\nconst GenerateRequestSchema = z.object({\n  name: z.string().min(2).max(64),\n  description: z.string().min(20).max(500),\n  type: z.enum(['native', 'wasm', 'docker']),\n  baseCLI: z.string().min(1),\n  toolDescriptions: z.string().min(10),\n  categories: z.array(z.string()).min(1),\n});\n\nexport async function POST(request: NextRequest) {\n  try {\n    const body = await request.json();\n    const validated = GenerateRequestSchema.parse(body);\n\n    // Step 1: Use Claude SDK to generate skill spec from natural language\n    const skillSpec = await generateSkillSpec(validated);\n\n    // Step 2: Call Rust backend to transform spec into SKILL.md\n    const rustResponse = await fetch(`${process.env.SKILL_BACKEND_URL}/api/bridge/generate`, {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify(skillSpec),\n    });\n\n    if (!rustResponse.ok) {\n      const error = await rustResponse.text();\n      return NextResponse.json({ error: `Backend generation failed: ${error}` }, { status: 500 });\n    }\n\n    const { skillMd, manifest } = await rustResponse.json();\n\n    // Step 3: Validate the generated skill\n    const validationResponse = await fetch(`${process.env.SKILL_BACKEND_URL}/api/validate`, {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify(manifest),\n    });\n\n    const validationResult = await validationResponse.json();\n\n    return NextResponse.json({\n      success: true,\n      skillMd,\n      manifest,\n      validation: validationResult,\n    });\n  } catch (error) {\n    if (error instanceof z.ZodError) {\n      return NextResponse.json({ error: 'Validation failed', details: error.errors }, { status: 400 });\n    }\n    console.error('Generation error:', error);\n    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });\n  }\n}\n```\n\nAdd environment variable `SKILL_BACKEND_URL` to `.env.local`.",
+        "testStrategy": "Test API validates input correctly, handles backend errors gracefully, and returns proper response structure. Mock external calls for unit tests.",
+        "priority": "high",
+        "dependencies": [
+          "15",
+          "16"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create skill generation api route."
+      },
+      {
+        "id": "21",
+        "title": "Create Claude SDK Integration Module",
+        "description": "Build the Claude Agent SDK integration for parsing user intent and generating skill specifications.",
+        "details": "Install Claude SDK:\n```bash\nnpm install @anthropic-ai/sdk\n```\n\nCreate `/lib/generation/claude-sdk-integration.ts`:\n```typescript\nimport Anthropic from '@anthropic-ai/sdk';\n\nconst client = new Anthropic({\n  apiKey: process.env.ANTHROPIC_API_KEY,\n});\n\ninterface GenerationInput {\n  name: string;\n  description: string;\n  type: 'native' | 'wasm' | 'docker';\n  baseCLI: string;\n  toolDescriptions: string;\n  categories: string[];\n}\n\ninterface SkillSpec {\n  id: string;\n  name: string;\n  description: string;\n  type: string;\n  baseCLI: string;\n  tools: Array<{\n    name: string;\n    description: string;\n    command: string;\n    parameters: Array<{\n      name: string;\n      type: string;\n      required: boolean;\n      description: string;\n    }>;\n  }>;\n  examples: Array<{\n    title: string;\n    description: string;\n    code: string;\n  }>;\n}\n\nconst SKILL_GENERATION_PROMPT = `\nYou are a skill specification generator for the Skill Engine platform.\nGenerate a detailed skill specification based on the user's description.\n\nThe skill should:\n1. Have clear, well-named tools with descriptive names\n2. Include proper parameter definitions with types and descriptions\n3. Follow naming conventions: kebab-case for skill ID, snake_case for tool names\n4. Include realistic examples showing common use cases\n\nOutput a JSON object with the following structure:\n{\n  \"id\": \"skill-name\",\n  \"name\": \"Skill Name\",\n  \"description\": \"Clear description\",\n  \"type\": \"native|wasm|docker\",\n  \"baseCLI\": \"cli-tool\",\n  \"tools\": [...],\n  \"examples\": [...]\n}\n`;\n\nexport async function generateSkillSpec(input: GenerationInput): Promise<SkillSpec> {\n  const message = await client.messages.create({\n    model: 'claude-sonnet-4-20250514',\n    max_tokens: 4096,\n    messages: [\n      {\n        role: 'user',\n        content: `${SKILL_GENERATION_PROMPT}\\n\\nUser Input:\\nName: ${input.name}\\nDescription: ${input.description}\\nType: ${input.type}\\nBase CLI: ${input.baseCLI}\\nTools:\\n${input.toolDescriptions}\\nCategories: ${input.categories.join(', ')}`,\n      },\n    ],\n  });\n\n  const content = message.content[0];\n  if (content.type !== 'text') {\n    throw new Error('Unexpected response type');\n  }\n\n  // Extract JSON from response\n  const jsonMatch = content.text.match(/\\{[\\s\\S]*\\}/);\n  if (!jsonMatch) {\n    throw new Error('Failed to parse skill specification from response');\n  }\n\n  return JSON.parse(jsonMatch[0]) as SkillSpec;\n}\n```",
+        "testStrategy": "Test with mock Anthropic client. Verify prompt construction includes all input fields. Test JSON extraction handles edge cases.",
+        "priority": "high",
+        "dependencies": [
+          "20"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create claude sdk integration module."
+      },
+      {
+        "id": "22",
+        "title": "Create Validation API Route",
+        "description": "Build API route for validating skill manifests against schema and naming conventions.",
+        "details": "Create `/app/api/validate/route.ts`:\n```typescript\nimport { NextRequest, NextResponse } from 'next/server';\nimport { SkillManifestSchema, validateSkillManifest } from '@/lib/validation/schemas';\n\ninterface ValidationResult {\n  valid: boolean;\n  errors: Array<{\n    path: string;\n    message: string;\n    code: string;\n  }>;\n  warnings: Array<{\n    path: string;\n    message: string;\n  }>;\n}\n\nexport async function POST(request: NextRequest) {\n  try {\n    const manifest = await request.json();\n\n    // Schema validation\n    const schemaResult = validateSkillManifest(manifest);\n    const errors: ValidationResult['errors'] = [];\n    const warnings: ValidationResult['warnings'] = [];\n\n    if (!schemaResult.success) {\n      schemaResult.error.errors.forEach((err) => {\n        errors.push({\n          path: err.path.join('.'),\n          message: err.message,\n          code: err.code,\n        });\n      });\n    }\n\n    // Additional custom validations\n    if (manifest.id && !/^[a-z][a-z0-9-]*$/.test(manifest.id)) {\n      errors.push({\n        path: 'id',\n        message: 'ID must be kebab-case starting with a letter',\n        code: 'invalid_format',\n      });\n    }\n\n    if (manifest.description && manifest.description.length < 50) {\n      warnings.push({\n        path: 'description',\n        message: 'Consider a more detailed description (50+ characters recommended)',\n      });\n    }\n\n    if (manifest.tools?.length === 0) {\n      warnings.push({\n        path: 'tools',\n        message: 'Skill has no tools defined',\n      });\n    }\n\n    // Check for forbidden commands\n    const forbiddenPatterns = ['rm -rf', 'dd if=', ':(){ :|:& };:'];\n    manifest.tools?.forEach((tool: any, index: number) => {\n      forbiddenPatterns.forEach((pattern) => {\n        if (tool.command?.includes(pattern)) {\n          errors.push({\n            path: `tools[${index}].command`,\n            message: `Forbidden command pattern detected: ${pattern}`,\n            code: 'forbidden_command',\n          });\n        }\n      });\n    });\n\n    return NextResponse.json({\n      valid: errors.length === 0,\n      errors,\n      warnings,\n    });\n  } catch (error) {\n    console.error('Validation error:', error);\n    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });\n  }\n}\n```",
+        "testStrategy": "Test validation catches missing required fields, invalid formats, forbidden commands, and generates appropriate warnings.",
+        "priority": "medium",
+        "dependencies": [
+          "15",
+          "20"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create validation api route."
+      },
+      {
+        "id": "23",
+        "title": "Create Test Runner API Route",
+        "description": "Build API route for running MCP integration tests on generated skills.",
+        "details": "Create `/app/api/test/route.ts`:\n```typescript\nimport { NextRequest, NextResponse } from 'next/server';\n\ninterface TestResult {\n  category: string;\n  name: string;\n  status: 'pass' | 'fail' | 'skip';\n  message?: string;\n  duration: number;\n}\n\ninterface TestResponse {\n  passed: boolean;\n  results: TestResult[];\n  totalDuration: number;\n}\n\nexport async function POST(request: NextRequest) {\n  try {\n    const { manifest, skillMd } = await request.json();\n\n    const results: TestResult[] = [];\n    const startTime = Date.now();\n\n    // Test 1: Schema validation (fast)\n    const schemaStart = Date.now();\n    try {\n      // Call validation endpoint\n      const validationResponse = await fetch(`${request.nextUrl.origin}/api/validate`, {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify(manifest),\n      });\n      const validation = await validationResponse.json();\n      results.push({\n        category: 'Schema',\n        name: 'JSON Schema Validation',\n        status: validation.valid ? 'pass' : 'fail',\n        message: validation.errors?.[0]?.message,\n        duration: Date.now() - schemaStart,\n      });\n    } catch (error) {\n      results.push({\n        category: 'Schema',\n        name: 'JSON Schema Validation',\n        status: 'fail',\n        message: 'Validation request failed',\n        duration: Date.now() - schemaStart,\n      });\n    }\n\n    // Test 2: MCP Integration (call Rust backend)\n    const mcpStart = Date.now();\n    try {\n      const mcpResponse = await fetch(`${process.env.SKILL_BACKEND_URL}/api/test/mcp`, {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify({ manifest, skillMd }),\n        signal: AbortSignal.timeout(30000), // 30s timeout\n      });\n\n      if (mcpResponse.ok) {\n        const mcpResult = await mcpResponse.json();\n        mcpResult.tests.forEach((test: any) => {\n          results.push({\n            category: 'MCP Integration',\n            name: test.name,\n            status: test.passed ? 'pass' : 'fail',\n            message: test.error,\n            duration: test.duration,\n          });\n        });\n      } else {\n        results.push({\n          category: 'MCP Integration',\n          name: 'MCP Server Test',\n          status: 'fail',\n          message: 'Backend test failed',\n          duration: Date.now() - mcpStart,\n        });\n      }\n    } catch (error) {\n      results.push({\n        category: 'MCP Integration',\n        name: 'MCP Server Test',\n        status: 'skip',\n        message: 'Backend unavailable',\n        duration: Date.now() - mcpStart,\n      });\n    }\n\n    const passed = results.every((r) => r.status === 'pass' || r.status === 'skip');\n\n    return NextResponse.json({\n      passed,\n      results,\n      totalDuration: Date.now() - startTime,\n    } as TestResponse);\n  } catch (error) {\n    console.error('Test error:', error);\n    return NextResponse.json({ error: 'Test execution failed' }, { status: 500 });\n  }\n}\n```",
+        "testStrategy": "Test handles backend timeouts gracefully, aggregates results correctly, and returns proper pass/fail status.",
+        "priority": "medium",
+        "dependencies": [
+          "20",
+          "22"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create test runner api route."
+      },
+      {
+        "id": "24",
+        "title": "Create Skill Quality Scoring System",
+        "description": "Implement the Bronze/Silver/Gold tier scoring system for skill quality assessment.",
+        "details": "Create `/lib/quality/scorer.ts`:\n```typescript\nimport { SkillManifest } from '@/lib/types';\n\nexport type QualityTier = 'bronze' | 'silver' | 'gold';\n\nexport interface QualityCheck {\n  name: string;\n  passed: boolean;\n  points: number;\n  message?: string;\n}\n\nexport interface QualityScore {\n  score: number;\n  tier: QualityTier;\n  checks: QualityCheck[];\n}\n\nconst BRONZE_THRESHOLD = 60;\nconst SILVER_THRESHOLD = 80;\nconst GOLD_THRESHOLD = 90;\n\nexport function calculateQualityScore(skill: SkillManifest): QualityScore {\n  const checks: QualityCheck[] = [];\n\n  // Bronze tier checks (base requirements - 60 points)\n  checks.push({\n    name: 'Valid Schema',\n    passed: true, // Assume passed if we got this far\n    points: 15,\n  });\n\n  checks.push({\n    name: 'Meaningful Description',\n    passed: skill.description.length >= 50,\n    points: 15,\n    message: skill.description.length < 50 ? 'Description should be at least 50 characters' : undefined,\n  });\n\n  checks.push({\n    name: 'Custom Icon',\n    passed: !!skill.icon && !skill.icon.includes('default'),\n    points: 10,\n  });\n\n  checks.push({\n    name: 'At Least 1 Tool',\n    passed: (skill.tools?.length || 0) >= 1,\n    points: 10,\n  });\n\n  checks.push({\n    name: 'At Least 1 Example',\n    passed: (skill.examples?.length || 0) >= 1,\n    points: 10,\n  });\n\n  // Silver tier checks (80 points)\n  checks.push({\n    name: '3+ Examples',\n    passed: (skill.examples?.length || 0) >= 3,\n    points: 10,\n  });\n\n  checks.push({\n    name: 'Documentation Available',\n    passed: !!skill.skillMdUrl || !!skill.skillMdContent || !!skill.skillMdPath,\n    points: 10,\n  });\n\n  // Gold tier checks (90+ points)\n  checks.push({\n    name: '5+ Tools',\n    passed: (skill.tools?.length || 0) >= 5,\n    points: 10,\n  });\n\n  checks.push({\n    name: 'All Tools Have Parameters',\n    passed: skill.tools?.every((t) => t.parameters && t.parameters.length > 0) || false,\n    points: 5,\n  });\n\n  checks.push({\n    name: 'GitHub Link',\n    passed: !!skill.links?.github,\n    points: 5,\n  });\n\n  const score = checks.reduce((sum, check) => sum + (check.passed ? check.points : 0), 0);\n\n  let tier: QualityTier = 'bronze';\n  if (score >= GOLD_THRESHOLD) tier = 'gold';\n  else if (score >= SILVER_THRESHOLD) tier = 'silver';\n\n  return { score, tier, checks };\n}\n```\n\nCreate `/components/SkillQualityBadge.tsx` to display the tier badge.",
+        "testStrategy": "Test scoring calculation for different skill configurations. Verify tier boundaries are correct. Test edge cases like empty tools array.",
+        "priority": "medium",
+        "dependencies": [
+          "15"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create skill quality scoring system."
+      },
+      {
+        "id": "25",
+        "title": "Create Skill Comparison Feature",
+        "description": "Build a side-by-side skill comparison view for comparing 2-3 skills.",
+        "details": "Create `/app/compare/page.tsx`:\n```typescript\nimport { Suspense } from 'react';\nimport { loadAllSkills } from '@/lib/data/loadSkills';\nimport { SkillComparison } from '@/components/compare/SkillComparison';\n\ninterface SearchParams {\n  skills?: string;\n}\n\nexport default async function ComparePage({ searchParams }: { searchParams: SearchParams }) {\n  const allSkills = await loadAllSkills();\n  const skillIds = searchParams.skills?.split(',') || [];\n  const selectedSkills = allSkills.filter((s) => skillIds.includes(s.id));\n\n  return (\n    <div className=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12\">\n      <h1 className=\"text-3xl font-bold text-gray-900 mb-8\">Compare Skills</h1>\n      <Suspense fallback={<div>Loading...</div>}>\n        <SkillComparison allSkills={allSkills} selectedSkills={selectedSkills} />\n      </Suspense>\n    </div>\n  );\n}\n```\n\nCreate `/components/compare/SkillComparison.tsx`:\n```typescript\n'use client';\n\nimport { useState } from 'react';\nimport { useRouter } from 'next/navigation';\nimport { Plus, X } from 'lucide-react';\nimport { SkillCardData } from '@/lib/types';\nimport { Select } from '@/components/ui/Select';\n\ninterface SkillComparisonProps {\n  allSkills: SkillCardData[];\n  selectedSkills: SkillCardData[];\n}\n\nexport function SkillComparison({ allSkills, selectedSkills }: SkillComparisonProps) {\n  const router = useRouter();\n\n  const addSkill = (skillId: string) => {\n    const newIds = [...selectedSkills.map((s) => s.id), skillId];\n    router.push(`/compare?skills=${newIds.join(',')}`);\n  };\n\n  const removeSkill = (skillId: string) => {\n    const newIds = selectedSkills.filter((s) => s.id !== skillId).map((s) => s.id);\n    router.push(`/compare?skills=${newIds.join(',')}`);\n  };\n\n  const comparisonRows = [\n    { label: 'Type', getValue: (s: SkillCardData) => s.type.toUpperCase() },\n    { label: 'Tools', getValue: (s: SkillCardData) => s.toolsCount.toString() },\n    { label: 'Categories', getValue: (s: SkillCardData) => s.categories.join(', ') },\n    { label: 'Examples', getValue: (s: SkillCardData) => (s.examples?.length || 0).toString() },\n    { label: 'Documentation', getValue: (s: SkillCardData) => s.skillMdUrl ? 'Yes' : 'No' },\n  ];\n\n  return (\n    <div>\n      {/* Skill selector */}\n      <div className=\"mb-8 flex gap-4\">\n        {selectedSkills.length < 3 && (\n          <Select\n            placeholder=\"Add skill to compare...\"\n            options={allSkills.filter((s) => !selectedSkills.find((ss) => ss.id === s.id)).map((s) => ({ value: s.id, label: s.name }))}\n            onChange={(value) => addSkill(value)}\n          />\n        )}\n      </div>\n\n      {/* Comparison table */}\n      <div className=\"border border-gray-200 rounded-xl overflow-hidden\">\n        <table className=\"w-full\">\n          <thead>\n            <tr className=\"bg-gray-50\">\n              <th className=\"px-6 py-4 text-left text-sm font-medium text-gray-500\">Feature</th>\n              {selectedSkills.map((skill) => (\n                <th key={skill.id} className=\"px-6 py-4 text-left\">\n                  <div className=\"flex items-center justify-between\">\n                    <span className=\"font-semibold text-gray-900\">{skill.name}</span>\n                    <button onClick={() => removeSkill(skill.id)}>\n                      <X className=\"w-4 h-4 text-gray-400 hover:text-gray-600\" />\n                    </button>\n                  </div>\n                </th>\n              ))}\n            </tr>\n          </thead>\n          <tbody className=\"divide-y divide-gray-200\">\n            {comparisonRows.map((row) => (\n              <tr key={row.label}>\n                <td className=\"px-6 py-4 text-sm text-gray-500\">{row.label}</td>\n                {selectedSkills.map((skill) => (\n                  <td key={skill.id} className=\"px-6 py-4 text-sm text-gray-900\">{row.getValue(skill)}</td>\n                ))}\n              </tr>\n            ))}\n          </tbody>\n        </table>\n      </div>\n    </div>\n  );\n}\n```",
+        "testStrategy": "Test adding/removing skills updates URL and table. Test comparison table shows correct values. Test max 3 skills limit.",
+        "priority": "low",
+        "dependencies": [
+          "3"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create skill comparison feature."
+      },
+      {
+        "id": "26",
+        "title": "Add Accessibility Improvements",
+        "description": "Improve accessibility with ARIA labels, keyboard navigation, and screen reader support throughout the app.",
+        "details": "Update components with accessibility attributes:\n\n1. **SkillCard.tsx** - Add aria-label describing skill:\n```typescript\n<Link\n  href={`/skills/${skill.id}`}\n  aria-label={`${skill.name}: ${skill.description}`}\n  className=\"...\"\n>\n```\n\n2. **SkillSearch.tsx** - Add ARIA attributes for combobox:\n```typescript\n<div role=\"combobox\" aria-expanded={isOpen} aria-haspopup=\"listbox\">\n  <input\n    aria-autocomplete=\"list\"\n    aria-controls=\"search-results\"\n    aria-activedescendant={results[selectedIndex]?.id}\n  />\n  <ul id=\"search-results\" role=\"listbox\">\n    {results.map((skill, index) => (\n      <li\n        key={skill.id}\n        role=\"option\"\n        aria-selected={index === selectedIndex}\n      >\n        {skill.name}\n      </li>\n    ))}\n  </ul>\n</div>\n```\n\n3. **Modal.tsx** - Add focus trap and announce modal:\n```typescript\n<div\n  role=\"dialog\"\n  aria-modal=\"true\"\n  aria-labelledby=\"modal-title\"\n  aria-describedby=\"modal-description\"\n>\n```\n\n4. **SkillFilters.tsx** - Add button group semantics:\n```typescript\n<div role=\"group\" aria-label=\"Filter by type\">\n  <button\n    aria-pressed={activeTypes.includes(type)}\n  >\n    {type}\n  </button>\n</div>\n```\n\n5. Add skip link to layout for keyboard users:\n```typescript\n<a href=\"#main-content\" className=\"sr-only focus:not-sr-only\">\n  Skip to main content\n</a>\n```\n\nAdd to globals.css:\n```css\n.sr-only {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  padding: 0;\n  margin: -1px;\n  overflow: hidden;\n  clip: rect(0, 0, 0, 0);\n  white-space: nowrap;\n  border: 0;\n}\n\n.focus\\:not-sr-only:focus {\n  position: static;\n  width: auto;\n  height: auto;\n  padding: 0.5rem 1rem;\n  margin: 0;\n  overflow: visible;\n  clip: auto;\n  white-space: normal;\n}\n```",
+        "testStrategy": "Use axe-core for automated accessibility testing. Test keyboard navigation through search, filters, and modals. Verify screen reader announcements.",
+        "priority": "medium",
+        "dependencies": [
+          "3",
+          "4",
+          "6",
+          "10"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on add accessibility improvements."
+      },
+      {
+        "id": "27",
+        "title": "Add Performance Optimizations",
+        "description": "Implement code splitting, lazy loading, and other performance optimizations.",
+        "details": "1. **Dynamic imports for heavy components:**\n```typescript\n// In SkillPreview usage\nimport dynamic from 'next/dynamic';\n\nconst SkillPreview = dynamic(() => import('@/components/generate/SkillPreview'), {\n  loading: () => <Skeleton className=\"h-96\" />,\n  ssr: false, // Shiki doesn't need SSR\n});\n```\n\n2. **Optimize images with next/image:**\n```typescript\nimport Image from 'next/image';\n\n// In SkillCard.tsx\n{skill.icon && (\n  <Image\n    src={skill.icon}\n    alt={`${skill.name} icon`}\n    width={48}\n    height={48}\n    className=\"object-contain\"\n  />\n)}\n```\n\n3. **Add React.memo for list items:**\n```typescript\nimport { memo } from 'react';\n\nexport const SkillCard = memo(function SkillCard({ skill }: SkillCardProps) {\n  // component implementation\n});\n```\n\n4. **Preload critical resources:**\n```typescript\n// In layout.tsx\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\" />\n<link rel=\"dns-prefetch\" href=\"https://api.anthropic.com\" />\n```\n\n5. **Add ISR for skill pages:**\n```typescript\n// In app/skills/[id]/page.tsx\nexport const revalidate = 3600; // Revalidate every hour\n```\n\n6. **Configure Next.js for optimal builds:**\n```javascript\n// next.config.js\nmodule.exports = {\n  images: {\n    remotePatterns: [\n      { protocol: 'https', hostname: '**.githubusercontent.com' },\n    ],\n  },\n  experimental: {\n    optimizePackageImports: ['lucide-react', 'shiki'],\n  },\n};\n```",
+        "testStrategy": "Run Lighthouse audits before and after. Target 90+ performance score. Measure bundle size reduction with next/bundle-analyzer.",
+        "priority": "medium",
+        "dependencies": [
+          "12"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on add performance optimizations."
+      },
+      {
+        "id": "28",
+        "title": "Create Test with Claude Code Button Feature",
+        "description": "Add a button that opens a quick MCP test interface to validate skill installation.",
+        "details": "Create `/components/detail/TestWithClaude.tsx`:\n```typescript\n'use client';\n\nimport { useState } from 'react';\nimport { Play, CheckCircle2, XCircle, Loader2 } from 'lucide-react';\nimport { Button } from '@/components/ui/Button';\nimport { Modal } from '@/components/ui/Modal';\nimport { SkillManifest } from '@/lib/types';\n\ninterface TestWithClaudeProps {\n  skill: SkillManifest;\n}\n\ntype TestStatus = 'idle' | 'running' | 'success' | 'failed';\n\nexport function TestWithClaude({ skill }: TestWithClaudeProps) {\n  const [isOpen, setIsOpen] = useState(false);\n  const [status, setStatus] = useState<TestStatus>('idle');\n  const [results, setResults] = useState<any>(null);\n\n  const runTest = async () => {\n    setStatus('running');\n    try {\n      const response = await fetch('/api/test', {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify({ manifest: skill }),\n      });\n\n      const data = await response.json();\n      setResults(data);\n      setStatus(data.passed ? 'success' : 'failed');\n    } catch (error) {\n      setStatus('failed');\n      setResults({ error: 'Test execution failed' });\n    }\n  };\n\n  return (\n    <>\n      <Button onClick={() => setIsOpen(true)} variant=\"secondary\" size=\"sm\">\n        <Play className=\"w-4 h-4 mr-2\" />\n        Test with Claude Code\n      </Button>\n\n      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title=\"Test Skill\" size=\"lg\">\n        <div className=\"space-y-4\">\n          <p className=\"text-gray-600\">\n            This will verify that the skill installs correctly and exposes tools via MCP.\n          </p>\n\n          {status === 'idle' && (\n            <Button onClick={runTest} className=\"w-full\">\n              <Play className=\"w-4 h-4 mr-2\" />\n              Run Test\n            </Button>\n          )}\n\n          {status === 'running' && (\n            <div className=\"flex items-center justify-center py-8\">\n              <Loader2 className=\"w-8 h-8 text-primary animate-spin\" />\n              <span className=\"ml-3 text-gray-600\">Running tests...</span>\n            </div>\n          )}\n\n          {status === 'success' && (\n            <div className=\"bg-green-50 p-4 rounded-lg flex items-center gap-3\">\n              <CheckCircle2 className=\"w-6 h-6 text-green-600\" />\n              <div>\n                <p className=\"font-medium text-green-900\">All tests passed!</p>\n                <p className=\"text-sm text-green-700\">This skill is ready to use.</p>\n              </div>\n            </div>\n          )}\n\n          {status === 'failed' && (\n            <div className=\"bg-red-50 p-4 rounded-lg\">\n              <div className=\"flex items-center gap-3 mb-2\">\n                <XCircle className=\"w-6 h-6 text-red-600\" />\n                <p className=\"font-medium text-red-900\">Tests failed</p>\n              </div>\n              <pre className=\"text-sm text-red-700 bg-red-100 p-2 rounded overflow-x-auto\">\n                {JSON.stringify(results?.errors || results?.error, null, 2)}\n              </pre>\n            </div>\n          )}\n        </div>\n      </Modal>\n    </>\n  );\n}\n```\n\nAdd button to SkillDetailPage sidebar.",
+        "testStrategy": "Test modal opens/closes correctly. Test running state shows loader. Test success/failure states display correct UI.",
+        "priority": "low",
+        "dependencies": [
+          "23"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create test with claude code button feature."
+      },
+      {
+        "id": "29",
+        "title": "Write E2E Tests for Critical User Flows",
+        "description": "Create comprehensive Playwright E2E tests for homepage, search, skill detail, and generation flows.",
+        "details": "Create `/e2e/homepage.spec.ts`:\n```typescript\nimport { test, expect } from '@playwright/test';\n\ntest.describe('Homepage', () => {\n  test('displays hero section with stats', async ({ page }) => {\n    await page.goto('/');\n    await expect(page.getByRole('heading', { name: 'Agentic Skills Library' })).toBeVisible();\n    await expect(page.getByText(/\\d+ skills/)).toBeVisible();\n    await expect(page.getByText(/\\d+ tools/)).toBeVisible();\n  });\n\n  test('displays skill cards', async ({ page }) => {\n    await page.goto('/');\n    const skillCards = page.locator('[data-testid=\"skill-card\"]');\n    await expect(skillCards).toHaveCount(await skillCards.count());\n    expect(await skillCards.count()).toBeGreaterThan(0);\n  });\n\n  test('search filters skills in real-time', async ({ page }) => {\n    await page.goto('/');\n    const searchInput = page.getByPlaceholder('Search skills');\n    await searchInput.fill('kubernetes');\n    await expect(page.getByText('Kubernetes')).toBeVisible();\n  });\n\n  test('filter by type updates results', async ({ page }) => {\n    await page.goto('/');\n    await page.getByRole('button', { name: 'NATIVE' }).click();\n    await expect(page.url()).toContain('type=native');\n  });\n});\n```\n\nCreate `/e2e/skill-detail.spec.ts`:\n```typescript\nimport { test, expect } from '@playwright/test';\n\ntest.describe('Skill Detail Page', () => {\n  test('displays skill information', async ({ page }) => {\n    await page.goto('/skills/kubernetes');\n    await expect(page.getByRole('heading', { name: 'Kubernetes' })).toBeVisible();\n    await expect(page.getByText('Official')).toBeVisible();\n  });\n\n  test('tabs switch content', async ({ page }) => {\n    await page.goto('/skills/kubernetes');\n    await page.getByRole('button', { name: 'Installation' }).click();\n    await expect(page.getByText('Install the skill')).toBeVisible();\n  });\n\n  test('related skills are shown', async ({ page }) => {\n    await page.goto('/skills/kubernetes');\n    await expect(page.getByText('Related Skills')).toBeVisible();\n  });\n});\n```\n\nCreate `/e2e/skill-generation.spec.ts`:\n```typescript\nimport { test, expect } from '@playwright/test';\n\ntest.describe('Skill Generation', () => {\n  test('form validates required fields', async ({ page }) => {\n    await page.goto('/generate');\n    await page.getByRole('button', { name: 'Generate Skill' }).click();\n    await expect(page.getByText('Name is required')).toBeVisible();\n  });\n\n  test('generation flow shows progress', async ({ page }) => {\n    await page.goto('/generate');\n    await page.fill('[name=\"name\"]', 'test-skill');\n    await page.fill('[name=\"description\"]', 'A test skill for E2E testing purposes');\n    await page.selectOption('[name=\"type\"]', 'native');\n    await page.fill('[name=\"baseCLI\"]', 'test-cli');\n    await page.fill('[name=\"toolDescriptions\"]', 'List items, Get item by ID');\n    // Note: Full generation test would require mocked backend\n  });\n});\n```",
+        "testStrategy": "Run `npm run test:e2e` in CI. All tests should pass consistently. Use test fixtures for mock data when needed.",
+        "priority": "high",
+        "dependencies": [
+          "2",
+          "12",
+          "18"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on write e2e tests for critical user flows."
+      },
+      {
+        "id": "30",
+        "title": "Create Documentation and README Updates",
+        "description": "Update project documentation with setup instructions, API documentation, and contribution guidelines.",
+        "details": "Update `/marketplace-web/README.md`:\n```markdown\n# Skill Engine Marketplace\n\nA production-ready marketplace for discovering, generating, and testing agentic skills.\n\n## Features\n\n- Browse and search skills by name, description, and tools\n- Filter by type (WASM, Native, Docker) and category\n- Generate new skills using AI-powered generation\n- Automatic validation and testing of generated skills\n- Quality scoring with Bronze/Silver/Gold tiers\n\n## Getting Started\n\n### Prerequisites\n\n- Node.js 18+\n- npm or yarn\n- Rust backend running (for skill generation)\n\n### Installation\n\n```bash\ncd marketplace-web\nnpm install\n```\n\n### Environment Variables\n\nCreate `.env.local`:\n\n```\nANTHROPIC_API_KEY=your_api_key\nSKILL_BACKEND_URL=http://localhost:3001\n```\n\n### Development\n\n```bash\nnpm run dev\n```\n\n### Testing\n\n```bash\nnpm test           # Unit tests\nnpm run test:e2e   # E2E tests\nnpm run test:coverage  # Coverage report\n```\n\n### Building\n\n```bash\nnpm run build\nnpm run start\n```\n\n## Project Structure\n\n```\nmarketplace-web/\n├── app/                  # Next.js App Router pages\n│   ├── api/             # API routes\n│   ├── generate/        # Skill generation page\n│   ├── compare/         # Skill comparison page\n│   └── skills/[id]/     # Skill detail pages\n├── components/          # React components\n│   ├── ui/              # Design system components\n│   ├── home/            # Homepage components\n│   ├── detail/          # Skill detail components\n│   └── generate/        # Generation components\n├── lib/                 # Utilities and modules\n│   ├── data/            # Data loading\n│   ├── generation/      # Skill generation\n│   ├── quality/         # Quality scoring\n│   ├── search/          # Search utilities\n│   └── validation/      # Zod schemas\n├── tests/               # Unit tests\n└── e2e/                 # E2E tests\n```\n\n## API Documentation\n\n### POST /api/generate\n\nGenerate a new skill from natural language description.\n\n### POST /api/validate\n\nValidate a skill manifest against schema.\n\n### POST /api/test\n\nRun integration tests on a skill.\n\n## Contributing\n\n1. Fork the repository\n2. Create a feature branch\n3. Write tests for new functionality\n4. Ensure all tests pass\n5. Submit a pull request\n```",
+        "testStrategy": "Review documentation for accuracy. Verify all commands work as documented. Check links are valid.",
+        "priority": "low",
+        "dependencies": [
+          "20",
+          "21",
+          "22",
+          "23"
+        ],
+        "status": "pending",
+        "subtasks": [],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Break down this task with a focus on create documentation and readme updates."
+      }
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2026-01-04T20:08:41.932Z",
+      "taskCount": 30,
+      "completedCount": 11,
+      "tags": [
+        "master"
+      ]
+    }
+  }
+}

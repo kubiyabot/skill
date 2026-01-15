@@ -1,0 +1,200 @@
+# DevOps Skill Engine Manifest
+#
+# Perfect for: Infrastructure teams, DevOps engineers, SRE teams
+# Focus: Infrastructure, containers, monitoring, databases
+# Skills: 8 infrastructure-focused skills
+#
+# Copy to your infrastructure projects:
+#   cp examples/manifests/devops.toml .skill-engine.toml
+
+version = "1"
+
+# =============================================================================
+# Container Orchestration
+# =============================================================================
+
+[skills.kubernetes]
+source = "./examples/native-skills/kubernetes-skill"
+description = "Kubernetes cluster management"
+runtime = "native"
+
+[[skills.kubernetes.services]]
+name = "kubectl-proxy"
+description = "Kubernetes API proxy"
+optional = false
+default_port = 8001
+
+[skills.kubernetes.instances.dev]
+description = "Development cluster (local)"
+config.cluster = "minikube"
+config.kubeconfig = "${KUBECONFIG:-~/.kube/config}"
+capabilities.network_access = true
+
+[skills.kubernetes.instances.prod]
+description = "Production cluster"
+config.cluster = "prod-cluster"
+config.kubeconfig = "/etc/kube/prod-config"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 5
+
+[skills.docker]
+source = "./examples/native-skills/docker-skill"
+description = "Docker container and image management"
+runtime = "native"
+
+[skills.docker.instances.default]
+
+# =============================================================================
+# Infrastructure as Code
+# =============================================================================
+
+[skills.terraform]
+source = "./examples/native-skills/terraform-skill"
+description = "Terraform IaC management"
+runtime = "native"
+
+[skills.terraform.instances.dev]
+config.workspace = "development"
+
+[skills.terraform.instances.prod]
+config.workspace = "production"
+
+# =============================================================================
+# Databases
+# =============================================================================
+
+[skills.postgres-native]
+source = "./examples/native-skills/postgres-skill"
+description = "PostgreSQL database operations"
+runtime = "native"
+
+[[skills.postgres-native.services]]
+name = "postgres"
+description = "PostgreSQL server"
+optional = false
+default_port = 5432
+
+[skills.postgres-native.instances.dev]
+config.host = "${POSTGRES_HOST:-localhost}"
+config.port = "${POSTGRES_PORT:-5432}"
+config.database = "${POSTGRES_DB:-postgres}"
+capabilities.network_access = true
+
+[skills.postgres-native.instances.prod]
+config.host = "${POSTGRES_PROD_HOST}"
+config.port = "5432"
+config.database = "${POSTGRES_PROD_DB}"
+config.username = "${POSTGRES_READONLY_USER}"  # Read-only for safety
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 10
+
+# Redis for caching
+[skills.redis]
+source = "docker:redis:7-alpine"
+runtime = "docker"
+description = "Redis CLI client"
+
+[skills.redis.docker]
+image = "redis:7-alpine"
+entrypoint = "redis-cli"
+network = "bridge"
+memory = "128m"
+rm = true
+
+[skills.redis.instances.dev]
+config.host = "${REDIS_HOST:-localhost}"
+config.port = "${REDIS_PORT:-6379}"
+
+# =============================================================================
+# Monitoring & Observability
+# =============================================================================
+
+[skills.prometheus]
+source = "./examples/wasm-skills/prometheus-skill"
+description = "Prometheus metrics and monitoring"
+
+[[skills.prometheus.services]]
+name = "prometheus"
+description = "Prometheus server"
+optional = false
+default_port = 9090
+
+[skills.prometheus.instances.dev]
+config.prometheus_url = "http://localhost:9090"
+capabilities.network_access = true
+
+[skills.prometheus.instances.prod]
+config.prometheus_url = "${PROMETHEUS_URL}"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 20
+
+# =============================================================================
+# HTTP & API Testing
+# =============================================================================
+
+[skills.http]
+source = "./examples/wasm-skills/http-skill"
+description = "HTTP client for API testing and health checks"
+
+[skills.http.instances.default]
+capabilities.network_access = true
+
+# =============================================================================
+# Version Control (for GitOps)
+# =============================================================================
+
+[skills.git]
+source = "./examples/native-skills/git-skill"
+description = "Git for GitOps workflows"
+runtime = "native"
+
+[skills.git.instances.default]
+
+# =============================================================================
+# Environment Variables
+# =============================================================================
+#
+# .env for development:
+#   KUBECONFIG=~/.kube/config
+#   POSTGRES_HOST=localhost
+#   POSTGRES_DB=myapp
+#   REDIS_HOST=localhost
+#
+# Production (use secret manager):
+#   KUBECONFIG=/etc/kube/prod-config
+#   POSTGRES_PROD_HOST=db.prod.company.com
+#   POSTGRES_PROD_DB=production
+#   POSTGRES_READONLY_USER=readonly
+#   PROMETHEUS_URL=https://prometheus.prod.company.com
+#   REDIS_PROD_HOST=redis.prod.company.com
+
+# =============================================================================
+# Common DevOps Tasks
+# =============================================================================
+#
+# Infrastructure:
+#   skill run terraform:dev plan
+#   skill run terraform:prod apply
+#
+# Kubernetes:
+#   skill run kubernetes:dev get pods
+#   skill run kubernetes:prod get deployments
+#   skill run kubernetes:prod logs <pod-name>
+#
+# Databases:
+#   skill run postgres:dev \\sql "SELECT version()"
+#   skill run postgres:prod \\sql "SELECT COUNT(*) FROM users"
+#   skill run redis:dev PING
+#
+# Monitoring:
+#   skill run prometheus:prod query "up"
+#   skill run prometheus:prod query "rate(http_requests_total[5m])"
+#
+# Health checks:
+#   skill run http:default GET https://api.company.com/health
+#
+# With Claude Code:
+#   > Check if all kubernetes pods are running in production
+#   > Query prometheus for CPU usage in the last hour
+#   > Show me the terraform plan for development
+#   > Test the health endpoint of our API

@@ -1,0 +1,14 @@
+# Missing Required Fields Test Fixture
+# This file is missing required fields
+
+[[skill]]
+# Missing 'name' field
+description = "Skill without a name"
+
+[[skill.tool]]
+name = "incomplete_tool"
+# Missing 'description' field
+
+[[skill.tool.parameter]]
+# Missing 'name' and 'type' fields
+required = true

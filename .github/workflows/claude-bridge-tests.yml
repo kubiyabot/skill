@@ -1,0 +1,233 @@
+name: Claude Bridge Tests
+
+on:
+  push:
+    branches: [main, develop, CORE-*]
+    paths:
+      - 'crates/skill-cli/src/commands/claude_bridge/**'
+      - 'tests/claude_bridge/**'
+      - '.github/workflows/claude-bridge-tests.yml'
+  pull_request:
+    paths:
+      - 'crates/skill-cli/src/commands/claude_bridge/**'
+      - 'tests/claude_bridge/**'
+      - '.github/workflows/claude-bridge-tests.yml'
+  schedule:
+    # Daily performance tests at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      run_performance:
+        description: 'Run performance tests'
+        required: false
+        default: 'false'
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # Unit Tests - Run on both macOS and Linux
+  unit-tests:
+    name: Unit Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.os }}-unit
+          cache-on-failure: true
+
+      - name: Run unit tests
+        run: cargo test -p skill-cli --lib -- claude_bridge --nocapture
+
+      - name: Run doc tests
+        run: cargo test -p skill-cli --doc -- claude_bridge
+
+  # Integration Tests - Bash scripts
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-22.04
+    needs: unit-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: integration
+          cache-on-failure: true
+
+      - name: Build skill CLI (release)
+        run: cargo build -p skill-cli --release
+
+      - name: Make scripts executable
+        run: chmod +x tests/claude_bridge/*.sh
+
+      - name: Run fresh install tests
+        run: ./tests/claude_bridge/test-fresh-install.sh
+        continue-on-error: true
+
+      - name: Run skill generation tests
+        run: ./tests/claude_bridge/test-skill-generation.sh
+        continue-on-error: true
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-reports
+          path: tests/claude_bridge/reports/
+          retention-days: 30
+
+      - name: Check test results
+        run: |
+          if [ -f tests/claude_bridge/reports/skill-generation-report.json ]; then
+            cat tests/claude_bridge/reports/skill-generation-report.json
+          fi
+
+  # Performance Tests - Only on schedule or manual trigger
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[perf]')
+    needs: unit-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: performance
+          cache-on-failure: true
+
+      - name: Build skill CLI (release with optimizations)
+        run: cargo build -p skill-cli --release
+
+      - name: Run performance benchmarks
+        run: |
+          if [ -f tests/claude_bridge/test-performance.sh ]; then
+            ./tests/claude_bridge/test-performance.sh
+          else
+            echo "Performance tests not yet implemented"
+          fi
+        continue-on-error: true
+
+      - name: Upload performance reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-reports
+          path: tests/claude_bridge/reports/performance-*.json
+          retention-days: 90
+
+  # Code Coverage
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-22.04
+    needs: unit-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: coverage
+
+      - name: Install cargo-tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Generate coverage
+        run: |
+          cargo tarpaulin -p skill-cli \
+            --lib --tests \
+            --exclude-files 'tests/*' \
+            --timeout 600 \
+            --out Xml --out Html \
+            -- claude_bridge
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./cobertura.xml
+          flags: claude-bridge
+          name: claude-bridge-coverage
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        continue-on-error: true
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: tarpaulin-report.html
+          retention-days: 30
+
+      - name: Check coverage thresholds
+        run: |
+          if [ -f cobertura.xml ]; then
+            coverage=$(grep -oP 'line-rate="\K[0-9.]+' cobertura.xml | head -1 || echo "0")
+            echo "Coverage: $(echo "$coverage * 100" | bc)%"
+
+            # Warning if below 80%, but don't fail
+            if (( $(echo "$coverage < 0.80" | bc -l) )); then
+              echo "⚠️  Warning: Coverage $coverage is below 80% target"
+            else
+              echo "✓ Coverage meets 80% threshold"
+            fi
+          fi
+
+  # Test Summary
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-22.04
+    needs: [unit-tests, integration-tests]
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: test-results
+
+      - name: Display test summary
+        run: |
+          echo "## Claude Bridge Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -d test-results/integration-test-reports ]; then
+            echo "### Integration Tests" >> $GITHUB_STEP_SUMMARY
+            for report in test-results/integration-test-reports/*.json; do
+              if [ -f "$report" ]; then
+                echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+                cat "$report" >> $GITHUB_STEP_SUMMARY
+                echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View detailed reports in the Actions artifacts." >> $GITHUB_STEP_SUMMARY

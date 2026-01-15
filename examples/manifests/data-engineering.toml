@@ -1,0 +1,218 @@
+# Data Engineering Skill Engine Manifest
+#
+# Perfect for: Data engineers, ML engineers, data analysts
+# Focus: Databases, data processing, API integrations, scripting
+# Skills: 7 data-focused skills
+#
+# Copy to your data projects:
+#   cp examples/manifests/data-engineering.toml .skill-engine.toml
+
+version = "1"
+
+# =============================================================================
+# Databases
+# =============================================================================
+
+[skills.postgres-native]
+source = "./examples/native-skills/postgres-skill"
+description = "PostgreSQL for data warehousing and analytics"
+runtime = "native"
+
+[[skills.postgres-native.services]]
+name = "postgres"
+description = "PostgreSQL server"
+optional = false
+default_port = 5432
+
+# Analytics database
+[skills.postgres-native.instances.analytics]
+description = "Analytics data warehouse"
+config.host = "${ANALYTICS_DB_HOST:-localhost}"
+config.port = "${ANALYTICS_DB_PORT:-5432}"
+config.database = "${ANALYTICS_DB_NAME:-analytics}"
+config.username = "${ANALYTICS_DB_USER:-analyst}"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 20
+
+# Production replica (read-only)
+[skills.postgres-native.instances.prod-replica]
+description = "Production read replica for reporting"
+config.host = "${PROD_REPLICA_HOST}"
+config.port = "5432"
+config.database = "${PROD_DB_NAME}"
+config.username = "${READONLY_USER}"
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 10
+
+[skills.redis]
+source = "docker:redis:7-alpine"
+runtime = "docker"
+description = "Redis for caching and session storage"
+
+[skills.redis.docker]
+image = "redis:7-alpine"
+entrypoint = "redis-cli"
+network = "bridge"
+memory = "256m"
+rm = true
+
+[skills.redis.instances.cache]
+description = "Application cache layer"
+config.host = "${REDIS_HOST:-localhost}"
+config.port = "${REDIS_PORT:-6379}"
+
+# =============================================================================
+# Data Processing Runtimes
+# =============================================================================
+
+[skills.python-runner]
+source = "docker:python:3.12-slim"
+runtime = "docker"
+description = "Python for data analysis and ETL scripts"
+
+[skills.python-runner.docker]
+image = "python:3.12-slim"
+entrypoint = "python3"
+command = ["-u"]  # Unbuffered output
+volumes = ["${PWD}:/workdir", "${DATA_DIR:-/tmp/data}:/data"]
+working_dir = "/workdir"
+environment = [
+  "PYTHONUNBUFFERED=1",
+  "PANDAS_VERSION=${PANDAS_VERSION:-2.0.0}"
+]
+memory = "2g"
+cpus = "2.0"
+network = "bridge"  # Need network for pip install
+rm = true
+user = "${UID:-1000}:${GID:-1000}"
+
+[skills.python-runner.instances.etl]
+description = "ETL pipeline execution"
+capabilities.allowed_paths = ["/workdir", "/data"]
+capabilities.network_access = true
+
+[skills.python-runner.instances.notebook]
+description = "Interactive notebook execution"
+capabilities.allowed_paths = ["/workdir", "/data", "${HOME}/.jupyter"]
+capabilities.network_access = true
+
+[skills.node-runner]
+source = "docker:node:20-alpine"
+runtime = "docker"
+description = "Node.js for data API integrations"
+
+[skills.node-runner.docker]
+image = "node:20-alpine"
+entrypoint = "node"
+volumes = ["${PWD}:/workdir"]
+working_dir = "/workdir"
+memory = "1g"
+cpus = "1.0"
+network = "bridge"
+rm = true
+
+[skills.node-runner.instances.default]
+capabilities.allowed_paths = ["/workdir"]
+capabilities.network_access = true
+
+# =============================================================================
+# API Integrations
+# =============================================================================
+
+[skills.http]
+source = "./examples/wasm-skills/http-skill"
+description = "HTTP client for data API integrations"
+
+[skills.http.instances.default]
+capabilities.network_access = true
+capabilities.max_concurrent_requests = 50  # For batch API calls
+
+[skills.github]
+source = "./examples/wasm-skills/github-skill"
+description = "GitHub for accessing data from repositories"
+
+[skills.github.instances.default]
+env.GITHUB_TOKEN = "${SKILL_GITHUB_TOKEN}"
+capabilities.network_access = true
+
+# =============================================================================
+# Version Control
+# =============================================================================
+
+[skills.git]
+source = "./examples/native-skills/git-skill"
+description = "Git for data pipeline version control"
+runtime = "native"
+
+[skills.git.instances.default]
+
+# =============================================================================
+# Environment Variables
+# =============================================================================
+#
+# .env for local development:
+#   # Database
+#   ANALYTICS_DB_HOST=localhost
+#   ANALYTICS_DB_PORT=5432
+#   ANALYTICS_DB_NAME=analytics
+#   ANALYTICS_DB_USER=analyst
+#   ANALYTICS_DB_PASSWORD=secret
+#
+#   # Production replica
+#   PROD_REPLICA_HOST=replica.prod.company.com
+#   PROD_DB_NAME=production
+#   READONLY_USER=readonly
+#   READONLY_PASSWORD=secret
+#
+#   # Redis
+#   REDIS_HOST=localhost
+#   REDIS_PORT=6379
+#
+#   # Data directories
+#   DATA_DIR=/Users/yourname/data
+#   PWD=/Users/yourname/projects/myproject
+#
+#   # Python
+#   PANDAS_VERSION=2.0.0
+#
+#   # APIs
+#   SKILL_GITHUB_TOKEN=ghp_xxxxx
+
+# =============================================================================
+# Common Data Engineering Tasks
+# =============================================================================
+#
+# Database queries:
+#   skill run postgres:analytics \\sql "SELECT COUNT(*) FROM events WHERE date = CURRENT_DATE"
+#   skill run postgres:prod-replica \\sql "SELECT * FROM users WHERE created_at > NOW() - INTERVAL '1 day'"
+#
+# Python data processing:
+#   skill run python-runner:etl -- scripts/etl_pipeline.py
+#   skill run python-runner:notebook -- -c "import pandas as pd; df = pd.read_csv('data.csv'); print(df.head())"
+#
+# API data fetching:
+#   skill run http:default GET https://api.company.com/data/events
+#   skill run github:default list-repos --org company
+#
+# Redis operations:
+#   skill run redis:cache GET user:12345
+#   skill run redis:cache KEYS "session:*"
+#
+# Node.js scripts:
+#   skill run node-runner:default scripts/fetch_api_data.js
+#
+# With Claude Code:
+#   > Query the analytics database for today's event count
+#   > Run the ETL pipeline Python script
+#   > Fetch data from the API and show me the first 10 records
+#   > Check Redis cache for user sessions
+#   > Process the CSV file with pandas and show summary statistics
+#
+# Data Pipeline Example:
+#   1. Extract: skill run http:default GET https://api.source.com/data
+#   2. Transform: skill run python-runner:etl -- scripts/transform.py input.json output.csv
+#   3. Load: skill run postgres:analytics \\copy events FROM output.csv CSV HEADER
+#
+# With Claude Code for full pipeline:
+#   > Extract data from the source API, transform it with Python,
+#     and load it into the analytics database

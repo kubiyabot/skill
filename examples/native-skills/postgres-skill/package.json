@@ -1,0 +1,10 @@
+{
+  "name": "postgres-skill",
+  "version": "1.0.0",
+  "description": "PostgreSQL database operations via native psql CLI",
+  "main": "skill.js",
+  "type": "module",
+  "keywords": ["skill", "postgres", "postgresql", "database", "sql"],
+  "author": "Skill Engine",
+  "license": "MIT"
+}

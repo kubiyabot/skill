@@ -1,0 +1,21 @@
+# AWS Skill Configuration Template
+#
+# Copy this file and fill in your AWS credentials:
+# cp skill.config.toml.example skill.config.toml
+#
+# Or use the interactive configuration wizard:
+# skill config aws-skill
+
+[config]
+# AWS Access Key ID (will be stored securely in system keychain)
+aws_access_key_id = "YOUR_ACCESS_KEY_ID"
+
+# AWS Secret Access Key (will be stored securely in system keychain)
+aws_secret_access_key = "YOUR_SECRET_ACCESS_KEY"
+
+# AWS Region (e.g., us-east-1, eu-west-1, ap-southeast-1)
+region = "us-east-1"
+
+[metadata]
+skill_name = "aws-skill"
+instance_name = "default"

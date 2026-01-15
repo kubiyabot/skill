@@ -1,0 +1,5 @@
+# Simple test manifest with one skill
+[skills.test-skill]
+source = "./test-skill"
+runtime = "wasm"
+description = "A simple test skill"

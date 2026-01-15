@@ -1,0 +1,110 @@
+# Skill Engine Manifest Example
+# ==============================
+#
+# This file defines skills and their configurations for the Skill Engine.
+# It can be checked into version control and used in CI/CD pipelines.
+#
+# Copy this to `.skill-engine.toml` and customize for your project.
+#
+# Environment Variable Syntax:
+# - ${VAR}           - Required, errors if not set
+# - ${VAR:-default}  - Optional, uses default if not set
+# - ${VAR:?error}    - Required with custom error message
+
+version = "1"
+
+# Global defaults applied to all skills
+[defaults]
+# Default capabilities
+capabilities.network_access = false
+capabilities.max_concurrent_requests = 10
+
+# Default environment variables
+env.LOG_LEVEL = "info"
+
+# ============================================
+# Skill Definitions
+# ============================================
+
+# Example 1: Local skill from relative path
+[skills.hello]
+source = "./examples/hello-skill"
+description = "Simple greeting skill for testing"
+
+# Example 2: Skill from GitHub
+[skills.github-ops]
+source = "github:example/skill-github@v1.0.0"
+description = "GitHub operations skill"
+
+# Instance with OAuth token from environment
+[skills.github-ops.instances.default]
+config.token = "${GITHUB_TOKEN}"
+capabilities.network_access = true
+
+# Example 3: Skill with multiple instances
+[skills.aws]
+source = "github:example/skill-aws"
+description = "AWS SDK skill"
+default_instance = "dev"
+
+# Production instance
+[skills.aws.instances.prod]
+config.region = "us-east-1"
+config.profile = "${AWS_PROFILE:-default}"
+env.AWS_ACCESS_KEY_ID = "${AWS_ACCESS_KEY_ID}"
+env.AWS_SECRET_ACCESS_KEY = "${AWS_SECRET_ACCESS_KEY}"
+capabilities.network_access = true
+capabilities.allowed_paths = ["/tmp/aws-cache"]
+
+# Development instance
+[skills.aws.instances.dev]
+config.region = "us-west-2"
+config.profile = "dev"
+capabilities.network_access = true
+
+# Staging instance
+[skills.aws.instances.staging]
+config.region = "eu-west-1"
+config.profile = "staging"
+env.AWS_PROFILE = "staging"
+capabilities.network_access = true
+
+# Example 4: Slack integration skill
+[skills.slack]
+source = "github:example/skill-slack@v2.1.0"
+description = "Slack messaging skill"
+
+[skills.slack.instances.default]
+config.workspace = "${SLACK_WORKSPACE}"
+config.bot_token = "${SLACK_BOT_TOKEN}"
+config.app_token = "${SLACK_APP_TOKEN:-}"
+capabilities.network_access = true
+
+# Example 5: Database skill with different backends
+[skills.database]
+source = "./internal/skill-database"
+
+[skills.database.instances.postgres]
+config.driver = "postgres"
+config.host = "${POSTGRES_HOST:-localhost}"
+config.port = "${POSTGRES_PORT:-5432}"
+config.database = "${POSTGRES_DB}"
+config.username = "${POSTGRES_USER}"
+config.password = "${POSTGRES_PASSWORD}"
+capabilities.network_access = true
+
+[skills.database.instances.sqlite]
+config.driver = "sqlite"
+config.path = "${SQLITE_PATH:-./data.db}"
+capabilities.allowed_paths = ["${SQLITE_PATH:-./data.db}"]
+
+# Example 6: AI/LLM skill
+[skills.openai]
+source = "github:example/skill-openai@latest"
+description = "OpenAI API integration"
+
+[skills.openai.instances.default]
+config.api_key = "${OPENAI_API_KEY:?OpenAI API key is required}"
+config.model = "${OPENAI_MODEL:-gpt-4o}"
+config.max_tokens = "4096"
+capabilities.network_access = true

@@ -1,0 +1,47 @@
+# PostgreSQL Skill - Docker Runtime Configuration
+# Copy this to your .skill-engine.toml
+
+[skills.postgres]
+source = "docker:postgres:16-alpine"
+runtime = "docker"
+description = "PostgreSQL CLI client"
+
+[skills.postgres.docker]
+image = "postgres:16-alpine"
+entrypoint = "psql"
+environment = ["PGPASSWORD=${PGPASSWORD:-}"]
+network = "bridge"
+memory = "256m"
+rm = true
+
+# pg_dump variant for backups
+[skills.pg-dump]
+source = "docker:postgres:16-alpine"
+runtime = "docker"
+description = "PostgreSQL backup tool"
+
+[skills.pg-dump.docker]
+image = "postgres:16-alpine"
+entrypoint = "pg_dump"
+volumes = ["${PWD}:/workdir"]
+working_dir = "/workdir"
+environment = ["PGPASSWORD=${PGPASSWORD:-}"]
+network = "bridge"
+memory = "512m"
+rm = true
+
+# pg_restore variant
+[skills.pg-restore]
+source = "docker:postgres:16-alpine"
+runtime = "docker"
+description = "PostgreSQL restore tool"
+
+[skills.pg-restore.docker]
+image = "postgres:16-alpine"
+entrypoint = "pg_restore"
+volumes = ["${PWD}:/workdir"]
+working_dir = "/workdir"
+environment = ["PGPASSWORD=${PGPASSWORD:-}"]
+network = "bridge"
+memory = "512m"
+rm = true

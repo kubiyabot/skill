@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skill Engine CLI Test Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .summary { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .summary-item { display: inline-block; margin-right: 30px; }
+        .pass { color: #28a745; font-weight: bold; }
+        .fail { color: #dc3545; font-weight: bold; }
+        .skip { color: #ffc107; font-weight: bold; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .status-pass { background-color: #d4edda; }
+        .status-fail { background-color: #f8d7da; }
+        .status-skip { background-color: #fff3cd; }
+    </style>
+</head>
+<body>
+    <h1>Skill Engine CLI Test Report</h1>
+    <p>Generated: Mon Jan  5 14:08:35 IST 2026</p>
+
+    <div class="summary">
+        <h2>Summary</h2>
+        <div class="summary-item">Total Tests: <strong>26</strong></div>
+        <div class="summary-item pass">Passed: 25</div>
+        <div class="summary-item fail">Failed: 0</div>
+        <div class="summary-item skip">Skipped: 1</div>
+        <div class="summary-item">Pass Rate: <strong>96%</strong></div>
+    </div>
+
+    <h2>Test Results</h2>
+    <table>
+        <tr>
+            <th>Status</th>
+            <th>Test Name</th>
+            <th>Command</th>
+            <th>Details</th>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill --version</td>
+            <td><code>skill --version</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill --help</td>
+            <td><code>skill --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill help</td>
+            <td><code>skill help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill setup --help</td>
+            <td><code>skill setup --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill upgrade --help</td>
+            <td><code>skill upgrade --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill auth --help</td>
+            <td><code>skill auth --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill list</td>
+            <td><code>skill list</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill list --help</td>
+            <td><code>skill list --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill info --help</td>
+            <td><code>skill info --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill find --help</td>
+            <td><code>skill find --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill search --help</td>
+            <td><code>skill search --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill run --help</td>
+            <td><code>skill run --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill exec --help</td>
+            <td><code>skill exec --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill run (no args)</td>
+            <td><code>skill run 2>&1; test $? -ne 0</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill install --help</td>
+            <td><code>skill install --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill remove --help</td>
+            <td><code>skill remove --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill init --help</td>
+            <td><code>skill init --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill config --help</td>
+            <td><code>skill config --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill serve --help</td>
+            <td><code>skill serve --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill claude --help</td>
+            <td><code>skill claude --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill web --help</td>
+            <td><code>skill web --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill enhance --help</td>
+            <td><code>skill enhance --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>skill init-skill --help</td>
+            <td><code>skill init-skill --help</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-skip">
+            <td><span class="skip">SKIP</span></td>
+            <td>skill history</td>
+            <td><code>History command not available</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>invalid command</td>
+            <td><code>skill invalid-command-xyz 2>&1; test $? -ne 0</code></td>
+            <td></td>
+        </tr>
+        <tr class="status-pass">
+            <td><span class="pass">PASS</span></td>
+            <td>invalid flag</td>
+            <td><code>skill --invalid-flag-xyz 2>&1; test $? -ne 0</code></td>
+            <td></td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "git-skill",
+  "version": "1.0.0",
+  "description": "Git version control operations via native CLI",
+  "main": "skill.js",
+  "type": "module",
+  "keywords": [
+    "skill",
+    "git",
+    "version-control",
+    "cli"
+  ],
+  "author": "Skill Engine",
+  "license": "MIT"
+}

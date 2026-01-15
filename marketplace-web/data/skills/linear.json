@@ -1,0 +1,77 @@
+{
+    "id": "linear",
+    "name": "Linear",
+    "icon": "https://cdn.simpleicons.org/linear",
+    "type": "wasm",
+    "description": "Manage issues, projects, and cycles in Linear.",
+    "longDescription": "Streamline your issue tracking by integrating Linear directly into your agent workflows.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Skill Engine Team",
+        "github": "kubiyabot",
+        "url": "https://github.com/kubiyabot/skill"
+    },
+    "categories": [
+        "project-management",
+        "productivity"
+    ],
+    "badges": [
+        "official"
+    ],
+    "installation": {
+        "source": "registry.kubiya.sh/skills/linear:latest",
+        "requiresAuth": true,
+        "envVars": [
+            {
+                "name": "LINEAR_API_KEY",
+                "required": true,
+                "description": "Linear API Key"
+            }
+        ]
+    },
+    "tools": [
+        {
+            "name": "create_issue",
+            "description": "Create a new issue",
+            "parameters": [
+                {
+                    "name": "title",
+                    "type": "string",
+                    "required": true,
+                    "description": "Issue title"
+                },
+                {
+                    "name": "teamId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Team ID"
+                },
+                {
+                    "name": "description",
+                    "type": "string",
+                    "required": false,
+                    "description": "Issue description"
+                }
+            ]
+        },
+        {
+            "name": "get_issue",
+            "description": "Get issue details",
+            "parameters": [
+                {
+                    "name": "issueId",
+                    "type": "string",
+                    "required": true,
+                    "description": "Issue ID (e.g., ENG-123)"
+                }
+            ]
+        }
+    ],
+    "examples": [
+        {
+            "title": "Create an issue",
+            "description": "Create a bug report in the Engineering team",
+            "code": "skill run linear:create_issue title=\"Fix login bug\" teamId=\"ENG\" description=\"Users cannot log in via SSO\""
+        }
+    ]
+}

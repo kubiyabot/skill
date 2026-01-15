@@ -1,0 +1,340 @@
+# Medium Test Fixture - 10 Skills with 10-20 Tools Each
+# Used for testing production-scale skill collections
+
+# Skill 1: Kubernetes
+[[skill]]
+name = "kubernetes"
+description = "Kubernetes cluster management and operations"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "get"
+description = "Get Kubernetes resources"
+command = "kubectl get {{resource}}"
+
+[[skill.tool.parameter]]
+name = "resource"
+description = "Resource type (pods, services, deployments, etc.)"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "namespace"
+description = "Namespace to query"
+type = "string"
+required = false
+
+[[skill.tool]]
+name = "describe"
+description = "Describe a Kubernetes resource"
+command = "kubectl describe {{resource}} {{name}}"
+
+[[skill.tool.parameter]]
+name = "resource"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "name"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "logs"
+description = "Get logs from a pod"
+command = "kubectl logs {{pod}}"
+
+[[skill.tool.parameter]]
+name = "pod"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "follow"
+type = "boolean"
+required = false
+
+[[skill.tool]]
+name = "apply"
+description = "Apply configuration from a file"
+command = "kubectl apply -f {{file}}"
+
+[[skill.tool.parameter]]
+name = "file"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "delete"
+description = "Delete a resource"
+command = "kubectl delete {{resource}} {{name}}"
+
+[[skill.tool.parameter]]
+name = "resource"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "name"
+type = "string"
+required = true
+
+# Skill 2: Docker
+[[skill]]
+name = "docker"
+description = "Docker container management"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "ps"
+description = "List running containers"
+command = "docker ps"
+
+[[skill.tool.parameter]]
+name = "all"
+description = "Show all containers"
+type = "boolean"
+required = false
+
+[[skill.tool]]
+name = "images"
+description = "List Docker images"
+command = "docker images"
+
+[[skill.tool]]
+name = "run"
+description = "Run a container"
+command = "docker run {{image}}"
+
+[[skill.tool.parameter]]
+name = "image"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "detached"
+type = "boolean"
+required = false
+
+[[skill.tool]]
+name = "stop"
+description = "Stop a running container"
+command = "docker stop {{container}}"
+
+[[skill.tool.parameter]]
+name = "container"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "logs"
+description = "Fetch logs of a container"
+command = "docker logs {{container}}"
+
+[[skill.tool.parameter]]
+name = "container"
+type = "string"
+required = true
+
+# Skill 3: Git
+[[skill]]
+name = "git"
+description = "Git version control operations"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "status"
+description = "Show working tree status"
+command = "git status"
+
+[[skill.tool]]
+name = "log"
+description = "Show commit logs"
+command = "git log"
+
+[[skill.tool.parameter]]
+name = "n"
+description = "Number of commits to show"
+type = "number"
+required = false
+
+[[skill.tool]]
+name = "diff"
+description = "Show changes between commits"
+command = "git diff"
+
+[[skill.tool.parameter]]
+name = "file"
+type = "string"
+required = false
+
+[[skill.tool]]
+name = "branch"
+description = "List, create, or delete branches"
+command = "git branch"
+
+[[skill.tool.parameter]]
+name = "name"
+type = "string"
+required = false
+
+[[skill.tool]]
+name = "checkout"
+description = "Switch branches"
+command = "git checkout {{branch}}"
+
+[[skill.tool.parameter]]
+name = "branch"
+type = "string"
+required = true
+
+# Additional skills (abbreviated for brevity)
+[[skill]]
+name = "aws"
+description = "AWS cloud services management"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "s3_list"
+description = "List S3 buckets"
+command = "aws s3 ls"
+
+[[skill.tool]]
+name = "ec2_list"
+description = "List EC2 instances"
+command = "aws ec2 describe-instances"
+
+[[skill]]
+name = "terraform"
+description = "Infrastructure as Code with Terraform"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "init"
+description = "Initialize Terraform configuration"
+command = "terraform init"
+
+[[skill.tool]]
+name = "plan"
+description = "Generate execution plan"
+command = "terraform plan"
+
+[[skill.tool]]
+name = "apply"
+description = "Apply Terraform changes"
+command = "terraform apply"
+
+[[skill]]
+name = "database"
+description = "Database management utilities"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "query"
+description = "Execute SQL query"
+command = "psql -c '{{query}}'"
+
+[[skill.tool.parameter]]
+name = "query"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "backup"
+description = "Create database backup"
+command = "pg_dump {{database}}"
+
+[[skill.tool.parameter]]
+name = "database"
+type = "string"
+required = true
+
+[[skill]]
+name = "monitoring"
+description = "System monitoring and metrics"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "cpu_usage"
+description = "Check CPU usage"
+command = "top -bn1"
+
+[[skill.tool]]
+name = "memory_usage"
+description = "Check memory usage"
+command = "free -m"
+
+[[skill.tool]]
+name = "disk_usage"
+description = "Check disk usage"
+command = "df -h"
+
+[[skill]]
+name = "nginx"
+description = "Nginx web server management"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "reload"
+description = "Reload Nginx configuration"
+command = "nginx -s reload"
+
+[[skill.tool]]
+name = "test_config"
+description = "Test Nginx configuration"
+command = "nginx -t"
+
+[[skill]]
+name = "systemd"
+description = "Systemd service management"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "start"
+description = "Start a service"
+command = "systemctl start {{service}}"
+
+[[skill.tool.parameter]]
+name = "service"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "status"
+description = "Check service status"
+command = "systemctl status {{service}}"
+
+[[skill.tool.parameter]]
+name = "service"
+type = "string"
+required = true
+
+[[skill]]
+name = "logging"
+description = "Log management and analysis"
+version = "1.0.0"
+
+[[skill.tool]]
+name = "tail"
+description = "Tail log files"
+command = "tail -f {{file}}"
+
+[[skill.tool.parameter]]
+name = "file"
+type = "string"
+required = true
+
+[[skill.tool]]
+name = "grep"
+description = "Search logs for pattern"
+command = "grep {{pattern}} {{file}}"
+
+[[skill.tool.parameter]]
+name = "pattern"
+type = "string"
+required = true
+
+[[skill.tool.parameter]]
+name = "file"
+type = "string"
+required = true

@@ -1,0 +1,301 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["id", "name", "type", "description", "version", "author", "categories", "installation"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique identifier (URL-safe, kebab-case)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Display name of the skill"
+    },
+    "icon": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to SVG icon (e.g., Simple Icons CDN, custom hosted SVG)"
+    },
+    "skillMdPath": {
+      "type": "string",
+      "description": "Relative path to SKILL.md file from marketplace directory"
+    },
+    "skillMdUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to SKILL.md file (raw GitHub URL or hosted markdown)"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["wasm", "native", "docker"],
+      "description": "Skill runtime type"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 200,
+      "description": "Short description for card display"
+    },
+    "longDescription": {
+      "type": "string",
+      "description": "Full markdown description for detail page"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version (e.g., 1.0.0)"
+    },
+    "author": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "github": {
+          "type": "string",
+          "description": "GitHub username or organization"
+        }
+      }
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "featured",
+          "devops",
+          "cloud",
+          "database",
+          "api",
+          "messaging",
+          "monitoring",
+          "media",
+          "development",
+          "utilities"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "badges": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["official", "featured", "community", "verified"]
+      },
+      "uniqueItems": true
+    },
+    "installation": {
+      "type": "object",
+      "required": ["source"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Path to skill (relative or Docker image)"
+        },
+        "requiresAuth": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the skill requires authentication"
+        },
+        "envVars": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean",
+                "default": false
+              },
+              "description": {
+                "type": "string"
+              },
+              "default": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "port": {
+                "type": "number"
+              },
+              "optional": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        },
+        "dockerConfig": {
+          "type": "object",
+          "description": "Docker-specific configuration (for type=docker)",
+          "properties": {
+            "image": {
+              "type": "string"
+            },
+            "entrypoint": {
+              "type": "string"
+            },
+            "volumes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "workingDir": {
+              "type": "string"
+            },
+            "memory": {
+              "type": "string"
+            },
+            "network": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "properties": {
+        "cli": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required CLI tools"
+        },
+        "platform": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["linux", "macos", "windows"]
+          },
+          "description": "Supported platforms"
+        }
+      }
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type"],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["string", "number", "boolean", "array", "object", "file"]
+                },
+                "required": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "description": {
+                  "type": "string"
+                },
+                "default": {},
+                "enum": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "code"],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "properties": {
+        "github": {
+          "type": "string",
+          "format": "uri"
+        },
+        "documentation": {
+          "type": "string",
+          "format": "uri"
+        },
+        "homepage": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "downloads": {
+          "type": "number",
+          "minimum": 0
+        },
+        "stars": {
+          "type": "number",
+          "minimum": 0
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

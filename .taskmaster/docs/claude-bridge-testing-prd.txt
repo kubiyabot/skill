@@ -1,0 +1,1057 @@
+# Product Requirements Document: Claude Bridge Integration Testing & Validation
+
+## Executive Summary
+
+This PRD defines comprehensive end-to-end testing requirements for the Claude Bridge feature, which generates Claude Agent Skills from Skill Engine capabilities. The testing scope covers installation, setup, skill generation, Claude Code integration, MCP server integration, and real-world usage scenarios.
+
+## Goals & Objectives
+
+### Primary Goals
+1. Validate complete installation and setup workflow for new users
+2. Ensure Claude Bridge generates valid Claude Agent Skills that comply with Anthropic's specification
+3. Verify end-to-end integration with Claude Code (both MCP and script modes)
+4. Confirm skill discovery, tool execution, and context engineering work correctly
+5. Validate project-local and global skill generation modes
+6. Test error handling, edge cases, and recovery scenarios
+
+### Success Criteria
+- All generated skills are discovered by Claude Code
+- MCP tool execution works correctly with context engineering (grep, jq, head/tail, max_output)
+- Script fallback mode works when MCP is unavailable
+- Installation process completes successfully on clean systems
+- Documentation is accurate and complete
+- Error messages are clear and actionable
+
+## Background & Context
+
+### Current Implementation Status
+- **Location**: `crates/skill-cli/src/commands/claude_bridge/`
+- **CLI Command**: `skill claude generate`
+- **Output Formats**: SKILL.md, TOOLS.md, executable scripts
+- **Integration**: MCP server + filesystem-based skill discovery
+- **Branch**: CORE-1256-skill-rust-repo-ramp-up
+- **Commits**: 7a4b2a2, 104d7f8
+
+### Architecture Overview
+```
+Skill Engine Manifest (.skill-engine.toml)
+    ↓
+Claude Bridge (loader → validator → transformer → renderer → script_gen)
+    ↓
+Claude Agent Skills (~/.claude/skills/)
+    ├── SKILL.md (instructions + YAML frontmatter)
+    ├── TOOLS.md (reference documentation)
+    └── scripts/ (bash wrappers for fallback)
+    ↓
+Claude Code Discovery & Execution
+    ├── Filesystem discovery of skills
+    ├── MCP tool execution (mcp__skill-engine__execute)
+    └── Script fallback execution
+```
+
+## User Personas
+
+### Persona 1: New User (Clean Installation)
+- **Profile**: Developer new to Skill Engine and Claude Code
+- **Needs**: Clear installation instructions, automated setup, working examples
+- **Pain Points**: Complex configuration, unclear error messages, missing dependencies
+
+### Persona 2: Existing Skill Engine User
+- **Profile**: Already has skills installed and configured
+- **Needs**: Easy migration to Claude Bridge, backward compatibility
+- **Pain Points**: Overwriting existing configurations, breaking changes
+
+### Persona 3: Claude Code Power User
+- **Profile**: Uses Claude Code daily with multiple MCP servers
+- **Needs**: Efficient skill discovery, fast tool execution, good error messages
+- **Pain Points**: Slow tool execution, context window bloat, unclear tool usage
+
+### Persona 4: Enterprise Developer
+- **Profile**: Works in restricted environments, needs project-local skills
+- **Needs**: Project-scoped skills, no global installations, reproducible setups
+- **Pain Points**: Global state pollution, deployment complexity
+
+## Feature Requirements
+
+### 1. Installation & Setup
+
+#### 1.1 Fresh Installation
+**Description**: Test complete installation workflow on a clean system
+
+**Requirements**:
+- [ ] Skill Engine CLI installs successfully via cargo/npm
+- [ ] `skill claude generate` command is available after installation
+- [ ] Default output directory (~/.claude/skills/) is created automatically
+- [ ] No manual configuration required for basic usage
+- [ ] Installation works on macOS, Linux, and Windows
+- [ ] Installation documentation is accurate and complete
+
+**Acceptance Criteria**:
+- User can run `skill claude generate` within 5 minutes of starting
+- All dependencies are installed automatically or clearly documented
+- Error messages during installation are clear and actionable
+
+#### 1.2 MCP Server Configuration
+**Description**: Test MCP server setup for Claude Code integration
+
+**Requirements**:
+- [ ] MCP server configuration is documented in README
+- [ ] `.mcp.json` example configuration is provided
+- [ ] MCP server starts successfully with default configuration
+- [ ] MCP server responds to health checks
+- [ ] MCP server tools are discoverable by Claude Code
+- [ ] API key configuration is clear and secure
+
+**Acceptance Criteria**:
+- User can configure MCP server in under 10 minutes
+- Claude Code successfully connects to MCP server
+- All skill-engine tools are available via MCP
+
+### 2. Skill Generation
+
+#### 2.1 Generate All Skills
+**Description**: Test generation of all available skills at once
+
+**Requirements**:
+- [ ] `skill claude generate` generates all skills from manifest
+- [ ] Each skill gets its own directory (e.g., ~/.claude/skills/kubernetes/)
+- [ ] Each skill contains: SKILL.md, TOOLS.md, scripts/
+- [ ] SKILL.md has valid YAML frontmatter (name, description)
+- [ ] TOOLS.md contains complete parameter documentation
+- [ ] Scripts are executable (chmod +x)
+- [ ] Scripts pass correct arguments to underlying tools
+- [ ] Generation completes in reasonable time (< 30 seconds for 10 skills)
+- [ ] Progress feedback is shown during generation
+
+**Acceptance Criteria**:
+- All skills are generated without errors
+- Generated files are valid and well-formed
+- Scripts execute correctly when invoked
+
+#### 2.2 Generate Single Skill
+**Description**: Test generation of a specific skill
+
+**Requirements**:
+- [ ] `skill claude generate --skill kubernetes` generates only Kubernetes skill
+- [ ] Other skills remain unchanged if already present
+- [ ] Skill-specific generation is faster than full generation
+- [ ] Skill name validation provides helpful error messages
+- [ ] Invalid skill names are rejected with clear guidance
+
+**Acceptance Criteria**:
+- Single skill generation completes in < 5 seconds
+- Only requested skill is generated/updated
+- Error messages guide users to valid skill names
+
+#### 2.3 Project-Local Generation
+**Description**: Test project-scoped skill generation
+
+**Requirements**:
+- [ ] `skill claude generate --project` creates .claude/skills/ in current directory
+- [ ] Project-local skills are discovered by Claude Code when in project directory
+- [ ] Project-local skills don't pollute global ~/.claude/skills/
+- [ ] Multiple projects can have different skill versions
+- [ ] .gitignore patterns are suggested for .claude/skills/
+
+**Acceptance Criteria**:
+- Project-local skills work independently of global skills
+- Claude Code discovers project skills when in project directory
+- No conflicts between project and global skills
+
+#### 2.4 Force Overwrite
+**Description**: Test regeneration and overwriting of existing skills
+
+**Requirements**:
+- [ ] `skill claude generate --force` overwrites existing skill files
+- [ ] Without --force, existing files are preserved
+- [ ] User is warned before overwriting (unless --force)
+- [ ] Dry-run mode (`--dry-run`) previews changes without writing
+- [ ] Backup of previous version is suggested in warnings
+
+**Acceptance Criteria**:
+- Force flag successfully overwrites existing skills
+- Non-force mode preserves existing files
+- Dry-run accurately previews what would be generated
+
+#### 2.5 Script-Only Mode
+**Description**: Test generation with and without scripts
+
+**Requirements**:
+- [ ] `skill claude generate --no-scripts` skips script generation
+- [ ] SKILL.md still documents dual execution modes
+- [ ] MCP-only mode reduces disk usage
+- [ ] Skills work correctly in MCP-only environments
+
+**Acceptance Criteria**:
+- --no-scripts flag is respected
+- Generated skills still function via MCP
+- Disk usage is reduced when scripts are skipped
+
+### 3. Claude Code Integration
+
+#### 3.1 Skill Discovery
+**Description**: Test filesystem-based skill discovery by Claude Code
+
+**Requirements**:
+- [ ] Claude Code discovers skills in ~/.claude/skills/
+- [ ] Claude Code discovers skills in .claude/skills/ (project-local)
+- [ ] YAML frontmatter is parsed correctly
+- [ ] Skill descriptions appear in Claude's context
+- [ ] Skills are indexed for semantic search
+- [ ] Discovery works within 1 second of skill generation
+
+**Acceptance Criteria**:
+- All generated skills are visible to Claude Code
+- Skill metadata (name, description) is accurate
+- Skills appear in skill listings/suggestions
+
+#### 3.2 SKILL.md Instructions
+**Description**: Test that Claude Code reads and uses SKILL.md instructions
+
+**Requirements**:
+- [ ] Claude Code loads SKILL.md when skill is invoked
+- [ ] "When to Use" section guides Claude's skill selection
+- [ ] Dual execution mode instructions are clear
+- [ ] Quick reference table is accurate and helpful
+- [ ] Category organization helps Claude find relevant tools
+- [ ] Context engineering section is actionable
+- [ ] Progressive disclosure keeps token usage low
+
+**Acceptance Criteria**:
+- Claude selects appropriate skills based on "When to Use"
+- Claude understands both MCP and script execution modes
+- Claude applies context engineering correctly
+
+#### 3.3 MCP Tool Execution
+**Description**: Test tool execution via MCP server
+
+**Requirements**:
+- [ ] Claude can execute tools via `mcp__skill-engine__execute()`
+- [ ] Required parameters are passed correctly
+- [ ] Optional parameters work as documented
+- [ ] Tool responses are returned to Claude
+- [ ] Error messages from tools are clear and actionable
+- [ ] Execution latency is acceptable (< 5 seconds for simple commands)
+
+**Test Tools**:
+- **Kubernetes**: get pods, describe pod, logs
+- **Docker**: list containers, inspect container
+- **Git**: status, log, diff
+- **Terraform**: plan, validate
+- **AWS**: list buckets, describe instance
+
+**Acceptance Criteria**:
+- All test tools execute successfully via MCP
+- Claude receives correct responses
+- Parameters are validated and errors are clear
+
+#### 3.4 Context Engineering
+**Description**: Test context engineering features (grep, jq, head/tail, max_output)
+
+**Requirements**:
+- [ ] `grep` parameter filters output correctly
+- [ ] `jq` parameter extracts JSON fields correctly
+- [ ] `head` parameter limits output to first N lines
+- [ ] `tail` parameter limits output to last N lines
+- [ ] `max_output` parameter truncates large responses
+- [ ] `truncate` strategy (head/tail/middle/smart) works as documented
+- [ ] Multiple filters can be combined (e.g., jq + head)
+
+**Test Scenarios**:
+- Filter Kubernetes pods by "Running" status
+- Extract pod names from JSON response
+- Get first 10 log lines
+- Get last 20 log lines
+- Limit Docker output to 4000 characters
+- Combine filters: `jq '.items[].name' | head 5`
+
+**Acceptance Criteria**:
+- All context engineering features work correctly
+- Filtered output is accurate and helpful
+- Token usage is reduced for large responses
+
+#### 3.5 Script Fallback Execution
+**Description**: Test script execution when MCP is unavailable
+
+**Requirements**:
+- [ ] Claude can execute scripts from scripts/ directory
+- [ ] Script arguments are passed correctly (key=value format)
+- [ ] Scripts invoke underlying `skill run` command
+- [ ] Script output is captured and returned
+- [ ] Script errors are caught and reported clearly
+- [ ] Scripts work without MCP server running
+
+**Test Scenarios**:
+- Execute `./scripts/get.sh resource=pods`
+- Execute `./scripts/logs.sh resource=pod name=test-pod`
+- Test with invalid arguments
+- Test with missing required parameters
+
+**Acceptance Criteria**:
+- Scripts execute successfully without MCP
+- Output matches MCP execution results
+- Error handling is consistent between modes
+
+#### 3.6 Real-World Usage Scenarios
+**Description**: Test end-to-end workflows with Claude Code
+
+**Test Cases**:
+
+**TC1: Kubernetes Pod Investigation**
+1. User asks: "Show me all running pods"
+2. Claude discovers kubernetes skill
+3. Claude reads SKILL.md instructions
+4. Claude executes: `mcp__skill-engine__execute(skill='kubernetes', tool='get', args={resource:'pods'})`
+5. Claude applies grep filter: `grep='Running'`
+6. Claude presents filtered results to user
+
+**TC2: Docker Container Debugging**
+1. User asks: "Show me logs for the nginx container, last 50 lines"
+2. Claude discovers docker skill
+3. Claude executes: `mcp__skill-engine__execute(skill='docker', tool='logs', args={container:'nginx'}, tail=50)`
+4. Claude presents logs with context
+
+**TC3: Git Repository Analysis**
+1. User asks: "What changed in the last 5 commits?"
+2. Claude discovers git skill
+3. Claude executes: `mcp__skill-engine__execute(skill='git', tool='log', args={n:'5'})`
+4. Claude summarizes commit history
+
+**TC4: AWS Infrastructure Review**
+1. User asks: "List all S3 buckets"
+2. Claude discovers aws skill
+3. Claude executes: `mcp__skill-engine__execute(skill='aws', tool='s3_list_buckets')`
+4. Claude presents bucket list with creation dates
+
+**TC5: Terraform Plan Review**
+1. User asks: "Run terraform plan and summarize changes"
+2. Claude discovers terraform skill
+3. Claude executes: `mcp__skill-engine__execute(skill='terraform', tool='plan')`
+4. Claude parses output and summarizes: X resources to create, Y to modify, Z to destroy
+
+**Acceptance Criteria**:
+- All test cases complete successfully
+- Claude's responses are accurate and helpful
+- Tool execution is transparent to user
+- Error handling is graceful
+
+### 4. Validation & Compliance
+
+#### 4.1 Claude Agent Skills Specification Compliance
+**Description**: Verify generated skills comply with Anthropic's specification
+
+**Requirements**:
+- [ ] YAML frontmatter is valid YAML
+- [ ] Skill names are lowercase, alphanumeric + hyphens only, max 64 chars
+- [ ] Descriptions are max 1024 characters
+- [ ] Tool names are lowercase, alphanumeric + underscores only
+- [ ] No XML tags in descriptions
+- [ ] Scripts are executable (chmod +x)
+- [ ] Directory structure matches specification
+
+**Validation Methods**:
+- Parse YAML frontmatter with yamllint
+- Validate names with regex patterns
+- Test script execution permissions
+- Compare structure against spec documentation
+
+**Acceptance Criteria**:
+- All validation checks pass
+- Generated skills are spec-compliant
+- No warnings from Claude Code about malformed skills
+
+#### 4.2 Skill Name Validation
+**Description**: Test skill name validation and cleanup
+
+**Requirements**:
+- [ ] Valid names pass validation (e.g., "kubernetes", "my-skill")
+- [ ] Invalid names are rejected or cleaned up (e.g., "My Skill!" → "my-skill")
+- [ ] Names over 64 chars are truncated
+- [ ] Leading/trailing hyphens are removed
+- [ ] Uppercase is converted to lowercase
+- [ ] Special characters are removed or replaced
+
+**Test Cases**:
+- "Kubernetes" → "kubernetes"
+- "My Super Skill!" → "my-super-skill"
+- "skill_with_underscores" → "skill-with-underscores"
+- "a-very-long-skill-name-that-exceeds-the-maximum-length-of-sixty-four-characters" → truncated
+
+**Acceptance Criteria**:
+- All invalid names are handled gracefully
+- Validation errors provide helpful guidance
+- Cleaned names are human-readable
+
+#### 4.3 Description Validation
+**Description**: Test description validation and truncation
+
+**Requirements**:
+- [ ] Descriptions under 1024 chars pass validation
+- [ ] Descriptions over 1024 chars are truncated at word boundary
+- [ ] XML tags are removed or escaped
+- [ ] Newlines and special characters are preserved
+- [ ] Truncation doesn't break mid-word
+
+**Test Cases**:
+- Short description (< 1024 chars) passes unchanged
+- Long description (> 1024 chars) is truncated at word boundary
+- Description with XML tags: "<script>alert()</script>" → escaped or removed
+- Description with newlines preserves formatting
+
+**Acceptance Criteria**:
+- All descriptions are valid and safe
+- Truncation maintains readability
+- No XSS or injection vulnerabilities
+
+### 5. Error Handling & Edge Cases
+
+#### 5.1 Missing Dependencies
+**Description**: Test behavior when dependencies are missing
+
+**Requirements**:
+- [ ] Clear error if Skill Engine is not installed
+- [ ] Clear error if MCP server is not configured
+- [ ] Clear error if API keys are missing (for MCP)
+- [ ] Suggestions for fixing dependency issues
+- [ ] Graceful degradation (e.g., scripts work without MCP)
+
+**Acceptance Criteria**:
+- Error messages guide users to solutions
+- No cryptic stack traces or technical jargon
+- Users can self-recover from errors
+
+#### 5.2 Invalid Manifest
+**Description**: Test behavior with malformed or missing manifest
+
+**Requirements**:
+- [ ] Clear error if .skill-engine.toml is missing
+- [ ] Clear error if manifest is invalid TOML
+- [ ] Clear error if required fields are missing
+- [ ] Validation errors point to specific issues
+- [ ] Example manifest is suggested for new users
+
+**Acceptance Criteria**:
+- Manifest errors are caught early
+- Error messages are specific and actionable
+- Users can fix manifest issues independently
+
+#### 5.3 Filesystem Permissions
+**Description**: Test behavior with permission issues
+
+**Requirements**:
+- [ ] Clear error if output directory is not writable
+- [ ] Clear error if scripts cannot be made executable
+- [ ] Suggestions for fixing permission issues (e.g., sudo, chmod)
+- [ ] Validation before attempting to write files
+
+**Acceptance Criteria**:
+- Permission errors are detected early
+- Error messages explain the problem clearly
+- Users can resolve permission issues
+
+#### 5.4 Concurrent Generation
+**Description**: Test behavior when multiple generation processes run
+
+**Requirements**:
+- [ ] File locking prevents corruption
+- [ ] Concurrent reads are safe
+- [ ] Concurrent writes are serialized or warned
+- [ ] No race conditions or data loss
+
+**Acceptance Criteria**:
+- Generated files are always consistent
+- No corruption from concurrent access
+- Users are warned about concurrent operations
+
+#### 5.5 Partial Failures
+**Description**: Test recovery from partial generation failures
+
+**Requirements**:
+- [ ] Transactional writes (all or nothing) or clear partial state
+- [ ] Failed skills don't block other skills
+- [ ] User is notified which skills failed and why
+- [ ] Retry mechanism for transient failures
+- [ ] Cleanup of partially written files
+
+**Acceptance Criteria**:
+- Failures don't leave corrupted files
+- Users can retry failed generations
+- Success/failure status is clear
+
+### 6. Performance & Scalability
+
+#### 6.1 Generation Performance
+**Description**: Test generation speed and resource usage
+
+**Requirements**:
+- [ ] Generate 1 skill: < 5 seconds
+- [ ] Generate 10 skills: < 30 seconds
+- [ ] Generate 50 skills: < 2 minutes
+- [ ] Memory usage stays under 500MB
+- [ ] CPU usage is reasonable (< 80% sustained)
+- [ ] Progress feedback for long operations
+
+**Acceptance Criteria**:
+- Generation completes within time targets
+- No memory leaks or excessive resource usage
+- User has visibility into progress
+
+#### 6.2 Skill Discovery Performance
+**Description**: Test Claude Code's skill discovery speed
+
+**Requirements**:
+- [ ] Skill discovery completes in < 1 second
+- [ ] Discovery scales with number of skills (tested with 1, 10, 50, 100 skills)
+- [ ] No blocking of Claude Code UI during discovery
+- [ ] Incremental discovery as skills are added
+
+**Acceptance Criteria**:
+- Discovery is fast regardless of skill count
+- No perceptible lag in Claude Code
+- Skills are immediately available after generation
+
+#### 6.3 Tool Execution Performance
+**Description**: Test tool execution latency via MCP
+
+**Requirements**:
+- [ ] Simple tools (e.g., git status) complete in < 2 seconds
+- [ ] Medium tools (e.g., kubectl get pods) complete in < 5 seconds
+- [ ] Complex tools (e.g., terraform plan) complete in < 30 seconds
+- [ ] Streaming output for long-running tools
+- [ ] Timeout handling for hung processes
+
+**Acceptance Criteria**:
+- Tool execution is responsive
+- No blocking of Claude Code during execution
+- Timeouts prevent infinite waits
+
+### 7. Documentation & Developer Experience
+
+#### 7.1 README Documentation
+**Description**: Validate README completeness and accuracy
+
+**Requirements**:
+- [ ] Installation instructions are clear and complete
+- [ ] Usage examples cover common scenarios
+- [ ] MCP server configuration is documented
+- [ ] Troubleshooting section addresses common issues
+- [ ] API reference for CLI commands
+- [ ] Links to external resources (Claude Code docs, Skill Engine docs)
+
+**Acceptance Criteria**:
+- New users can complete setup using only README
+- All CLI flags and options are documented
+- Examples are accurate and runnable
+
+#### 7.2 Error Messages
+**Description**: Validate error message quality
+
+**Requirements**:
+- [ ] Error messages explain what went wrong
+- [ ] Error messages suggest how to fix the problem
+- [ ] Error messages link to relevant documentation
+- [ ] No stack traces shown to users (unless --debug flag)
+- [ ] Consistent error message format
+
+**Acceptance Criteria**:
+- Users can resolve 80% of errors without external help
+- Error messages are friendly and not intimidating
+- Debug mode provides technical details when needed
+
+#### 7.3 Examples & Tutorials
+**Description**: Validate example quality and coverage
+
+**Requirements**:
+- [ ] Quickstart guide (5 minutes to first success)
+- [ ] Common workflows documented with examples
+- [ ] Video tutorial or screencast available
+- [ ] Example manifests for popular tools (k8s, docker, git, aws)
+- [ ] Integration examples with Claude Code
+
+**Acceptance Criteria**:
+- New users can complete quickstart successfully
+- Examples cover 80% of use cases
+- Tutorials are up-to-date with current implementation
+
+### 8. Security & Safety
+
+#### 8.1 API Key Security
+**Description**: Test API key handling and security
+
+**Requirements**:
+- [ ] API keys are not logged or printed
+- [ ] API keys are read from secure environment variables
+- [ ] .env files are in .gitignore
+- [ ] Example configurations use placeholder keys
+- [ ] Documentation warns about committing keys
+
+**Acceptance Criteria**:
+- No API keys leak in logs or outputs
+- Users are guided to secure key storage
+- Example configurations are safe
+
+#### 8.2 Script Execution Safety
+**Description**: Test script generation and execution safety
+
+**Requirements**:
+- [ ] Scripts validate arguments before execution
+- [ ] No command injection vulnerabilities
+- [ ] Scripts run with minimal permissions
+- [ ] Scripts don't expose sensitive data
+- [ ] Scripts handle untrusted input safely
+
+**Acceptance Criteria**:
+- Security audit passes with no critical issues
+- Scripts follow shell safety best practices
+- No XSS, injection, or privilege escalation vulnerabilities
+
+#### 8.3 Filesystem Safety
+**Description**: Test filesystem operation safety
+
+**Requirements**:
+- [ ] Generated files don't overwrite system files
+- [ ] Output directory is validated before writing
+- [ ] Symlinks are handled safely
+- [ ] No path traversal vulnerabilities
+- [ ] User confirmation before destructive operations
+
+**Acceptance Criteria**:
+- No accidental overwriting of important files
+- Path validation catches malicious inputs
+- Users can safely run generation commands
+
+## Testing Strategy
+
+### Test Environments
+
+#### Environment 1: Clean macOS System
+- Fresh macOS installation
+- No prior Skill Engine or Claude Code installation
+- Default shell configuration (zsh)
+- Homebrew available
+
+#### Environment 2: Clean Linux System
+- Ubuntu 22.04 LTS or equivalent
+- No prior installations
+- Bash shell
+- Standard tooling (apt, curl, git)
+
+#### Environment 3: Existing Skill Engine Installation
+- Skill Engine already installed and configured
+- Existing skills in ~/.claude/skills/
+- MCP server already configured
+- Claude Code with multiple MCP servers
+
+#### Environment 4: Project-Local Setup
+- Empty Git repository
+- No global skill installations
+- Project-scoped .claude/skills/ directory
+- Team collaboration scenario
+
+### Test Types
+
+#### 1. Unit Tests (Rust)
+- Test individual modules (loader, validator, transformer, renderer, script_gen)
+- Test data structures and transformations
+- Test validation rules
+- Test error handling
+- **Coverage Target**: 80%+
+
+#### 2. Integration Tests (Rust)
+- Test end-to-end skill generation pipeline
+- Test CLI command integration
+- Test filesystem operations
+- Test manifest parsing
+- **Coverage Target**: 70%+
+
+#### 3. End-to-End Tests (Bash + Claude Code)
+- Test complete workflows from manifest to Claude execution
+- Test MCP server integration
+- Test skill discovery and execution
+- Test real-world scenarios
+- **Test Cases**: 20+ scenarios
+
+#### 4. Acceptance Tests (Manual)
+- Test with real Claude Code instance
+- Validate user experience
+- Test documentation accuracy
+- Test error recovery workflows
+- **Test Sessions**: 5+ hours across all personas
+
+#### 5. Performance Tests
+- Benchmark generation speed
+- Benchmark skill discovery speed
+- Benchmark tool execution latency
+- Test with large skill collections (50+ skills)
+- **Performance Targets**: Listed in section 6
+
+#### 6. Security Tests
+- Static analysis with cargo-audit
+- Script injection testing
+- API key leak detection
+- Path traversal testing
+- **Security Audit**: Full pass with no critical issues
+
+### Test Data
+
+#### Sample Manifests
+- **Minimal**: Single skill with 1 tool
+- **Small**: 3 skills with 5 tools each
+- **Medium**: 10 skills with 10-20 tools each
+- **Large**: 50 skills with varying tool counts
+- **Complex**: Skills with parameters, streaming, examples
+
+#### Sample Skills
+- **Kubernetes**: Production-grade manifest with full kubectl coverage
+- **Docker**: Container management tools
+- **Git**: Repository operations
+- **AWS**: Cloud infrastructure tools (S3, EC2, RDS)
+- **Terraform**: Infrastructure as Code tools
+- **Custom**: User-defined skill with edge cases
+
+### Test Automation
+
+#### CI/CD Pipeline
+- Run unit tests on every commit
+- Run integration tests on PR creation
+- Run performance tests nightly
+- Run security tests weekly
+- Generate coverage reports
+
+#### Test Scripts
+- `test-fresh-install.sh` - Simulates new user installation
+- `test-skill-generation.sh` - Tests all generation modes
+- `test-mcp-integration.sh` - Tests MCP server integration
+- `test-claude-code.sh` - Tests Claude Code workflows
+- `test-performance.sh` - Runs performance benchmarks
+
+### Success Metrics
+
+#### Functional Metrics
+- [ ] 100% of unit tests pass
+- [ ] 100% of integration tests pass
+- [ ] 95%+ of E2E tests pass
+- [ ] 0 critical bugs in production
+- [ ] 0 security vulnerabilities
+
+#### Performance Metrics
+- [ ] Skill generation: < 30 seconds for 10 skills
+- [ ] Skill discovery: < 1 second
+- [ ] Tool execution: < 5 seconds for simple tools
+- [ ] Memory usage: < 500MB
+- [ ] CPU usage: < 80% sustained
+
+#### User Experience Metrics
+- [ ] Installation: < 10 minutes for new users
+- [ ] First skill generation: < 5 minutes
+- [ ] First successful Claude Code interaction: < 15 minutes
+- [ ] Error resolution: 80% self-service
+- [ ] Documentation clarity: 90%+ satisfaction
+
+## Implementation Plan
+
+### Phase 1: Test Infrastructure Setup (Week 1)
+1. Set up test environments (clean macOS, Linux, existing installation)
+2. Create sample manifests and test data
+3. Write test automation scripts
+4. Configure CI/CD pipeline
+5. Document testing procedures
+
+### Phase 2: Unit & Integration Testing (Week 1-2)
+1. Achieve 80%+ unit test coverage
+2. Add integration tests for all modules
+3. Test validation rules comprehensively
+4. Test error handling paths
+5. Run tests in CI/CD
+
+### Phase 3: End-to-End Testing (Week 2)
+1. Test fresh installation workflows
+2. Test all generation modes (all skills, single skill, project-local, force, no-scripts)
+3. Test MCP server integration
+4. Test Claude Code skill discovery
+5. Test real-world usage scenarios
+
+### Phase 4: Performance & Security Testing (Week 3)
+1. Run performance benchmarks
+2. Conduct security audit
+3. Test with large skill collections (50+ skills)
+4. Load test MCP server
+5. Fix performance and security issues
+
+### Phase 5: Documentation & UX Testing (Week 3)
+1. Validate README accuracy
+2. Test error messages with real users
+3. Create video tutorials
+4. Test with 5+ real users (representing all personas)
+5. Incorporate user feedback
+
+### Phase 6: Final Validation & Release Prep (Week 4)
+1. Fix all critical and high-priority bugs
+2. Rerun all test suites
+3. Validate all success metrics
+4. Prepare release notes
+5. Plan rollout strategy
+
+## Acceptance Criteria Summary
+
+This project is considered complete when:
+
+1. **Installation**: New users can install and generate first skill in < 15 minutes
+2. **Generation**: All generation modes work correctly (100% pass rate)
+3. **Integration**: Claude Code discovers and executes all generated skills (100% success rate)
+4. **Performance**: All performance targets met (see section 6)
+5. **Security**: Security audit passes with 0 critical issues
+6. **Documentation**: README and examples enable 90%+ self-service
+7. **Tests**: 100% unit tests pass, 95%+ E2E tests pass
+8. **User Satisfaction**: 90%+ positive feedback from beta testers
+
+## Risks & Mitigation
+
+### Risk 1: Claude Code API Changes
+- **Probability**: Medium
+- **Impact**: High
+- **Mitigation**: Monitor Claude Code releases, maintain test suite, version compatibility matrix
+
+### Risk 2: Performance Issues with Large Skill Collections
+- **Probability**: Medium
+- **Impact**: Medium
+- **Mitigation**: Optimize generation pipeline, implement caching, lazy loading
+
+### Risk 3: MCP Server Stability
+- **Probability**: Low
+- **Impact**: High
+- **Mitigation**: Robust error handling, script fallback mode, health checks
+
+### Risk 4: User Adoption Friction
+- **Probability**: Medium
+- **Impact**: Medium
+- **Mitigation**: Excellent documentation, video tutorials, active support, smooth onboarding
+
+### Risk 5: Security Vulnerabilities
+- **Probability**: Low
+- **Impact**: High
+- **Mitigation**: Security audit, static analysis, input validation, secure defaults
+
+## Appendix A: Test Case Catalog
+
+### Installation Test Cases
+- TC-INST-001: Fresh macOS installation
+- TC-INST-002: Fresh Linux installation
+- TC-INST-003: Installation with existing Skill Engine
+- TC-INST-004: Installation in restricted environment (no sudo)
+- TC-INST-005: Installation via multiple package managers (cargo, npm, homebrew)
+
+### Generation Test Cases
+- TC-GEN-001: Generate all skills (default)
+- TC-GEN-002: Generate single skill by name
+- TC-GEN-003: Generate with --force flag
+- TC-GEN-004: Generate with --dry-run flag
+- TC-GEN-005: Generate with --no-scripts flag
+- TC-GEN-006: Generate with --project flag (project-local)
+- TC-GEN-007: Generate with custom --output directory
+- TC-GEN-008: Generate with invalid skill name
+- TC-GEN-009: Generate with missing manifest
+- TC-GEN-010: Generate with malformed manifest
+
+### Integration Test Cases
+- TC-INT-001: MCP server connection
+- TC-INT-002: Skill discovery by Claude Code
+- TC-INT-003: Tool execution via MCP
+- TC-INT-004: Tool execution via scripts
+- TC-INT-005: Context engineering (grep)
+- TC-INT-006: Context engineering (jq)
+- TC-INT-007: Context engineering (head/tail)
+- TC-INT-008: Context engineering (max_output)
+- TC-INT-009: Error handling in tool execution
+- TC-INT-010: Streaming output
+
+### Real-World Scenario Test Cases
+- TC-SCEN-001: Kubernetes pod investigation
+- TC-SCEN-002: Docker container debugging
+- TC-SCEN-003: Git repository analysis
+- TC-SCEN-004: AWS infrastructure review
+- TC-SCEN-005: Terraform plan review
+- TC-SCEN-006: Multi-tool workflow (e.g., kubectl + docker)
+- TC-SCEN-007: Error recovery workflow
+- TC-SCEN-008: Skill updates and regeneration
+- TC-SCEN-009: Team collaboration with project-local skills
+- TC-SCEN-010: Performance optimization with context engineering
+
+### Validation Test Cases
+- TC-VAL-001: Skill name validation (valid names)
+- TC-VAL-002: Skill name validation (invalid names)
+- TC-VAL-003: Description validation (length)
+- TC-VAL-004: Description validation (special characters)
+- TC-VAL-005: YAML frontmatter parsing
+- TC-VAL-006: Script permissions (chmod +x)
+- TC-VAL-007: Directory structure compliance
+- TC-VAL-008: Tool parameter validation
+- TC-VAL-009: Lenient vs strict validation modes
+- TC-VAL-010: Validation error messages
+
+### Performance Test Cases
+- TC-PERF-001: Generation speed (1 skill)
+- TC-PERF-002: Generation speed (10 skills)
+- TC-PERF-003: Generation speed (50 skills)
+- TC-PERF-004: Skill discovery speed (1 skill)
+- TC-PERF-005: Skill discovery speed (100 skills)
+- TC-PERF-006: Tool execution latency (simple tool)
+- TC-PERF-007: Tool execution latency (complex tool)
+- TC-PERF-008: Memory usage during generation
+- TC-PERF-009: CPU usage during generation
+- TC-PERF-010: Concurrent generation stress test
+
+### Security Test Cases
+- TC-SEC-001: API key security (no leaks in logs)
+- TC-SEC-002: Script injection prevention
+- TC-SEC-003: Path traversal prevention
+- TC-SEC-004: XSS prevention in descriptions
+- TC-SEC-005: Filesystem permission handling
+- TC-SEC-006: Secure script execution
+- TC-SEC-007: Input validation
+- TC-SEC-008: .gitignore compliance
+- TC-SEC-009: Secrets scanning
+- TC-SEC-010: Privilege escalation prevention
+
+## Appendix B: Sample Test Scripts
+
+### test-fresh-install.sh
+```bash
+#!/bin/bash
+# Test fresh installation workflow
+set -e
+
+echo "Testing fresh installation..."
+
+# Clean slate
+rm -rf ~/.claude/skills/
+rm -rf ~/.skill-engine/
+
+# Install Skill Engine (simulated)
+echo "Installing Skill Engine..."
+cargo install skill-cli
+
+# Verify installation
+skill --version
+skill claude --help
+
+# Generate skills
+echo "Generating skills..."
+skill claude generate
+
+# Verify output
+test -d ~/.claude/skills/
+test -f ~/.claude/skills/kubernetes/SKILL.md
+test -f ~/.claude/skills/kubernetes/TOOLS.md
+test -x ~/.claude/skills/kubernetes/scripts/get.sh
+
+echo "Fresh installation test: PASSED"
+```
+
+### test-skill-generation.sh
+```bash
+#!/bin/bash
+# Test all skill generation modes
+set -e
+
+echo "Testing skill generation modes..."
+
+# Test 1: Generate all skills
+echo "Test 1: Generate all skills"
+skill claude generate --force
+test -d ~/.claude/skills/kubernetes/
+
+# Test 2: Generate single skill
+echo "Test 2: Generate single skill"
+rm -rf ~/.claude/skills/docker/
+skill claude generate --skill docker
+test -d ~/.claude/skills/docker/
+
+# Test 3: Project-local generation
+echo "Test 3: Project-local generation"
+mkdir -p /tmp/test-project
+cd /tmp/test-project
+skill claude generate --project --skill git
+test -d .claude/skills/git/
+
+# Test 4: Dry-run mode
+echo "Test 4: Dry-run mode"
+output=$(skill claude generate --skill aws --dry-run)
+echo "$output" | grep -q "Would generate"
+
+# Test 5: No-scripts mode
+echo "Test 5: No-scripts mode"
+rm -rf ~/.claude/skills/terraform/
+skill claude generate --skill terraform --no-scripts
+test -f ~/.claude/skills/terraform/SKILL.md
+test ! -d ~/.claude/skills/terraform/scripts/
+
+echo "Skill generation tests: PASSED"
+```
+
+### test-claude-code.sh
+```bash
+#!/bin/bash
+# Test Claude Code integration (requires Claude Code installed)
+set -e
+
+echo "Testing Claude Code integration..."
+
+# Prerequisite: Generate skills
+skill claude generate --force
+
+# Test 1: Skill discovery
+echo "Test 1: Testing skill discovery..."
+# Note: This requires manual verification in Claude Code
+# Automated check: verify files exist
+test -f ~/.claude/skills/kubernetes/SKILL.md
+
+# Test 2: Tool execution via script
+echo "Test 2: Testing script execution..."
+cd ~/.claude/skills/kubernetes/
+./scripts/get.sh resource=pods > /dev/null
+
+# Test 3: MCP server health
+echo "Test 3: Testing MCP server..."
+# Note: Requires MCP server running
+# curl http://localhost:3000/health || echo "Warning: MCP server not running"
+
+echo "Claude Code integration tests: PASSED (manual verification required)"
+```
+
+## Appendix C: Success Dashboard
+
+Create a live dashboard to track testing progress:
+
+```
+Claude Bridge Testing Dashboard
+================================
+
+Installation Tests:        █████████░ 90% (9/10 passed)
+Generation Tests:          ██████████ 100% (10/10 passed)
+Integration Tests:         ████████░░ 80% (8/10 passed)
+Scenario Tests:            ███████░░░ 70% (7/10 passed)
+Validation Tests:          ██████████ 100% (10/10 passed)
+Performance Tests:         ████████░░ 80% (8/10 passed)
+Security Tests:            ██████████ 100% (10/10 passed)
+
+Overall Progress:          ████████░░ 84% (62/74 tests passed)
+
+Blockers:
+- [ ] TC-INT-003: Tool execution via MCP (connection timeout)
+- [ ] TC-SCEN-004: AWS infrastructure review (missing credentials)
+
+Next Steps:
+1. Fix MCP connection timeout issue
+2. Add AWS credentials to test environment
+3. Rerun failed integration tests
+4. Complete scenario testing
+```
+
+## Conclusion
+
+This PRD defines a comprehensive testing strategy for the Claude Bridge feature, covering installation, skill generation, Claude Code integration, validation, performance, security, and user experience. Successful completion of all test phases will ensure the Claude Bridge is production-ready, user-friendly, and reliable for all target personas.
+
+**Total Estimated Effort**: 4 weeks (1 engineer)
+**Priority**: High
+**Target Release**: Q1 2026

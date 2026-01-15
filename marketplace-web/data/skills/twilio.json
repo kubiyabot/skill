@@ -1,0 +1,63 @@
+{
+    "id": "twilio",
+    "name": "Twilio",
+    "icon": "https://cdn.simpleicons.org/twilio",
+    "type": "wasm",
+    "description": "Send SMS messages and make voice calls.",
+    "longDescription": "Enable your agent to communicate via SMS and Voice using Twilio's powerful API.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Skill Engine Team",
+        "github": "kubiyabot",
+        "url": "https://github.com/kubiyabot/skill"
+    },
+    "categories": [
+        "communication"
+    ],
+    "badges": [
+        "verified"
+    ],
+    "installation": {
+        "source": "registry.kubiya.sh/skills/twilio:latest",
+        "requiresAuth": true,
+        "envVars": [
+            {
+                "name": "TWILIO_ACCOUNT_SID",
+                "required": true,
+                "description": "Account SID"
+            },
+            {
+                "name": "TWILIO_AUTH_TOKEN",
+                "required": true,
+                "description": "Auth Token"
+            }
+        ]
+    },
+    "tools": [
+        {
+            "name": "send_sms",
+            "description": "Send an SMS message",
+            "parameters": [
+                {
+                    "name": "to",
+                    "type": "string",
+                    "required": true,
+                    "description": "Recipient phone number"
+                },
+                {
+                    "name": "body",
+                    "type": "string",
+                    "required": true,
+                    "description": "Message body"
+                }
+            ]
+        }
+    ],
+    "examples": [
+        {
+            "title": "Send OTP",
+            "description": "Send a one-time password via SMS",
+            "code": "skill run twilio:send_sms to=\"+1234567890\" body=\"Your code is 1234\""
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "name": "test-skill",
+      "version": "0.1.0",
+      "description": "A test skill for integration tests",
+      "source": "local:./test-skill",
+      "runtime": "wasm",
+      "tools_count": 3,
+      "instances_count": 1,
+      "execution_count": 0,
+      "last_used": null,
+      "required_services": []
+    },
+    {
+      "name": "aws-skill",
+      "version": "1.0.0",
+      "description": "AWS operations skill",
+      "source": "github:test/aws-skill",
+      "runtime": "wasm",
+      "tools_count": 10,
+      "instances_count": 2,
+      "execution_count": 5,
+      "last_used": "2025-01-01",
+      "required_services": []
+    }
+  ],
+  "total": 2,
+  "page": 1,
+  "per_page": 20,
+  "total_pages": 1
+}

@@ -1,0 +1,39 @@
+name: python-example
+version: 1.0.0
+description: Example Python skill demonstrating SDK features
+author: Skill Engine Team
+
+component_model: true
+wit_interface: skill-engine:interface@1.0.0
+
+tags:
+  - example
+  - python
+  - demo
+
+config:
+  greeting_prefix:
+    type: string
+    description: Prefix for greeting messages
+    default: "Hello"
+  max_items:
+    type: integer
+    description: Maximum items to process
+    default: 100
+
+tools:
+  - name: greet
+    description: Greet someone with a personalized message
+    handler: src/main.py:greet
+  - name: echo
+    description: Echo back a message with optional transformation
+    handler: src/main.py:echo
+  - name: calculate
+    description: Perform basic arithmetic operations
+    handler: src/main.py:calculate
+  - name: process_list
+    description: Process a list of items and return statistics
+    handler: src/main.py:process_list
+  - name: status
+    description: Get current skill configuration and status
+    handler: src/main.py:status

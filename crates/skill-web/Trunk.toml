@@ -1,0 +1,53 @@
+# Trunk configuration for skill-web
+# https://trunkrs.dev/configuration/
+
+[build]
+# The index HTML file to drive the bundling process
+target = "index.html"
+# The output directory for all final build artifacts
+dist = "dist"
+# Run without network access
+offline = false
+# Require Cargo.lock and cache are up to date
+locked = false
+# Build in release mode
+release = false
+# Minify JavaScript
+minify = "never"
+
+[watch]
+# Paths to watch for changes
+watch = ["src", "index.html", "input.css", "tailwind.config.js"]
+# Files to ignore (only include paths that exist)
+ignore = ["dist"]
+
+[serve]
+# The address to serve on
+addresses = ["127.0.0.1"]
+# The port to serve on
+port = 8080
+# Open browser on start
+open = false
+# Enable auto-reload
+autoreload = true
+# Disable request logging
+no_autoreload = false
+
+# Proxy API requests to the backend
+[[proxy]]
+# URL prefix to proxy
+rewrite = "/api"
+# Backend address
+backend = "http://127.0.0.1:3000/api"
+
+# WebSocket proxy for real-time updates
+[[proxy]]
+rewrite = "/ws"
+backend = "http://127.0.0.1:3000/ws"
+ws = true
+
+[tools]
+# Use wasm-bindgen from cargo
+wasm_bindgen = "0.2.106"
+
+# Note: clean configuration removed (not supported in trunk 0.21+)

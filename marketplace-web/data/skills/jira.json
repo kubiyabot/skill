@@ -1,0 +1,88 @@
+{
+    "id": "jira",
+    "name": "Jira",
+    "icon": "https://cdn.simpleicons.org/jira",
+    "type": "wasm",
+    "description": "Create and manage Jira issues, sprints, and boards.",
+    "longDescription": "Enterprise-grade Jira integration for your AI agents. Create, update, and search issues with ease.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Skill Engine Team",
+        "github": "kubiyabot",
+        "url": "https://github.com/kubiyabot/skill"
+    },
+    "categories": [
+        "project-management",
+        "enterprise"
+    ],
+    "badges": [
+        "verified"
+    ],
+    "installation": {
+        "source": "registry.kubiya.sh/skills/jira:latest",
+        "requiresAuth": true,
+        "envVars": [
+            {
+                "name": "JIRA_URL",
+                "required": true,
+                "description": "Jira Instance URL"
+            },
+            {
+                "name": "JIRA_API_TOKEN",
+                "required": true,
+                "description": "Jira API Token"
+            },
+            {
+                "name": "JIRA_EMAIL",
+                "required": true,
+                "description": "Jira Account Email"
+            }
+        ]
+    },
+    "tools": [
+        {
+            "name": "create_ticket",
+            "description": "Create a new Jira ticket",
+            "parameters": [
+                {
+                    "name": "project",
+                    "type": "string",
+                    "required": true,
+                    "description": "Project Key"
+                },
+                {
+                    "name": "summary",
+                    "type": "string",
+                    "required": true,
+                    "description": "Issue summary"
+                },
+                {
+                    "name": "issuetype",
+                    "type": "string",
+                    "required": false,
+                    "default": "Task",
+                    "description": "Issue type"
+                }
+            ]
+        },
+        {
+            "name": "search_issues",
+            "description": "Search for issues using JQL",
+            "parameters": [
+                {
+                    "name": "jql",
+                    "type": "string",
+                    "required": true,
+                    "description": "JQL query string"
+                }
+            ]
+        }
+    ],
+    "examples": [
+        {
+            "title": "Create a task",
+            "description": "Add a new task to the PROJ project",
+            "code": "skill run jira:create_ticket project=PROJ summary=\"Update documentation\""
+        }
+    ]
+}

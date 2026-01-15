@@ -1,0 +1,57 @@
+# Minimal Skill Engine Manifest
+# Copy this file to your project root as .skill-engine.toml
+version = "1"
+
+# =============================================================================
+# Essential Development Skills
+# =============================================================================
+
+[skills.git]
+source = "./examples/native-skills/git-skill"
+description = "Git version control operations"
+runtime = "native"
+
+[skills.git.instances.default]
+# No config needed - uses system git
+
+[skills.kubernetes]
+source = "./examples/native-skills/kubernetes-skill"
+description = "Kubernetes cluster management"
+runtime = "native"
+
+[skills.kubernetes.instances.default]
+# No config needed for demo
+
+[skills.terraform]
+source = "./examples/native-skills/terraform-skill"
+description = "Terraform infrastructure as code management"
+runtime = "native"
+
+[skills.terraform.instances.default]
+# No config needed - uses system terraform
+
+[skills.docker]
+source = "./examples/native-skills/docker-skill"
+description = "Docker container and image management"
+runtime = "native"
+
+[skills.docker.instances.default]
+# No config needed - uses system Docker
+
+# =============================================================================
+# API Integration Skills
+# =============================================================================
+
+[skills.http]
+source = "./examples/wasm-skills/http-skill"
+description = "Universal HTTP client for API requests"
+
+[skills.http.instances.default]
+# No config needed - authentication is per-request
+
+[skills.github]
+source = "./examples/wasm-skills/github-skill"
+description = "GitHub integration for repositories, issues, PRs, and actions"
+
+[skills.github.instances.default]
+# Token provided via SKILL_GITHUB_TOKEN environment variable

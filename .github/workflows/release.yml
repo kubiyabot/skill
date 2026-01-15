@@ -1,0 +1,156 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86_64 with musl for static linking
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+
+          # macOS aarch64 (Apple Silicon) - most common Mac architecture now
+          - target: aarch64-apple-darwin
+            os: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install musl tools (Linux)
+        if: contains(matrix.target, 'musl')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools musl-dev
+
+      - name: Install Trunk and WASM target
+        run: |
+          rustup target add wasm32-unknown-unknown
+          cargo install trunk --locked
+
+      - name: Install TailwindCSS
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64
+            chmod +x tailwindcss-linux-x64
+            sudo mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-macos-arm64
+            chmod +x tailwindcss-macos-arm64
+            sudo mv tailwindcss-macos-arm64 /usr/local/bin/tailwindcss
+          fi
+        shell: bash
+
+      - name: Build Web UI
+        run: |
+          cd crates/skill-web
+          trunk build --release
+
+      - name: Build CLI with web-ui feature
+        run: cargo build --release --target ${{ matrix.target }} -p skill-cli --features skill-http/web-ui
+
+      - name: Create archive (Unix)
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar -czf skill-${{ matrix.target }}.tar.gz skill
+          shasum -a 256 skill-${{ matrix.target }}.tar.gz > skill-${{ matrix.target }}.tar.gz.sha256
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/skill-${{ matrix.target }}.tar.gz
+            target/${{ matrix.target }}/release/skill-${{ matrix.target }}.tar.gz.sha256
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release files
+        run: |
+          mkdir release
+          find artifacts -name "*.tar.gz" -exec cp {} release/ \;
+          find artifacts -name "*.sha256" -exec cp {} release/ \;
+
+          # Create combined checksums file
+          cd release
+          cat *.sha256 > checksums.txt
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Skill Engine v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## Skill Engine v${{ steps.version.outputs.VERSION }}
+
+            ### Installation
+
+            **Quick install (recommended):**
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/kubiyabot/skill/main/install.sh | sh
+            ```
+
+            **Cargo install:**
+            ```bash
+            cargo install skill-cli
+            ```
+
+            **From source:**
+            ```bash
+            cargo install --git https://github.com/kubiyabot/skill --bin skill
+            ```
+
+            ### Downloads
+
+            | Platform | Architecture | Download |
+            |----------|-------------|----------|
+            | Linux | x86_64 (static) | [skill-x86_64-unknown-linux-musl.tar.gz](https://github.com/kubiyabot/skill/releases/download/v${{ steps.version.outputs.VERSION }}/skill-x86_64-unknown-linux-musl.tar.gz) |
+            | macOS | aarch64 (Apple Silicon) | [skill-aarch64-apple-darwin.tar.gz](https://github.com/kubiyabot/skill/releases/download/v${{ steps.version.outputs.VERSION }}/skill-aarch64-apple-darwin.tar.gz) |
+
+            > **Note:** For other platforms, use `cargo install skill-cli` or build from source.
+
+            ### Checksums
+
+            See checksums.txt in the release assets for SHA256 verification.
+
+          files: |
+            release/skill-*.tar.gz
+            release/skill-*.sha256
+            release/checksums.txt
+          draft: false
+          prerelease: ${{ contains(github.ref, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

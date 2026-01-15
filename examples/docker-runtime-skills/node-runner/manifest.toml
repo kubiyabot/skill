@@ -1,0 +1,46 @@
+# Node.js Runner - Docker Runtime Configuration
+# Copy this to your .skill-engine.toml
+
+[skills.node-runner]
+source = "docker:node:20-alpine"
+runtime = "docker"
+description = "Node.js script execution (sandboxed)"
+
+[skills.node-runner.docker]
+image = "node:20-alpine"
+entrypoint = "node"
+volumes = ["${PWD}:/workdir"]
+working_dir = "/workdir"
+memory = "512m"
+network = "none"
+rm = true
+
+# Variant with network access
+[skills.node-runner-net]
+source = "docker:node:20-alpine"
+runtime = "docker"
+description = "Node.js with network access"
+
+[skills.node-runner-net.docker]
+image = "node:20-alpine"
+entrypoint = "node"
+volumes = ["${PWD}:/workdir"]
+working_dir = "/workdir"
+memory = "512m"
+network = "bridge"
+rm = true
+
+# NPM variant for package management
+[skills.npm-runner]
+source = "docker:node:20-alpine"
+runtime = "docker"
+description = "NPM package manager"
+
+[skills.npm-runner.docker]
+image = "node:20-alpine"
+entrypoint = "npm"
+volumes = ["${PWD}:/workdir"]
+working_dir = "/workdir"
+memory = "512m"
+network = "bridge"
+rm = true

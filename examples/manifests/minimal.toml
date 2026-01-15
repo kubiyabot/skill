@@ -1,0 +1,91 @@
+# Minimal Skill Engine Manifest
+#
+# Perfect for: Individual developers, small projects, getting started
+# Skills: 5 essential development tools
+#
+# Copy this to your project root as .skill-engine.toml:
+#   cp examples/manifests/minimal.toml .skill-engine.toml
+
+version = "1"
+
+# =============================================================================
+# Version Control
+# =============================================================================
+
+[skills.git]
+source = "./examples/native-skills/git-skill"
+description = "Git version control operations - status, commits, branches, logs"
+runtime = "native"  # Wraps the git CLI tool
+
+[skills.git.instances.default]
+# No configuration needed - uses system git
+
+# =============================================================================
+# Container Management
+# =============================================================================
+
+[skills.docker]
+source = "./examples/native-skills/docker-skill"
+description = "Docker container and image management - build, run, ps, images"
+runtime = "native"  # Wraps the docker CLI tool
+
+[skills.docker.instances.default]
+# No configuration needed - uses system Docker daemon
+
+# =============================================================================
+# Kubernetes Orchestration
+# =============================================================================
+
+[skills.kubernetes]
+source = "./examples/native-skills/kubernetes-skill"
+description = "Kubernetes cluster management - pods, deployments, services"
+runtime = "native"  # Wraps the kubectl CLI tool
+
+[skills.kubernetes.instances.default]
+# Uses default kubeconfig (~/.kube/config)
+# Override with KUBECONFIG environment variable
+
+# =============================================================================
+# HTTP Client
+# =============================================================================
+
+[skills.http]
+source = "./examples/wasm-skills/http-skill"
+description = "Universal HTTP client for making API requests"
+# runtime defaults to "wasm" (WebAssembly, sandboxed)
+
+[skills.http.instances.default]
+capabilities.network_access = true  # Required for HTTP requests
+
+# =============================================================================
+# GitHub Integration
+# =============================================================================
+
+[skills.github]
+source = "./examples/wasm-skills/github-skill"
+description = "GitHub API integration - repos, issues, PRs, actions"
+
+[skills.github.instances.default]
+# Set SKILL_GITHUB_TOKEN environment variable:
+#   export SKILL_GITHUB_TOKEN=ghp_your_token_here
+# Or add to .env file (don't commit!)
+env.GITHUB_TOKEN = "${SKILL_GITHUB_TOKEN}"
+capabilities.network_access = true  # Required for GitHub API
+
+# =============================================================================
+# Usage
+# =============================================================================
+#
+# List skills:
+#   skill list
+#
+# Run a skill:
+#   skill run git:default status
+#   skill run docker:default ps
+#   skill run kubernetes:default get pods
+#
+# With Claude Code:
+#   claude
+#   > Show me the current git status
+#   > List all docker containers
+#   > Get kubernetes pods

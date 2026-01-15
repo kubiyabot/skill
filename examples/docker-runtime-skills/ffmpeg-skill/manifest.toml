@@ -1,0 +1,17 @@
+# FFmpeg Skill - Docker Runtime Configuration
+# Copy this to your .skill-engine.toml
+
+[skills.ffmpeg]
+source = "docker:linuxserver/ffmpeg:latest"
+runtime = "docker"
+description = "FFmpeg video/audio processing"
+
+[skills.ffmpeg.docker]
+image = "linuxserver/ffmpeg:latest"
+entrypoint = "ffmpeg"
+volumes = ["${PWD}:/workdir"]
+working_dir = "/workdir"
+memory = "2g"
+cpus = "4"
+network = "none"
+rm = true

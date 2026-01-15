@@ -1,0 +1,73 @@
+{
+    "id": "slack",
+    "name": "Slack",
+    "icon": "https://cdn.simpleicons.org/slack",
+    "type": "wasm",
+    "description": "Send messages, manage channels, and interact with Slack workspaces.",
+    "longDescription": "Interact with your Slack workspace directly from your agent. specific channels, manage users, and more.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Skill Engine Team",
+        "github": "kubiyabot",
+        "url": "https://github.com/kubiyabot/skill"
+    },
+    "categories": [
+        "communication",
+        "productivity"
+    ],
+    "badges": [
+        "official",
+        "verified"
+    ],
+    "installation": {
+        "source": "registry.kubiya.sh/skills/slack:latest",
+        "requiresAuth": true,
+        "envVars": [
+            {
+                "name": "SLACK_BOT_TOKEN",
+                "required": true,
+                "description": "Slack Bot User OAuth Token (xoxb-...)"
+            }
+        ]
+    },
+    "tools": [
+        {
+            "name": "send_message",
+            "description": "Send a message to a channel",
+            "parameters": [
+                {
+                    "name": "channel",
+                    "type": "string",
+                    "required": true,
+                    "description": "Channel ID or name"
+                },
+                {
+                    "name": "text",
+                    "type": "string",
+                    "required": true,
+                    "description": "Message text"
+                }
+            ]
+        },
+        {
+            "name": "list_channels",
+            "description": "List public channels in the workspace",
+            "parameters": [
+                {
+                    "name": "limit",
+                    "type": "number",
+                    "required": false,
+                    "default": 100,
+                    "description": "Maximum number of channels to return"
+                }
+            ]
+        }
+    ],
+    "examples": [
+        {
+            "title": "Send a message",
+            "description": "Post a message to #general",
+            "code": "skill run slack:send_message channel=#general text=\"Hello from Kubiya!\""
+        }
+    ]
+}

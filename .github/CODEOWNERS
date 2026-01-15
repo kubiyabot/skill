@@ -1,0 +1,15 @@
+# This file defines who owns certain parts of the codebase.
+# These owners will be automatically requested for review when files are changed.
+
+# Default owner for everything
+* @kubiyabot/maintainers
+
+# Core runtime
+crates/skill-runtime/ @kubiyabot/core-team
+
+# CLI
+crates/skill-cli/ @kubiyabot/cli-team
+
+# Documentation
+docs/ @kubiyabot/docs-team
+*.md @kubiyabot/docs-team

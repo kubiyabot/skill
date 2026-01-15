@@ -1,0 +1,201 @@
+{
+  "id": "aws",
+  "name": "AWS",
+  "icon": "https://www.vectorlogo.zone/logos/amazon_aws/amazon_aws-icon.svg",
+  "skillMdPath": "../examples/wasm-skills/aws-skill/SKILL.md",
+  "type": "wasm",
+  "description": "Self-contained AWS management skill with comprehensive SDK integration. EC2, S3, Lambda, RDS, and 12+ services.",
+  "longDescription": "Complete, self-contained AWS SDK integration for managing cloud resources. Control EC2 instances, S3 buckets, Lambda functions, RDS databases, and more from any AI agent. Built with official AWS SDK and sandboxed WASM execution for security.\n\n**When to Use:**\n- Managing EC2 instances (list, start, stop, terminate)\n- Working with S3 buckets (upload, download, list objects)\n- Deploying and invoking Lambda functions\n- Managing RDS databases\n- Controlling IAM users and roles\n- Viewing CloudWatch logs and metrics\n- Managing VPCs and security groups\n\n**Supported Services:**\n- EC2 (Compute)\n- S3 (Storage)\n- Lambda (Serverless)\n- RDS (Databases)\n- IAM (Identity)\n- CloudWatch (Monitoring)\n- VPC (Networking)\n- And more...",
+  "version": "1.0.0",
+  "author": {
+    "name": "Skill Engine Team",
+    "github": "kubiyabot",
+    "url": "https://github.com/kubiyabot/skill"
+  },
+  "categories": ["cloud", "devops"],
+  "badges": ["official", "featured"],
+  "installation": {
+    "source": "./examples/wasm-skills/aws-skill",
+    "requiresAuth": true,
+    "envVars": [
+      {
+        "name": "AWS_ACCESS_KEY_ID",
+        "required": true,
+        "description": "AWS access key ID"
+      },
+      {
+        "name": "AWS_SECRET_ACCESS_KEY",
+        "required": true,
+        "description": "AWS secret access key"
+      },
+      {
+        "name": "AWS_REGION",
+        "required": false,
+        "default": "us-east-1",
+        "description": "AWS region (default: us-east-1)"
+      }
+    ]
+  },
+  "requirements": {
+    "platform": ["macos", "linux", "windows"]
+  },
+  "tools": [
+    {
+      "name": "list-instances",
+      "description": "List EC2 instances with filtering",
+      "parameters": [
+        {
+          "name": "region",
+          "type": "string",
+          "required": false,
+          "description": "AWS region (overrides default)"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false,
+          "enum": ["running", "stopped", "terminated", "pending"],
+          "description": "Filter by instance state"
+        },
+        {
+          "name": "tags",
+          "type": "object",
+          "required": false,
+          "description": "Filter by tags (key-value pairs)"
+        }
+      ]
+    },
+    {
+      "name": "start-instance",
+      "description": "Start an EC2 instance",
+      "parameters": [
+        {
+          "name": "instance_id",
+          "type": "string",
+          "required": true,
+          "description": "EC2 instance ID (e.g., i-1234567890abcdef0)"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "required": false,
+          "description": "AWS region"
+        }
+      ]
+    },
+    {
+      "name": "stop-instance",
+      "description": "Stop an EC2 instance",
+      "parameters": [
+        {
+          "name": "instance_id",
+          "type": "string",
+          "required": true,
+          "description": "EC2 instance ID"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "required": false,
+          "description": "AWS region"
+        }
+      ]
+    },
+    {
+      "name": "list-buckets",
+      "description": "List all S3 buckets",
+      "parameters": []
+    },
+    {
+      "name": "list-objects",
+      "description": "List objects in an S3 bucket",
+      "parameters": [
+        {
+          "name": "bucket",
+          "type": "string",
+          "required": true,
+          "description": "S3 bucket name"
+        },
+        {
+          "name": "prefix",
+          "type": "string",
+          "required": false,
+          "description": "Object key prefix filter"
+        },
+        {
+          "name": "max_keys",
+          "type": "number",
+          "required": false,
+          "default": 1000,
+          "description": "Maximum number of objects to return"
+        }
+      ]
+    },
+    {
+      "name": "invoke-lambda",
+      "description": "Invoke a Lambda function",
+      "parameters": [
+        {
+          "name": "function_name",
+          "type": "string",
+          "required": true,
+          "description": "Lambda function name or ARN"
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "required": false,
+          "description": "JSON payload to send to function"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "required": false,
+          "description": "AWS region"
+        }
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "List all EC2 instances",
+      "description": "Get all instances in default region",
+      "code": "skill run aws:list-instances"
+    },
+    {
+      "title": "List running instances",
+      "description": "Filter by instance state",
+      "code": "skill run aws:list-instances state=running"
+    },
+    {
+      "title": "Start an instance",
+      "description": "Start a stopped EC2 instance",
+      "code": "skill run aws:start-instance instance_id=i-1234567890abcdef0"
+    },
+    {
+      "title": "List S3 buckets",
+      "description": "Get all S3 buckets in your account",
+      "code": "skill run aws:list-buckets"
+    },
+    {
+      "title": "List objects in bucket",
+      "description": "Get all objects with a specific prefix",
+      "code": "skill run aws:list-objects bucket=my-bucket prefix=logs/"
+    },
+    {
+      "title": "Invoke Lambda function",
+      "description": "Trigger a Lambda with JSON payload",
+      "code": "skill run aws:invoke-lambda function_name=my-function payload='{\"key\":\"value\"}'"
+    }
+  ],
+  "links": {
+    "github": "https://github.com/kubiyabot/skill/tree/main/examples/wasm-skills/aws-skill",
+    "documentation": "https://docs.aws.amazon.com/",
+    "homepage": "https://skill.dev"
+  },
+  "stats": {
+    "downloads": 0,
+    "stars": 0,
+    "lastUpdated": "2026-01-04T00:00:00Z"
+  }
+}

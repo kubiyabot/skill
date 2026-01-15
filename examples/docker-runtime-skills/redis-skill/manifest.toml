@@ -1,0 +1,27 @@
+# Redis Skill - Docker Runtime Configuration
+# Copy this to your .skill-engine.toml
+
+[skills.redis]
+source = "docker:redis:7-alpine"
+runtime = "docker"
+description = "Redis CLI client"
+
+[skills.redis.docker]
+image = "redis:7-alpine"
+entrypoint = "redis-cli"
+network = "bridge"
+memory = "128m"
+rm = true
+
+# Redis benchmark variant
+[skills.redis-benchmark]
+source = "docker:redis:7-alpine"
+runtime = "docker"
+description = "Redis benchmarking tool"
+
+[skills.redis-benchmark.docker]
+image = "redis:7-alpine"
+entrypoint = "redis-benchmark"
+network = "bridge"
+memory = "256m"
+rm = true

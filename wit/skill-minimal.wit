@@ -1,0 +1,5 @@
+package skill-engine:skill-minimal@1.0.0;
+
+world skill-minimal {
+    export hello: func(name: string) -> string;
+}

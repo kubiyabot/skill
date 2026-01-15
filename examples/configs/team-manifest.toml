@@ -1,0 +1,144 @@
+# Team Skill Engine Manifest
+# Complete configuration with all skills for team development
+# Copy this to .skill-engine.toml in your project root
+version = "1"
+
+# =============================================================================
+# Version Control & CI/CD
+# =============================================================================
+
+[skills.git]
+source = "./examples/native-skills/git-skill"
+description = "Git version control operations"
+runtime = "native"
+
+[skills.git.instances.default]
+# No config needed - uses system git
+
+[skills.github]
+source = "./examples/wasm-skills/github-skill"
+description = "GitHub integration for repositories, issues, PRs, and actions"
+
+[skills.github.instances.default]
+# Token provided via SKILL_GITHUB_TOKEN environment variable
+
+[skills.circleci]
+source = "./examples/wasm-skills/circleci-skill"
+description = "CircleCI CI/CD pipeline management"
+
+[skills.circleci.instances.default]
+# Token provided via SKILL_CIRCLECI_TOKEN environment variable
+
+# =============================================================================
+# Container & Orchestration
+# =============================================================================
+
+[skills.docker]
+source = "./examples/native-skills/docker-skill"
+description = "Docker container and image management"
+runtime = "native"
+
+[skills.docker.instances.default]
+# No config needed - uses system Docker
+
+[skills.kubernetes]
+source = "./examples/native-skills/kubernetes-skill"
+description = "Kubernetes cluster management"
+runtime = "native"
+
+[[skills.kubernetes.services]]
+name = "kubectl-proxy"
+description = "Kubernetes API proxy for executing commands"
+optional = false
+default_port = 8001
+
+[skills.kubernetes.instances.default]
+# No config needed for demo
+
+[skills.kubernetes.instances.prod]
+config.cluster = "production-cluster"
+config.kubeconfig = "${KUBECONFIG:-~/.kube/config}"
+
+# =============================================================================
+# Infrastructure as Code
+# =============================================================================
+
+[skills.terraform]
+source = "./examples/native-skills/terraform-skill"
+description = "Terraform infrastructure as code management"
+runtime = "native"
+
+[skills.terraform.instances.default]
+# No config needed - uses system terraform
+
+# =============================================================================
+# Database Management
+# =============================================================================
+
+[skills.postgres-native]
+source = "./examples/native-skills/postgres-skill"
+description = "PostgreSQL operations via native psql CLI"
+runtime = "native"
+
+[[skills.postgres-native.services]]
+name = "postgres"
+description = "PostgreSQL database server"
+optional = false
+default_port = 5432
+
+[skills.postgres-native.instances.default]
+# Password provided via PGPASSWORD environment variable
+
+[skills.postgres-native.instances.prod]
+config.host = "${POSTGRES_HOST:-localhost}"
+config.port = "${POSTGRES_PORT:-5432}"
+config.database = "${POSTGRES_DB:-myapp}"
+
+# =============================================================================
+# Project Management
+# =============================================================================
+
+[skills.jira]
+source = "./examples/wasm-skills/jira-skill"
+description = "Jira project management and issue tracking"
+
+[skills.jira.instances.default]
+# Configuration via SKILL_JIRA_URL, SKILL_JIRA_EMAIL, SKILL_JIRA_TOKEN
+
+[skills.slack]
+source = "./examples/wasm-skills/slack-skill"
+description = "Slack messaging, channels, and user management"
+
+[skills.slack.instances.default]
+# Token provided via SKILL_SLACK_TOKEN environment variable
+
+# =============================================================================
+# Monitoring & Observability
+# =============================================================================
+
+[skills.prometheus]
+source = "./examples/wasm-skills/prometheus-skill"
+description = "Prometheus metrics querying and monitoring"
+
+[[skills.prometheus.services]]
+name = "prometheus"
+description = "Prometheus server for metrics querying"
+optional = false
+default_port = 9090
+
+[skills.prometheus.instances.default]
+config.prometheus_url = "${SKILL_PROMETHEUS_URL:-http://localhost:9090}"
+
+[skills.prometheus.instances.prod]
+config.prometheus_url = "https://prometheus.company.com"
+
+# =============================================================================
+# API & HTTP
+# =============================================================================
+
+[skills.http]
+source = "./examples/wasm-skills/http-skill"
+description = "Universal HTTP client for API requests"
+
+[skills.http.instances.default]
+# No config needed - authentication is per-request

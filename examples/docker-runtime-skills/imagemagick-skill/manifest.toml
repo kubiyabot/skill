@@ -1,0 +1,16 @@
+# ImageMagick Skill - Docker Runtime Configuration
+# Copy this to your .skill-engine.toml
+
+[skills.imagemagick]
+source = "docker:dpokidov/imagemagick:latest"
+runtime = "docker"
+description = "ImageMagick image processing"
+
+[skills.imagemagick.docker]
+image = "dpokidov/imagemagick:latest"
+entrypoint = "magick"
+volumes = ["${PWD}:/workdir"]
+working_dir = "/workdir"
+memory = "1g"
+network = "none"
+rm = true

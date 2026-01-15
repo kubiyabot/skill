@@ -1,0 +1,178 @@
+{
+  "id": "kubernetes",
+  "name": "Kubernetes",
+  "icon": "https://cdn.simpleicons.org/kubernetes",
+  "skillMdPath": "../examples/native-skills/kubernetes-skill/SKILL.md",
+  "type": "native",
+  "description": "Self-contained Kubernetes management skill with real kubectl integration. 18 tools for pods, deployments, services, and more.",
+  "longDescription": "Comprehensive, self-contained Kubernetes cluster management through native kubectl execution. This agentic skill provides 18+ kubectl tools for managing your clusters, including resource management (pods, deployments, services), log viewing, scaling, rollouts, and node operations. Perfect for DevOps teams managing containerized workloads.\n\n**When to Use:**\n- Managing Kubernetes resources (pods, deployments, services, configmaps, secrets)\n- Viewing pod logs and debugging containers\n- Scaling deployments up or down\n- Managing cluster configuration and contexts\n- Performing rollout operations (restart, undo, status)\n- Node management (cordon, uncordon, drain, taint)",
+  "version": "1.0.0",
+  "author": {
+    "name": "Skill Engine Team",
+    "github": "kubiyabot",
+    "url": "https://github.com/kubiyabot/skill"
+  },
+  "categories": ["devops", "cloud"],
+  "badges": ["official", "featured"],
+  "installation": {
+    "source": "./examples/native-skills/kubernetes-skill",
+    "requiresAuth": false,
+    "envVars": [
+      {
+        "name": "KUBECONFIG",
+        "required": false,
+        "description": "Path to kubeconfig file (default: ~/.kube/config)"
+      }
+    ],
+    "services": [
+      {
+        "name": "kubectl-proxy",
+        "description": "Kubernetes API proxy for executing commands",
+        "port": 8001,
+        "optional": false
+      }
+    ]
+  },
+  "requirements": {
+    "cli": ["kubectl"],
+    "platform": ["macos", "linux", "windows"]
+  },
+  "tools": [
+    {
+      "name": "get",
+      "description": "Get Kubernetes resources (pods, deployments, services, nodes, etc.)",
+      "parameters": [
+        {
+          "name": "resource",
+          "type": "string",
+          "required": true,
+          "description": "Resource type (pods, services, deployments, nodes, namespaces, configmaps, secrets, ingress, pv, pvc, jobs, cronjobs, daemonsets, statefulsets, replicasets, events, endpoints, all)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": false,
+          "description": "Specific resource name"
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "required": false,
+          "default": "default",
+          "description": "Kubernetes namespace (use 'all' for all namespaces)"
+        },
+        {
+          "name": "selector",
+          "type": "string",
+          "required": false,
+          "description": "Label selector (e.g., app=nginx)"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "required": false,
+          "enum": ["wide", "yaml", "json", "name"],
+          "description": "Output format"
+        }
+      ]
+    },
+    {
+      "name": "logs",
+      "description": "Get logs from a pod",
+      "parameters": [
+        {
+          "name": "pod",
+          "type": "string",
+          "required": true,
+          "description": "Pod name"
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "required": false,
+          "description": "Kubernetes namespace"
+        },
+        {
+          "name": "container",
+          "type": "string",
+          "required": false,
+          "description": "Container name (for multi-container pods)"
+        },
+        {
+          "name": "tail",
+          "type": "number",
+          "required": false,
+          "description": "Number of lines to show from end"
+        }
+      ]
+    },
+    {
+      "name": "scale",
+      "description": "Scale a deployment, replicaset, or statefulset",
+      "parameters": [
+        {
+          "name": "resource",
+          "type": "string",
+          "required": true,
+          "enum": ["deployment", "replicaset", "statefulset"],
+          "description": "Resource type"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "description": "Resource name"
+        },
+        {
+          "name": "namespace",
+          "type": "string",
+          "required": false,
+          "description": "Kubernetes namespace"
+        },
+        {
+          "name": "replicas",
+          "type": "number",
+          "required": true,
+          "description": "Desired replica count"
+        }
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "List all pods in default namespace",
+      "description": "Get a quick overview of all running pods",
+      "code": "skill run kubernetes:get resource=pods"
+    },
+    {
+      "title": "View pods across all namespaces",
+      "description": "See all pods in your cluster",
+      "code": "skill run kubernetes:get resource=pods namespace=all output=wide"
+    },
+    {
+      "title": "View pod logs",
+      "description": "Tail the last 100 lines of logs from a specific pod",
+      "code": "skill run kubernetes:logs pod=nginx-xxxxx tail=100"
+    },
+    {
+      "title": "Scale a deployment",
+      "description": "Scale the nginx deployment to 3 replicas",
+      "code": "skill run kubernetes:scale resource=deployment name=nginx replicas=3"
+    },
+    {
+      "title": "Get deployments as YAML",
+      "description": "Export deployment configuration",
+      "code": "skill run kubernetes:get resource=deployments output=yaml"
+    }
+  ],
+  "links": {
+    "github": "https://github.com/kubiyabot/skill/tree/main/examples/native-skills/kubernetes-skill",
+    "documentation": "https://kubernetes.io/docs/reference/kubectl/",
+    "homepage": "https://skill.dev"
+  },
+  "stats": {
+    "downloads": 0,
+    "stars": 0,
+    "lastUpdated": "2026-01-04T00:00:00Z"
+  }
+}
