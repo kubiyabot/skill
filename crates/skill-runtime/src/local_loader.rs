@@ -12,6 +12,7 @@ pub struct LocalSkillLoader {
 }
 
 impl LocalSkillLoader {
+    /// Creates a new local skill loader with cache directory at `~/.skill-engine/local-cache`
     pub fn new() -> Result<Self> {
         let home = dirs::home_dir().context("Failed to get home directory")?;
         let cache_dir = home.join(".skill-engine").join("local-cache");

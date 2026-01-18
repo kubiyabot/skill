@@ -16,7 +16,7 @@ ai-ingestion = ["skill-runtime/ai-ingestion"]
 
 [dependencies]
 # Workspace dependencies
-skill-runtime = "1.0.0"
+skill-runtime = { workspace = true }
 
 # Streaming for AI generation
 tokio-stream = { workspace = true }

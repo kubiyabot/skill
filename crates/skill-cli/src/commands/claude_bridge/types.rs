@@ -19,6 +19,7 @@ pub struct GenerateOptions {
     pub manifest_path: Option<PathBuf>,
 
     /// Force overwrite existing files
+    #[allow(dead_code)]
     pub force: bool,
 
     /// Dry run - show what would be generated without writing
@@ -28,6 +29,7 @@ pub struct GenerateOptions {
     pub no_scripts: bool,
 
     /// Generate for project-level Claude Code config
+    #[allow(dead_code)]
     pub project: bool,
 }
 
@@ -195,6 +197,7 @@ pub struct ValidatedSkill {
     pub description: String,
 
     /// Source info
+    #[allow(dead_code)]
     pub source: String,
 
     /// Runtime type
@@ -204,6 +207,7 @@ pub struct ValidatedSkill {
     pub tools: Vec<ValidatedTool>,
 
     /// Original SKILL.md content
+    #[allow(dead_code)]
     pub skill_md_content: Option<String>,
 }
 

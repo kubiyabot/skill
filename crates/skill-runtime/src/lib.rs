@@ -87,26 +87,47 @@
 
 #![warn(missing_docs)]
 
+/// Audit logging and security event tracking for skill executions.
 pub mod audit;
+/// Configuration mapping utilities for skill instances and environments.
 pub mod config_mapper;
+/// Credential management and secure storage integration.
 pub mod credentials;
+/// Docker container runtime for executing skills in isolated environments.
 pub mod docker_runtime;
+/// Core skill execution engine and orchestration logic.
 pub mod engine;
+/// Error types and result handling for the runtime.
 pub mod errors;
+/// WASM Component Model executor for sandboxed skill execution.
 pub mod executor;
+/// AI-powered example generation and validation for skill documentation.
 pub mod generation;
+/// Git repository loader for installing skills from remote sources.
 pub mod git_loader;
+/// Git URL parsing and repository source handling.
 pub mod git_source;
+/// Multi-instance management for skills with different configurations.
 pub mod instance;
+/// Local filesystem loader for installing skills from directories.
 pub mod local_loader;
+/// Skill manifest parsing and configuration (`.skill-engine.toml`).
 pub mod manifest;
+/// Execution metrics collection and performance tracking.
 pub mod metrics;
+/// WASM sandbox configuration and capability-based security.
 pub mod sandbox;
+/// SKILL.md parser for native command-based skill definitions.
 pub mod skill_md;
+/// Core type definitions shared across the runtime.
 pub mod types;
+/// Vector database abstraction for semantic search.
 pub mod vector_store;
+/// Embedding provider implementations (FastEmbed, OpenAI, Ollama).
 pub mod embeddings;
+/// Hybrid search, reranking, and context compression pipeline.
 pub mod search;
+/// Search configuration and backend settings.
 pub mod search_config;
 
 #[cfg(feature = "job-queue")]

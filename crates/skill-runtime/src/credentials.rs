@@ -170,14 +170,17 @@ impl Default for CredentialStore {
 pub struct SecureString(String);
 
 impl SecureString {
+    /// Creates a new SecureString from a String
     pub fn new(s: String) -> Self {
         Self(s)
     }
 
+    /// Returns a string slice reference to the secure string
     pub fn as_str(&self) -> &str {
         &self.0
     }
 
+    /// Consumes the SecureString and returns the inner String
     pub fn into_string(mut self) -> String {
         let s = std::mem::take(&mut self.0);
         std::mem::forget(self); // Prevent double-zeroing

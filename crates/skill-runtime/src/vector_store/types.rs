@@ -60,26 +60,31 @@ impl EmbeddedDocument {
         self
     }
 
+    /// Set the instance name metadata field
     pub fn with_instance_name(mut self, instance_name: impl Into<String>) -> Self {
         self.metadata.instance_name = Some(instance_name.into());
         self
     }
 
+    /// Set the tool name metadata field
     pub fn with_tool_name(mut self, tool_name: impl Into<String>) -> Self {
         self.metadata.tool_name = Some(tool_name.into());
         self
     }
 
+    /// Set the category metadata field
     pub fn with_category(mut self, category: impl Into<String>) -> Self {
         self.metadata.category = Some(category.into());
         self
     }
 
+    /// Set the tags metadata field
     pub fn with_tags(mut self, tags: Vec<String>) -> Self {
         self.metadata.tags = tags;
         self
     }
 
+    /// Add a custom key-value pair to the metadata
     pub fn with_custom(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
         self.metadata.custom.insert(key.into(), value.into());
         self
@@ -321,6 +326,7 @@ pub struct UpsertStats {
 }
 
 impl UpsertStats {
+    /// Create new upsert statistics
     pub fn new(inserted: usize, updated: usize, duration_ms: u64) -> Self {
         Self {
             inserted,
@@ -348,6 +354,7 @@ pub struct DeleteStats {
 }
 
 impl DeleteStats {
+    /// Create new delete statistics
     pub fn new(deleted: usize, not_found: usize, duration_ms: u64) -> Self {
         Self {
             deleted,
@@ -380,6 +387,7 @@ pub struct HealthStatus {
 }
 
 impl HealthStatus {
+    /// Create a healthy status
     pub fn healthy(backend: impl Into<String>, latency_ms: u64) -> Self {
         Self {
             healthy: true,
@@ -390,6 +398,7 @@ impl HealthStatus {
         }
     }
 
+    /// Create an unhealthy status with error message
     pub fn unhealthy(backend: impl Into<String>, message: impl Into<String>, latency_ms: u64) -> Self {
         Self {
             healthy: false,
@@ -400,6 +409,7 @@ impl HealthStatus {
         }
     }
 
+    /// Add document count to the health status
     pub fn with_document_count(mut self, count: usize) -> Self {
         self.document_count = Some(count);
         self

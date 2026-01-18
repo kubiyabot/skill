@@ -281,6 +281,7 @@ pub async fn execute(force: bool, check_only: bool) -> Result<()> {
 }
 
 /// Check for updates without installing
+#[allow(dead_code)]
 pub async fn check() -> Result<()> {
     execute(false, true).await
 }

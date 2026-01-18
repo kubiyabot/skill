@@ -6,7 +6,7 @@
 use super::{EmbeddingProvider, FastEmbedModel};
 use anyhow::{Context, Result};
 use async_trait::async_trait;
-use rig::embeddings::EmbeddingModel as RigEmbeddingModel;
+use rig::embeddings::embedding::EmbeddingModel as RigEmbeddingModel;
 use rig_fastembed::{Client as FastembedClient, FastembedModel as RigFastembedModel};
 use std::sync::Arc;
 

@@ -160,6 +160,7 @@ pub fn anthropic_provider() -> Result<ApiKeyProvider> {
 }
 
 /// Create a generic API key provider.
+#[allow(dead_code)]
 pub fn generic_api_key_provider(id: &str, display_name: &str, env_var_name: &str) -> Result<ApiKeyProvider> {
     let config = ProviderConfig {
         id: id.to_string(),

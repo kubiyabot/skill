@@ -413,7 +413,7 @@ pub async fn generate(
     } else {
         println!("{}", "Generated Claude Agent Skills:".green().bold());
         for skill_name in &result.generated_skills {
-            let skill_dir = output_dir.join(skill_name);
+            let _skill_dir = output_dir.join(skill_name);
             println!();
             println!("  {} {}", "✓".green(), skill_name.cyan().bold());
             println!("    {} SKILL.md", "├─".dimmed());

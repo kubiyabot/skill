@@ -14,10 +14,12 @@ categories = ["web-programming::http-server", "development-tools"]
 default = []
 # Enable embedded web UI (requires skill-web/dist to be built)
 web-ui = ["dep:rust-embed", "dep:mime_guess"]
+# Forward qdrant feature to skill-runtime
+qdrant = ["skill-runtime/qdrant"]
 
 [dependencies]
 # Workspace dependencies
-skill-runtime = "1.0.0"
+skill-runtime = { workspace = true }
 
 # HTTP server
 axum = { workspace = true }

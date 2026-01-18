@@ -500,10 +500,15 @@ impl SkillManifest {
 /// Resolved instance ready for execution
 #[derive(Debug, Clone)]
 pub struct ResolvedInstance {
+    /// Name of the skill
     pub skill_name: String,
+    /// Name of the instance
     pub instance_name: String,
+    /// Resolved source path or URL
     pub source: String,
+    /// Git ref (branch, tag, or commit) if applicable
     pub git_ref: Option<String>,
+    /// Instance configuration with expanded values
     pub config: InstanceConfig,
     /// Runtime type (wasm, docker, or native)
     pub runtime: SkillRuntime,
@@ -514,11 +519,17 @@ pub struct ResolvedInstance {
 /// Summary info about a skill
 #[derive(Debug, Clone)]
 pub struct SkillInfo {
+    /// Skill name
     pub name: String,
+    /// Skill source path or URL
     pub source: String,
+    /// Optional description
     pub description: Option<String>,
+    /// List of instance names
     pub instances: Vec<String>,
+    /// Default instance name
     pub default_instance: String,
+    /// Runtime type (wasm, docker, or native)
     pub runtime: SkillRuntime,
 }
 
