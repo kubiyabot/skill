@@ -10,6 +10,10 @@ description = "Command-line interface for the Skill runtime - install, run, and 
 keywords = ["cli", "wasm", "skills", "mcp", "ai-agents"]
 categories = ["command-line-utilities", "development-tools"]
 
+[lib]
+name = "skill_cli"
+path = "src/lib.rs"
+
 [[bin]]
 name = "skill"
 path = "src/main.rs"
