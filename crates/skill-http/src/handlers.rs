@@ -1033,7 +1033,7 @@ pub async fn import_manifest(
             let (skills, warnings) = parse_manifest_skills(&value);
             let skills_count = skills.len();
             let mut installed_count = 0;
-            let errors: Vec<String> = vec![];
+            let mut errors: Vec<String> = vec![];
 
             if request.install {
                 // Add skills to the state
@@ -1045,6 +1045,16 @@ pub async fn import_manifest(
                 }
 
                 for skill in &skills {
+                    // Validate skill before installation
+                    if skill.name.is_empty() {
+                        errors.push("Skill has empty name, skipping".to_string());
+                        continue;
+                    }
+                    if skill.source.is_empty() {
+                        errors.push(format!("Skill '{}' has empty source, skipping", skill.name));
+                        continue;
+                    }
+
                     let skill_summary = SkillSummary {
                         name: skill.name.clone(),
                         version: "0.1.0".to_string(),
