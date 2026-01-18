@@ -2,10 +2,9 @@
 //!
 //! Provides `skill auth login`, `skill auth status`, `skill auth logout`, and `skill auth providers`.
 
-use crate::auth::provider::{AuthProvider, AuthStatus, AuthType};
-use crate::auth::providers::{ApiKeyProvider, AwsProvider, OAuth2Provider};
+use crate::auth::provider::{AuthProvider, AuthType};
 use crate::auth::token_store::TokenStore;
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
 use chrono::Utc;
 use colored::Colorize;
 use std::collections::HashMap;
@@ -76,6 +75,7 @@ impl ProviderRegistry {
     }
 
     /// Register a custom provider.
+    #[allow(dead_code)]
     pub fn register(&mut self, provider: Arc<dyn AuthProvider>) {
         self.providers.insert(provider.id().to_string(), provider);
     }

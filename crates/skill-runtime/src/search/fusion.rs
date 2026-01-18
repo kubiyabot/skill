@@ -133,6 +133,7 @@ pub fn weighted_sum_fusion(
 /// Max score fusion
 ///
 /// Takes the maximum score from any source for each document
+#[allow(dead_code)]
 pub fn max_score_fusion(
     ranked_lists: Vec<(&str, Vec<(String, f32)>)>,
     top_k: usize,

@@ -298,7 +298,7 @@ fn smart_truncate(content: &str, max_len: usize) -> String {
 
     // For plain text, truncate at line boundaries
     let mut result = String::new();
-    let mut remaining = max_len.saturating_sub(100); // Reserve space for truncation message
+    let remaining = max_len.saturating_sub(100); // Reserve space for truncation message
     let lines: Vec<&str> = content.lines().collect();
     let total_lines = lines.len();
     let mut included_lines = 0;

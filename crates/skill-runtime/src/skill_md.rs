@@ -99,12 +99,18 @@ pub struct ToolDocumentation {
 /// Parameter type enumeration
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum ParameterType {
+    /// String/text parameter type
     #[default]
     String,
+    /// Integer parameter type
     Integer,
+    /// Floating-point number parameter type
     Number,
+    /// Boolean parameter type
     Boolean,
+    /// Array/list parameter type
     Array,
+    /// Object/map parameter type
     Object,
 }
 

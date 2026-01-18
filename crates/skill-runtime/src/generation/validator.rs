@@ -4,7 +4,7 @@
 //! checks for diversity across examples.
 
 use std::collections::HashMap;
-use crate::skill_md::{ToolDocumentation, ParameterDoc, ParameterType};
+use crate::skill_md::{ToolDocumentation, ParameterType};
 use super::streaming::GeneratedExample;
 
 /// Result of validating an example

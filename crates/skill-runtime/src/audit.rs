@@ -10,28 +10,41 @@ use std::sync::Mutex;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AuditEventType {
+    /// Credential was accessed/read
     CredentialAccess,
+    /// Credential was stored/created
     CredentialStore,
+    /// Credential was deleted
     CredentialDelete,
+    /// Skill instance was created
     InstanceCreate,
+    /// Skill instance was deleted
     InstanceDelete,
+    /// Configuration was loaded
     ConfigLoad,
+    /// Configuration was updated
     ConfigUpdate,
 }
 
 /// Audit log entry
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditEntry {
+    /// When the event occurred
     pub timestamp: DateTime<Utc>,
+    /// Type of audit event
     pub event_type: AuditEventType,
+    /// Name of the skill involved
     pub skill_name: String,
+    /// Name of the skill instance
     pub instance_name: String,
+    /// Additional event details
     pub details: Option<String>,
     /// Redacted information (never contains actual secrets)
     pub metadata: Option<serde_json::Value>,
 }
 
 impl AuditEntry {
+    /// Create a new audit entry with the current timestamp
     pub fn new(
         event_type: AuditEventType,
         skill_name: String,
@@ -47,11 +60,13 @@ impl AuditEntry {
         }
     }
 
+    /// Add details to the audit entry
     pub fn with_details(mut self, details: String) -> Self {
         self.details = Some(details);
         self
     }
 
+    /// Add metadata to the audit entry
     pub fn with_metadata(mut self, metadata: serde_json::Value) -> Self {
         self.metadata = Some(metadata);
         self

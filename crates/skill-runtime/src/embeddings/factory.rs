@@ -96,6 +96,7 @@ pub fn create_provider(config: &EmbeddingConfig) -> Result<Arc<dyn EmbeddingProv
 }
 
 /// Convenience function to create a provider from provider type string
+#[allow(dead_code)]
 pub fn create_provider_from_type(
     provider_type: &str,
     model: Option<&str>,

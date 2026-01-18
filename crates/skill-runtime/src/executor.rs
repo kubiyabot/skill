@@ -14,19 +14,23 @@ use crate::types::{ExecutionResult, SkillMetadata, ToolDefinition, Parameter, Pa
 
 // Generate WIT bindings for the skill interface
 // TODO: Add host function imports for configuration access
-wasmtime::component::bindgen!({
-    inline: "
-        package skill-engine:skill@1.0.0;
+#[allow(missing_docs)]
+mod bindings {
+    wasmtime::component::bindgen!({
+        inline: "
+            package skill-engine:skill@1.0.0;
 
-        world skill {
-            export get-metadata: func() -> string;
-            export get-tools: func() -> string;
-            export execute-tool: func(tool-name: string, args: string) -> string;
-            export validate-config: func(config: string) -> string;
-        }
-    ",
-    async: true,
-});
+            world skill {
+                export get-metadata: func() -> string;
+                export get-tools: func() -> string;
+                export execute-tool: func(tool-name: string, args: string) -> string;
+                export validate-config: func(config: string) -> string;
+            }
+        ",
+        async: true,
+    });
+}
+use bindings::*;
 
 /// High-level executor for running skills
 pub struct SkillExecutor {

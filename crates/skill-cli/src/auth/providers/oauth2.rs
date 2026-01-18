@@ -170,6 +170,7 @@ impl OAuth2Provider {
     }
 
     /// Refresh an access token using a refresh token.
+    #[allow(dead_code)]
     async fn refresh_token(&self, refresh_token: &str) -> Result<TokenResponse> {
         let oauth2 = self.oauth2_config();
 

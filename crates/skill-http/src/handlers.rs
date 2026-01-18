@@ -1033,7 +1033,7 @@ pub async fn import_manifest(
             let (skills, warnings) = parse_manifest_skills(&value);
             let skills_count = skills.len();
             let mut installed_count = 0;
-            let mut errors = vec![];
+            let mut errors: Vec<String> = vec![];
 
             if request.install {
                 // Add skills to the state
@@ -1045,6 +1045,16 @@ pub async fn import_manifest(
                 }
 
                 for skill in &skills {
+                    // Validate skill before installation
+                    if skill.name.is_empty() {
+                        errors.push("Skill has empty name, skipping".to_string());
+                        continue;
+                    }
+                    if skill.source.is_empty() {
+                        errors.push(format!("Skill '{}' has empty source, skipping", skill.name));
+                        continue;
+                    }
+
                     let skill_summary = SkillSummary {
                         name: skill.name.clone(),
                         version: "0.1.0".to_string(),
@@ -2098,7 +2108,7 @@ pub async fn index_skills(
     use skill_runtime::vector_store::DocumentMetadata as RuntimeDocMetadata;
 
     let mut documents = Vec::new();
-    let mut loaded_tools = 0;
+    let mut _loaded_tools = 0;
 
     // For each skill, we need to load the actual tools
     for (skill_name, skill_summary) in skills.iter() {
@@ -2146,7 +2156,7 @@ pub async fn index_skills(
                                         custom: std::collections::HashMap::new(),
                                     },
                                 });
-                                loaded_tools += 1;
+                                _loaded_tools += 1;
                             }
                         }
                     }

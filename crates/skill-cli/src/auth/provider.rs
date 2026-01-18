@@ -6,7 +6,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use secrecy::{ExposeSecret, SecretString};
+use secrecy::SecretString;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
@@ -160,6 +160,7 @@ pub struct AuthResult {
     pub scopes: Vec<String>,
 
     /// Additional metadata from the auth response
+    #[allow(dead_code)]
     pub metadata: HashMap<String, String>,
 }
 
@@ -247,6 +248,7 @@ pub enum CredentialType {
 
 /// Status of authentication for a provider.
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct AuthStatus {
     /// Provider ID
     pub provider_id: String,
@@ -278,6 +280,7 @@ pub struct AuthStatus {
 /// Providers handle the authentication flow for their specific auth type,
 /// including token refresh and revocation.
 #[async_trait]
+#[allow(dead_code)]
 pub trait AuthProvider: Send + Sync {
     /// Get the provider's unique identifier.
     fn id(&self) -> &str;

@@ -180,6 +180,7 @@ pub fn aws_provider() -> Result<AwsProvider> {
 }
 
 /// Create an AWS provider with a specific region.
+#[allow(dead_code)]
 pub fn aws_provider_with_region(region: &str) -> Result<AwsProvider> {
     let config = ProviderConfig {
         id: "aws".to_string(),
