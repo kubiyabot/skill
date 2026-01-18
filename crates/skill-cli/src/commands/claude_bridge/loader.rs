@@ -32,7 +32,7 @@ impl Loader {
 
         let mut skills = Vec::new();
 
-        for (name, definition) in &manifest.skills {
+        for (name, _definition) in &manifest.skills {
             match self.load_skill(name, manifest).await {
                 Ok(skill) => skills.push(skill),
                 Err(e) => {

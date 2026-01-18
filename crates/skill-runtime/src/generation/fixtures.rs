@@ -437,6 +437,7 @@ pub struct FailingMockProvider {
 }
 
 impl FailingMockProvider {
+    /// Create a new failing mock provider with a custom error message
     pub fn new(message: &str) -> Self {
         Self {
             error_message: message.to_string(),

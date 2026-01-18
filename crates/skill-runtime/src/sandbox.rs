@@ -8,9 +8,13 @@ use crate::instance::InstanceConfig;
 
 /// Host state for WASI context
 pub struct HostState {
+    /// WASI context for the sandboxed environment
     pub wasi: WasiCtx,
+    /// Resource table for managing WASI resources
     pub table: ResourceTable,
+    /// Unique identifier for this skill instance
     pub instance_id: String,
+    /// Configuration key-value pairs passed as environment variables
     pub config: std::collections::HashMap<String, String>,
 }
 

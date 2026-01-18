@@ -1033,7 +1033,7 @@ pub async fn import_manifest(
             let (skills, warnings) = parse_manifest_skills(&value);
             let skills_count = skills.len();
             let mut installed_count = 0;
-            let mut errors = vec![];
+            let errors: Vec<String> = vec![];
 
             if request.install {
                 // Add skills to the state
@@ -2098,7 +2098,7 @@ pub async fn index_skills(
     use skill_runtime::vector_store::DocumentMetadata as RuntimeDocMetadata;
 
     let mut documents = Vec::new();
-    let mut loaded_tools = 0;
+    let mut _loaded_tools = 0;
 
     // For each skill, we need to load the actual tools
     for (skill_name, skill_summary) in skills.iter() {
@@ -2146,7 +2146,7 @@ pub async fn index_skills(
                                         custom: std::collections::HashMap::new(),
                                     },
                                 });
-                                loaded_tools += 1;
+                                _loaded_tools += 1;
                             }
                         }
                     }

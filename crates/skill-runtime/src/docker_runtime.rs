@@ -309,9 +309,13 @@ impl Default for DockerRuntime {
 /// Output from Docker container execution
 #[derive(Debug, Clone)]
 pub struct DockerOutput {
+    /// Whether the container execution completed successfully
     pub success: bool,
+    /// Standard output from the container
     pub stdout: String,
+    /// Standard error from the container
     pub stderr: String,
+    /// Exit code returned by the container
     pub exit_code: i32,
 }
 

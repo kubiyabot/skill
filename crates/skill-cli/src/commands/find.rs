@@ -391,11 +391,13 @@ impl ToolDocument {
     }
 
     /// Get the unique identifier for this tool
+    #[allow(dead_code)]
     pub fn get_id(&self) -> &str {
         &self.id
     }
 
     /// Check if the content has changed based on hash
+    #[allow(dead_code)]
     pub fn content_changed(&self, other_hash: &str) -> bool {
         self.content_hash.as_deref() != Some(other_hash)
     }

@@ -71,7 +71,7 @@ impl Transformer {
     }
 
     /// Categorize a tool based on its name
-    fn categorize_tool(&self, tool_name: &str, skill_name: &str) -> String {
+    fn categorize_tool(&self, tool_name: &str, _skill_name: &str) -> String {
         // Check custom patterns first
         for (category, patterns) in &self.category_patterns {
             for pattern in patterns {

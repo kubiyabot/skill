@@ -115,7 +115,8 @@ pub async fn execute(source: &str, instance: Option<&str>, force: bool, enhance:
 }
 
 /// Enhance skill with AI-generated examples
-async fn enhance_skill(skill_name: &str, skill_dir: &PathBuf) -> Result<()> {
+async fn enhance_skill(_skill_name: &str, skill_dir: &PathBuf) -> Result<()> {
+    #[allow(unused_imports)]
     use skill_runtime::parse_skill_md;
 
     println!("{}", "🤖 Enhancing with AI examples...".bold());

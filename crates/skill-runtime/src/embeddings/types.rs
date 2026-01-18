@@ -307,6 +307,7 @@ pub struct EmbeddingResult {
 }
 
 impl EmbeddingResult {
+    /// Create a new embedding result with the given vector and model name
     pub fn new(embedding: Vec<f32>, model: impl Into<String>) -> Self {
         Self {
             embedding,
@@ -315,6 +316,7 @@ impl EmbeddingResult {
         }
     }
 
+    /// Set the token count used for this embedding
     pub fn with_tokens(mut self, tokens: usize) -> Self {
         self.tokens_used = Some(tokens);
         self

@@ -3,7 +3,6 @@
 //! Generates realistic usage examples from tool schemas using LLMs,
 //! with streaming output and validation.
 
-use std::pin::Pin;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use anyhow::{Context, Result};
@@ -144,7 +143,7 @@ impl ExampleGenerator {
 
             // Generate with retries
             let mut attempts = 0;
-            let mut examples = Vec::new();
+            let examples;
 
             loop {
                 attempts += 1;

@@ -5,7 +5,6 @@
 
 use anyhow::{Context, Result};
 use colored::*;
-use indicatif::{ProgressBar, ProgressStyle};
 
 #[cfg(feature = "ai-ingestion")]
 use skill_runtime::{
@@ -270,6 +269,7 @@ async fn execute_with_ai(
 }
 
 /// Get list of skill names to enhance
+#[allow(dead_code)]
 fn get_skills_to_enhance(skill_name: Option<&str>, all: bool) -> Result<Vec<String>> {
     if let Some(name) = skill_name {
         return Ok(vec![name.to_string()]);
@@ -370,6 +370,7 @@ fn build_embedding_text(tool: &ToolDocumentation) -> String {
 }
 
 /// Truncate command for display
+#[allow(dead_code)]
 fn truncate_command(cmd: &str, max_len: usize) -> String {
     if cmd.len() <= max_len {
         cmd.to_string()

@@ -21,9 +21,9 @@ test-utils = []  # Enable test utilities for integration tests
 
 [dependencies]
 # Workspace dependencies
-skill-runtime = "1.0.0"
-skill-mcp = "1.0.0"
-skill-http = "1.0.0"
+skill-runtime = { workspace = true }
+skill-mcp = { workspace = true }
+skill-http = { workspace = true }
 
 # Streaming for AI generation
 tokio-stream = { workspace = true }

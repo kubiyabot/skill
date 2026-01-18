@@ -22,6 +22,7 @@ const SERVICE_NAME: &str = "skill-engine-auth";
 struct CachedCredentials {
     credentials: Credentials,
     refresh_token: Option<SecretString>,
+    #[allow(dead_code)]
     cached_at: DateTime<Utc>,
 }
 
@@ -146,6 +147,7 @@ impl TokenStore {
     }
 
     /// Get credentials, refreshing if necessary.
+    #[allow(dead_code)]
     pub async fn get_credentials(
         &self,
         provider: &dyn AuthProvider,
@@ -226,6 +228,7 @@ impl TokenStore {
     }
 
     /// List all stored credentials.
+    #[allow(dead_code)]
     pub async fn list(&self) -> Result<Vec<CredentialInfo>> {
         // This is a simplified implementation - keyring doesn't support listing
         // In practice, we'd need to maintain a separate index of stored credentials
@@ -250,6 +253,7 @@ impl TokenStore {
     }
 
     /// Clear the in-memory cache.
+    #[allow(dead_code)]
     pub async fn clear_cache(&self) {
         self.cache.write().await.clear();
     }
@@ -263,6 +267,7 @@ impl Default for TokenStore {
 
 /// Information about stored credentials.
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct CredentialInfo {
     pub provider_id: String,
     pub skill: Option<String>,
@@ -271,6 +276,7 @@ pub struct CredentialInfo {
     pub has_refresh_token: bool,
 }
 
+#[allow(dead_code)]
 impl CredentialInfo {
     /// Check if these credentials are expired.
     pub fn is_expired(&self) -> bool {

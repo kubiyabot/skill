@@ -63,15 +63,22 @@ pub struct ClonedSkill {
 /// Cache metadata for tracking cloned repositories
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SourceCache {
+    /// Map of cache keys to source cache entries
     pub entries: std::collections::HashMap<String, SourceCacheEntry>,
 }
 
+/// Metadata entry for a cached Git source
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SourceCacheEntry {
+    /// Git repository URL
     pub url: String,
+    /// Git reference (branch, tag, or commit)
     pub git_ref: String,
+    /// Commit hash at time of clone
     pub commit: String,
+    /// Timestamp when repository was cloned
     pub cloned_at: chrono::DateTime<chrono::Utc>,
+    /// Name of the skill from manifest
     pub skill_name: String,
 }
 

@@ -33,12 +33,18 @@ impl Default for InstanceConfig {
     }
 }
 
+/// Metadata about a skill instance
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InstanceMetadata {
+    /// Name of the skill this instance belongs to
     pub skill_name: String,
+    /// Version of the skill
     pub skill_version: String,
+    /// Unique name for this instance
     pub instance_name: String,
+    /// Timestamp when the instance was created
     pub created_at: chrono::DateTime<chrono::Utc>,
+    /// Timestamp when the instance was last updated
     pub updated_at: chrono::DateTime<chrono::Utc>,
 }
 
@@ -55,13 +61,17 @@ impl Default for InstanceMetadata {
     }
 }
 
+/// A configuration value with optional secret marking
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConfigValue {
+    /// The configuration value (may be a keyring reference if secret=true)
     pub value: String,
+    /// Whether this value is a secret stored in the keyring
     #[serde(default)]
     pub secret: bool,
 }
 
+/// Capabilities and permissions granted to a skill instance
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Capabilities {
     /// Allowed filesystem paths (outside of preopened dirs)

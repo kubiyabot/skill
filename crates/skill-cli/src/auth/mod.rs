@@ -47,9 +47,10 @@ pub mod providers;
 pub mod token_store;
 pub mod commands;
 
-pub use provider::{
-    AuthProvider, AuthResult, AuthType, Credentials, CredentialType,
-    ProviderConfig, OAuth2Config, ApiKeyConfig, AwsConfig,
-};
+// These re-exports are part of the public API - allow unused for now
+#[allow(unused_imports)]
+pub use provider::{AuthProvider, AuthResult, AuthType, Credentials, ProviderConfig};
+#[allow(unused_imports)]
 pub use token_store::TokenStore;
-pub use commands::{ProviderRegistry, login, status, logout, providers};
+#[allow(unused_imports)]
+pub use commands::{login, logout, providers, status, ProviderRegistry};
