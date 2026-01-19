@@ -356,7 +356,7 @@ impl SearchAnalyticsDb {
                     result_id: row.2,
                     score: row.3,
                     rank: row.4 as usize,
-                    feedback_type: FeedbackType::from_str(&row.5)?,
+                    feedback_type: FeedbackType::parse(&row.5)?,
                     reason: row.6,
                     comment: row.7,
                     client_type: row.8,
@@ -615,7 +615,7 @@ mod tests {
     #[tokio::test]
     async fn test_database_creation() {
         let db = SearchAnalyticsDb::new(":memory:").await.unwrap();
-        assert!(db.pool().is_closed() == false);
+        assert!(!db.pool().is_closed());
     }
 
     #[tokio::test]

@@ -280,7 +280,7 @@ impl ExampleValidator {
         let mut i = 0;
 
         // Skip "skill run" prefix if present
-        if tokens.get(0) == Some(&"skill") {
+        if tokens.first() == Some(&"skill") {
             i += 1;
             if tokens.get(i) == Some(&"run") {
                 i += 1;
@@ -303,9 +303,8 @@ impl ExampleValidator {
         while i < tokens.len() {
             let token = tokens[i];
 
-            if token.starts_with("--") {
+            if let Some(param) = token.strip_prefix("--") {
                 // Long parameter
-                let param = &token[2..];
                 if let Some((name, value)) = param.split_once('=') {
                     parsed.parameters.insert(name.to_string(), value.to_string());
                 } else if i + 1 < tokens.len() && !tokens[i + 1].starts_with('-') {
@@ -411,6 +410,7 @@ impl ExampleValidator {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::skill_md::{ParameterDoc, ParameterType};
 
     fn create_test_tool() -> ToolDocumentation {
         ToolDocumentation {

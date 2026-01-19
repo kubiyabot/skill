@@ -40,7 +40,7 @@ pub async fn execute(format: &str, manifest: Option<&SkillManifest>) -> Result<(
 
     match format {
         "json" => list_json(&installed_skills, &manifest_skills).await,
-        "table" | _ => list_table(&installed_skills, &manifest_skills).await,
+        _ => list_table(&installed_skills, &manifest_skills).await,
     }
 }
 

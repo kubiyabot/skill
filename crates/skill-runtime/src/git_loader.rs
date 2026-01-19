@@ -579,7 +579,7 @@ impl GitSkillLoader {
         for entry in std::fs::read_dir(&target_dir)? {
             let entry = entry?;
             let path = entry.path();
-            if path.extension().map_or(false, |e| e == "wasm") {
+            if path.extension().is_some_and(|e| e == "wasm") {
                 info!(wasm = %path.display(), "Found compiled WASM");
                 return Ok(path);
             }

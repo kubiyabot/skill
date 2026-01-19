@@ -1,6 +1,5 @@
 //! Skill detail page with tabs
 
-use std::collections::HashMap;
 use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;

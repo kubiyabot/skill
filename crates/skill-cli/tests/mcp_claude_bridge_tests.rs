@@ -8,6 +8,9 @@
 //!
 //! The MCP server exposes skills as tools that can be executed by AI agents like
 //! Claude. These tests validate the complete JSON-RPC 2.0 protocol implementation
+
+#![allow(deprecated)] // cargo_bin is deprecated but still functional
+#![allow(unused_imports)] // Some imports used conditionally
 //! including initialization, tool discovery, tool execution, and context
 //! engineering features.
 //!

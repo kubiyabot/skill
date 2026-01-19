@@ -8,6 +8,9 @@
 //! - Concurrent generation scenarios
 //! - Partial failure recovery
 //! - Invalid input sanitization
+
+#![allow(deprecated)] // cargo_bin is deprecated but still functional
+#![allow(unused_must_use)] // assert() results are intentionally unused in setup code
 //! - Error message quality validation
 //!
 //! # Running Tests

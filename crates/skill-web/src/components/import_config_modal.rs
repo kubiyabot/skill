@@ -1002,6 +1002,7 @@ pub fn import_config_modal(props: &ImportConfigModalProps) -> Html {
 }
 
 /// Render the editor view with tabs
+#[allow(clippy::too_many_arguments)]
 fn render_editor_view(
     content: &UseStateHandle<String>,
     is_dragging: &UseStateHandle<bool>,
@@ -1427,7 +1428,7 @@ fn render_preview_view(
 
                 // Skills list
                 <div class="space-y-3">
-                    { for skills.iter().map(|skill| render_skill_card(skill)) }
+                    { for skills.iter().map(render_skill_card) }
                 </div>
             </div>
         </div>

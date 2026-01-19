@@ -19,12 +19,10 @@ pub struct WizardStepperProps {
 
 #[function_component(WizardStepper)]
 pub fn wizard_stepper(props: &WizardStepperProps) -> Html {
-    let steps = vec![
-        WizardStep::SelectSkill,
+    let steps = [WizardStep::SelectSkill,
         WizardStep::SelectTool,
         WizardStep::ConfigureParameters,
-        WizardStep::Execute,
-    ];
+        WizardStep::Execute];
 
     html! {
         <div class="wizard-stepper">
@@ -51,9 +49,9 @@ pub fn wizard_stepper(props: &WizardStepperProps) -> Html {
                                     onclick={on_click}
                                     class={classes!(
                                         "wizard-step-circle",
-                                        is_current.then(|| "active"),
-                                        is_completed.then(|| "completed"),
-                                        is_pending.then(|| "pending"),
+                                        is_current.then_some("active"),
+                                        is_completed.then_some("completed"),
+                                        is_pending.then_some("pending"),
                                         "transition-all", "duration-200"
                                     )}
                                 >
@@ -131,9 +129,9 @@ pub fn wizard_stepper(props: &WizardStepperProps) -> Html {
                         >
                             <div class={classes!(
                                 "wizard-step-circle",
-                                is_current.then(|| "active"),
-                                is_completed.then(|| "completed"),
-                                is_pending.then(|| "pending"),
+                                is_current.then_some("active"),
+                                is_completed.then_some("completed"),
+                                is_pending.then_some("pending"),
                                 "flex-shrink-0"
                             )}>
                                 if is_completed {

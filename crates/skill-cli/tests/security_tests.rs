@@ -8,6 +8,9 @@
 //! - Path traversal attack prevention
 //! - XSS protection in generated content
 //! - Script permission validation
+
+#![allow(deprecated)] // cargo_bin is deprecated but still functional
+#![allow(unused_must_use)] // assert() results are intentionally unused in setup code
 //! - Privilege escalation prevention
 //!
 //! # Running Tests
@@ -28,7 +31,6 @@
 //! 4. **Input Validation**: All user input is validated and sanitized
 
 use assert_cmd::Command;
-use predicates::prelude::*;
 use std::fs;
 use std::path::Path;
 use tempfile::TempDir;

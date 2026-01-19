@@ -122,8 +122,8 @@ pub fn terminal_output(props: &TerminalOutputProps) -> Html {
             "shadow-lg",
             "z-50",
             "transition-all", "duration-200",
-            props.visible.then(|| "translate-y-0").unwrap_or("translate-y-full"),
-            props.minimized.then(|| "h-14").unwrap_or("h-[60vh]")
+            if props.visible { "translate-y-0" } else { "translate-y-full" },
+            if props.minimized { "h-14" } else { "h-[60vh]" }
         )}>
             // Header bar
             <div class="flex items-center justify-between px-6 py-3 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -131,7 +131,7 @@ pub fn terminal_output(props: &TerminalOutputProps) -> Html {
                     // Status indicator
                     if let Some(exec) = &props.execution {
                         <div class="flex items-center gap-2">
-                            <span class={classes!("text-sm", "font-semibold", status_class.clone())}>
+                            <span class={classes!("text-sm", "font-semibold", status_class)}>
                                 { format!("{:?}", exec.status) }
                             </span>
                             <span class="text-xs text-gray-500 dark:text-gray-400">

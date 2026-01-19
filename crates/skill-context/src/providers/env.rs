@@ -50,8 +50,8 @@ impl EnvironmentProvider {
 
     /// Build the environment variable name for a secret.
     fn build_env_var(&self, context_id: &str, key: &str) -> String {
-        let context_part = context_id.to_uppercase().replace('-', "_").replace('.', "_");
-        let key_part = key.to_uppercase().replace('-', "_").replace('.', "_");
+        let context_part = context_id.to_uppercase().replace(['-', '.'], "_");
+        let key_part = key.to_uppercase().replace(['-', '.'], "_");
         format!("{}{}__{}", self.prefix, context_part, key_part)
     }
 }
@@ -126,7 +126,7 @@ impl SecretProvider for EnvironmentProvider {
         let context_prefix = format!(
             "{}{}__",
             self.prefix,
-            context_id.to_uppercase().replace('-', "_").replace('.', "_")
+            context_id.to_uppercase().replace(['-', '.'], "_")
         );
 
         let keys: Vec<String> = std::env::vars()

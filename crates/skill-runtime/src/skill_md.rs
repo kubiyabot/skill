@@ -336,6 +336,11 @@ fn extract_tool_sections(markdown: &str) -> HashMap<String, ToolDocumentation> {
                     if tool.description.is_empty() && !text.trim().is_empty() {
                         tool.description = text.trim().to_string();
                     }
+                } else if let Some(ref mut h3_tool) = h3_tool_candidate {
+                    // Add to H3 tool candidate description
+                    if h3_tool.description.is_empty() && !text.trim().is_empty() {
+                        h3_tool.description = text.trim().to_string();
+                    }
                 }
             }
             Event::Code(code) => {
@@ -579,18 +584,18 @@ pub fn parse_parameters(text: &str) -> Vec<ParameterDoc> {
         let line = line.trim_start_matches('-').trim_start_matches('*').trim();
 
         // Try to extract parameter name (in backticks or bold)
-        let (name, rest) = if line.starts_with('`') {
-            if let Some(end) = line[1..].find('`') {
-                let name = &line[1..=end];
-                let rest = &line[end + 2..];
+        let (name, rest) = if let Some(stripped) = line.strip_prefix('`') {
+            if let Some(end) = stripped.find('`') {
+                let name = &stripped[..end];
+                let rest = &stripped[end + 1..];
                 (name.to_string(), rest.trim())
             } else {
                 continue;
             }
-        } else if line.starts_with("**") {
-            if let Some(end) = line[2..].find("**") {
-                let name = &line[2..end + 2];
-                let rest = &line[end + 4..];
+        } else if let Some(stripped) = line.strip_prefix("**") {
+            if let Some(end) = stripped.find("**") {
+                let name = &stripped[..end];
+                let rest = &stripped[end + 2..];
                 (name.to_string(), rest.trim())
             } else {
                 continue;
@@ -625,11 +630,11 @@ pub fn parse_parameters(text: &str) -> Vec<ParameterDoc> {
         let default = if let Some(pos) = rest_lower.find("default:") {
             let after = &rest[pos + 8..];
             // Find the end (comma, paren, or end of parentheses block)
-            let end = after.find(|c: char| c == ',' || c == ')').unwrap_or(after.len());
+            let end = after.find([',', ')']).unwrap_or(after.len());
             Some(after[..end].trim().to_string())
         } else if let Some(pos) = rest_lower.find("default=") {
             let after = &rest[pos + 8..];
-            let end = after.find(|c: char| c == ',' || c == ')').unwrap_or(after.len());
+            let end = after.find([',', ')']).unwrap_or(after.len());
             Some(after[..end].trim().to_string())
         } else {
             None

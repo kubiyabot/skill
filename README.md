@@ -120,6 +120,12 @@ curl -fsSL https://raw.githubusercontent.com/kubiyabot/skill/main/install.sh | s
 curl -fsSL https://raw.githubusercontent.com/kubiyabot/skill/main/install.sh | sh -s -- --version 0.1.0
 ```
 
+**From crates.io:**
+
+```bash
+cargo install skill-cli
+```
+
 **From source:**
 
 ```bash

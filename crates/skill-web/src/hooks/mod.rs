@@ -2,4 +2,4 @@
 
 pub mod use_wizard_state;
 
-pub use use_wizard_state::{use_wizard_state, WizardState, WizardStateHandle, WizardStep};
+pub use use_wizard_state::WizardStep;

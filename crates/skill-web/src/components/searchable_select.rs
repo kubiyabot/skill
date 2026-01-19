@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use web_sys::{HtmlInputElement, KeyboardEvent};
+use web_sys::HtmlInputElement;
 use wasm_bindgen::JsCast;
 
 #[derive(Clone, PartialEq, Properties)]
@@ -18,7 +18,7 @@ pub struct SearchableSelectProps {
 #[function_component(SearchableSelect)]
 pub fn searchable_select(props: &SearchableSelectProps) -> Html {
     let is_open = use_state(|| false);
-    let search_term = use_state(|| String::new());
+    let search_term = use_state(String::new);
     let wrapper_ref = use_node_ref();
     let input_ref = use_node_ref();
 

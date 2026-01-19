@@ -1,5 +1,7 @@
 //! Common test utilities for HTTP integration tests
 
+#![allow(dead_code)] // Test helpers that may be used in future tests
+
 use axum::body::{Body, to_bytes};
 use axum::http::{Request, StatusCode};
 use chrono::Utc;

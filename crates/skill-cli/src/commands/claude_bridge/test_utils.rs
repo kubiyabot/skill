@@ -3,7 +3,7 @@
 //! This module provides common fixtures, helpers, and mock implementations
 //! for testing the Claude Bridge functionality.
 
-#![cfg(test)]
+#![allow(dead_code)] // Test utilities may not all be used yet
 
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;

@@ -8,6 +8,7 @@ use crate::credentials::{parse_keyring_reference, CredentialStore};
 
 /// Configuration for a skill instance
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct InstanceConfig {
     /// Instance metadata
     pub metadata: InstanceMetadata,
@@ -22,16 +23,6 @@ pub struct InstanceConfig {
     pub capabilities: Capabilities,
 }
 
-impl Default for InstanceConfig {
-    fn default() -> Self {
-        Self {
-            metadata: InstanceMetadata::default(),
-            config: HashMap::new(),
-            environment: HashMap::new(),
-            capabilities: Capabilities::default(),
-        }
-    }
-}
 
 /// Metadata about a skill instance
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -308,7 +299,7 @@ impl InstanceManager {
         // Load config to find all secret keys
         if let Ok(config) = self.load_instance(skill_name, instance_name) {
             // Delete all credentials from keyring
-            for (_key, value) in &config.config {
+            for value in config.config.values() {
                 if value.secret {
                     // Parse keyring reference and delete
                     if let Ok((_, _, secret_key)) = parse_keyring_reference(&value.value) {
@@ -367,7 +358,7 @@ impl Default for InstanceManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
+    
 
     #[test]
     fn test_instance_config_serialization() {

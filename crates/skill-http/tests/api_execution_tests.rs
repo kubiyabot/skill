@@ -245,9 +245,8 @@ async fn test_list_execution_history_empty() {
     let (status, body) = app.request(req).await;
 
     assert_eq!(status, StatusCode::OK);
-    let response: PaginatedResponse<ExecutionHistoryEntry> = TestApp::parse_json(&body);
-    // May be empty or have entries from previous tests
-    assert!(response.items.len() >= 0);
+    let _response: PaginatedResponse<ExecutionHistoryEntry> = TestApp::parse_json(&body);
+    // Response parses successfully - may be empty or have entries from previous tests
 }
 
 #[tokio::test]
@@ -294,7 +293,7 @@ async fn test_execution_response_has_required_fields() {
 
         // Verify required fields
         assert!(!response.id.is_empty());
-        assert!(response.duration_ms >= 0);
+        // duration_ms is a u64, so it's always >= 0
         // Status should be one of the valid enum values
         assert!(matches!(
             response.status,
@@ -314,7 +313,7 @@ async fn test_execution_response_has_required_fields() {
 
 #[tokio::test]
 async fn test_concurrent_executions() {
-    let app = TestApp::new().await;
+    let _app = TestApp::new().await;
 
     // Launch multiple concurrent executions
     let mut handles = vec![];

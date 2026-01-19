@@ -260,14 +260,12 @@ impl IndexManager {
         }
 
         // Hash WASM file (if exists)
-        for entry in fs::read_dir(skill_path).into_iter().flatten() {
-            if let Ok(entry) = entry {
-                if entry.path().extension().map_or(false, |e| e == "wasm") {
-                    let content = fs::read(entry.path())
-                        .context("Failed to read WASM file")?;
-                    wasm_hash = Some(self.hash_content(&content));
-                    break;
-                }
+        for entry in fs::read_dir(skill_path).into_iter().flatten().flatten() {
+            if entry.path().extension().is_some_and(|e| e == "wasm") {
+                let content = fs::read(entry.path())
+                    .context("Failed to read WASM file")?;
+                wasm_hash = Some(self.hash_content(&content));
+                break;
             }
         }
 

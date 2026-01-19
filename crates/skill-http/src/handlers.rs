@@ -64,7 +64,7 @@ pub async fn get_skill(
     if let Some(manifest) = manifest.as_ref() {
         if let Some(skill_def) = manifest.get_skill(&name) {
             // Get instances from manifest
-            for (inst_name, _inst_config) in &skill_def.instances {
+            for inst_name in skill_def.instances.keys() {
                 instances.push(InstanceInfo {
                     name: inst_name.clone(),
                     description: None,
@@ -240,7 +240,7 @@ pub async fn install_skill(
         // Extract name from source
         request.source
             .split('/')
-            .last()
+            .next_back()
             .unwrap_or("unknown")
             .trim_end_matches(".git")
             .to_string()
@@ -315,7 +315,7 @@ async fn execute_native_skill(
     // Build the native command
     let command_str = build_native_command(skill_name, tool_name, &parsed_args)
         .map_err(|e| {
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(ApiError::internal(&format!("Failed to build command: {}", e))))
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(ApiError::internal(format!("Failed to build command: {}", e))))
         })?;
 
     // Parse the command
@@ -336,7 +336,7 @@ async fn execute_native_skill(
         .output()
         .await
         .map_err(|e| {
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(ApiError::internal(&format!("Failed to execute command: {}", e))))
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(ApiError::internal(format!("Failed to execute command: {}", e))))
         })?;
 
     let duration_ms = start.elapsed().as_millis() as u64;
@@ -1695,7 +1695,6 @@ pub async fn test_search_pipeline(
     let config = SearchConfig {
         backend: BackendConfig {
             backend_type,
-            ..Default::default()
         },
         embedding: RuntimeEmbeddingConfig {
             provider: request.embedding_provider.clone(),
@@ -2248,7 +2247,7 @@ pub async fn submit_feedback(
 
     // Validate feedback type
     use crate::analytics::FeedbackType;
-    let feedback_type = FeedbackType::from_str(&request.feedback_type).ok_or_else(|| {
+    let feedback_type = FeedbackType::parse(&request.feedback_type).ok_or_else(|| {
         (
             StatusCode::BAD_REQUEST,
             Json(ApiError::validation(format!(
@@ -2325,7 +2324,7 @@ pub async fn get_feedback(
     let feedback_type_filter = request
         .feedback_type
         .as_ref()
-        .and_then(|ft| FeedbackType::from_str(ft));
+        .and_then(|ft| FeedbackType::parse(ft));
 
     let filter = FeedbackFilter {
         query: request.query.clone(),

@@ -141,6 +141,7 @@ struct ProcessedOutput {
 }
 
 /// Process tool output with context engineering transformations
+#[allow(clippy::too_many_arguments)]
 fn process_output(
     output: &str,
     max_output: Option<usize>,
@@ -282,8 +283,8 @@ fn truncate_content(content: &str, max_len: usize, strategy: &str) -> String {
             let omitted = content.len() - (head.len() + tail.len());
             format!("{}\n\n... [TRUNCATED: {} characters in middle] ...\n\n{}", head, omitted, tail)
         }
-        "smart" | _ => {
-            // Smart truncation: try to preserve structure (complete lines, JSON structure)
+        _ => {
+            // Smart truncation (default): try to preserve structure (complete lines, JSON structure)
             smart_truncate(content, max_len)
         }
     }
@@ -408,7 +409,7 @@ fn extract_json_path(json: &serde_json::Value, path: &str) -> String {
                     // Range access items[0:5]
                     let range_parts: Vec<&str> = idx_str.split(':').collect();
                     if let (Ok(start), Ok(end)) = (
-                        range_parts.get(0).unwrap_or(&"0").parse::<usize>(),
+                        range_parts.first().unwrap_or(&"0").parse::<usize>(),
                         range_parts.get(1).unwrap_or(&"").parse::<usize>()
                     ) {
                         if let serde_json::Value::Array(arr) = current {
@@ -751,10 +752,10 @@ impl McpServer {
     }
 
     /// Find WASM file in a skill path
-    fn find_wasm_in_path(&self, path: &PathBuf) -> Result<PathBuf> {
+    fn find_wasm_in_path(&self, path: &std::path::Path) -> Result<PathBuf> {
         // If it's a direct wasm file, return it
-        if path.extension().map_or(false, |ext| ext == "wasm") && path.exists() {
-            return Ok(path.clone());
+        if path.extension().is_some_and(|ext| ext == "wasm") && path.exists() {
+            return Ok(path.to_path_buf());
         }
 
         // If it's a directory, search for wasm files
@@ -1741,10 +1742,10 @@ impl McpServer {
             let manifest = manifest_clone.clone();
             let server = if let Some(m) = manifest {
                 McpServer::with_manifest(m)
-                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?
+                    .map_err(|e| std::io::Error::other(e.to_string()))?
             } else {
                 McpServer::new()
-                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?
+                    .map_err(|e| std::io::Error::other(e.to_string()))?
             };
             Ok(server)
         };

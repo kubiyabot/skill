@@ -39,11 +39,10 @@ pub use agent::AgentApi;
 pub use analytics::AnalyticsApi;
 pub use client::ApiClient;
 pub use config::ConfigApi;
-pub use error::{ApiError, ApiResult};
+pub use error::ApiResult;
 pub use executions::ExecutionsApi;
 pub use feedback::{
-    FeedbackApi, FeedbackEntry, GetFeedbackRequest, GetFeedbackResponse, SubmitFeedbackRequest,
-    SubmitFeedbackResponse,
+    FeedbackApi, SubmitFeedbackRequest,
 };
 pub use search::SearchApi;
 pub use services::ServicesApi;

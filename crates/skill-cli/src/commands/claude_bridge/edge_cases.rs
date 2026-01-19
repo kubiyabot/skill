@@ -14,7 +14,7 @@ mod tests {
     use super::super::validator::Validator;
     use super::super::renderer::Renderer;
     use super::super::script_gen::ScriptGenerator;
-    use super::super::types::{RawSkill, RawTool, RawToolParameter, SkillRuntimeType, ValidatedSkill};
+    use super::super::types::{RawSkill, RawTool, RawToolParameter, SkillRuntimeType};
     use std::fs;
     use tempfile::TempDir;
     use tokio::task::JoinSet;
@@ -336,8 +336,8 @@ description = "Third skill"
     /// Test: Concurrent transformations
     #[tokio::test]
     async fn test_concurrent_transformations() {
-        let validator = Validator::new();
-        let transformer = Transformer::new();
+        let _validator = Validator::new();
+        let _transformer = Transformer::new();
         let raw_skill = create_skill_with_many_tools(10);
 
         // Validate and transform the same skill concurrently
@@ -373,7 +373,7 @@ description = "Third skill"
     fn test_malformed_toml() {
         let temp = TempDir::new().unwrap();
 
-        let malformed_cases = vec![
+        let malformed_cases = [
             "invalid { toml [[ }",
             "[skills.test]\nsource = ",  // Incomplete
             "[skills.test]\nruntime = \"invalid_runtime\"",

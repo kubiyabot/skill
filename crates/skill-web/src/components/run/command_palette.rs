@@ -201,7 +201,7 @@ pub fn command_palette(props: &CommandPaletteProps) -> Html {
                                 class={classes!(
                                     "suggestion-item",
                                     "w-full",
-                                    is_selected.then(|| "selected")
+                                    is_selected.then_some("selected")
                                 )}
                                 onclick={make_on_suggestion_click(skill, tool)}
                             >

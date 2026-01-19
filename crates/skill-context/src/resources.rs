@@ -203,7 +203,7 @@ impl MemoryConfig {
 }
 
 /// Network configuration.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct NetworkConfig {
     /// Whether network access is allowed.
@@ -225,18 +225,6 @@ pub struct NetworkConfig {
     /// DNS servers.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub dns: Option<Vec<String>>,
-}
-
-impl Default for NetworkConfig {
-    fn default() -> Self {
-        Self {
-            enabled: false,
-            mode: None,
-            allowed_hosts: None,
-            blocked_hosts: None,
-            dns: None,
-        }
-    }
 }
 
 impl NetworkConfig {
@@ -471,13 +459,13 @@ pub fn parse_size(s: &str) -> Option<u64> {
     }
 
     let (num_str, multiplier) = if s.ends_with("gb") || s.ends_with("g") {
-        let num = s.trim_end_matches(|c| c == 'g' || c == 'b');
+        let num = s.trim_end_matches(['g', 'b']);
         (num, 1024 * 1024 * 1024)
     } else if s.ends_with("mb") || s.ends_with("m") {
-        let num = s.trim_end_matches(|c| c == 'm' || c == 'b');
+        let num = s.trim_end_matches(['m', 'b']);
         (num, 1024 * 1024)
     } else if s.ends_with("kb") || s.ends_with("k") {
-        let num = s.trim_end_matches(|c| c == 'k' || c == 'b');
+        let num = s.trim_end_matches(['k', 'b']);
         (num, 1024)
     } else if s.ends_with('b') {
         let num = s.trim_end_matches('b');

@@ -299,7 +299,7 @@ impl SkillManifest {
         let content = std::fs::read_to_string(path)
             .with_context(|| format!("Failed to read manifest file: {}", path.display()))?;
 
-        let mut manifest = Self::from_str(&content)?;
+        let mut manifest = Self::parse(&content)?;
 
         // Set base_dir to the manifest file's parent directory
         manifest.base_dir = path
@@ -315,8 +315,8 @@ impl SkillManifest {
         Ok(manifest)
     }
 
-    /// Parse manifest from string
-    pub fn from_str(content: &str) -> Result<Self> {
+    /// Parse manifest from TOML string
+    pub fn parse(content: &str) -> Result<Self> {
         toml::from_str(content).context("Failed to parse manifest TOML")
     }
 
@@ -550,7 +550,7 @@ pub fn expand_env_vars(input: &str) -> Result<String> {
             let mut var_expr = String::new();
             let mut depth = 1;
 
-            while let Some(c) = chars.next() {
+            for c in chars.by_ref() {
                 if c == '{' {
                     depth += 1;
                     var_expr.push(c);
@@ -627,7 +627,7 @@ mod tests {
             config.region = "us-west-2"
         "#;
 
-        let manifest = SkillManifest::from_str(toml).unwrap();
+        let manifest = SkillManifest::parse(toml).unwrap();
         assert_eq!(manifest.skills.len(), 2);
         assert!(manifest.skills.contains_key("hello"));
         assert!(manifest.skills.contains_key("aws"));
@@ -682,7 +682,7 @@ mod tests {
             read_only = true
         "#;
 
-        let manifest = SkillManifest::from_str(toml).unwrap();
+        let manifest = SkillManifest::parse(toml).unwrap();
         assert!(manifest.skills.contains_key("ffmpeg"));
 
         let ffmpeg = &manifest.skills["ffmpeg"];
@@ -706,7 +706,7 @@ mod tests {
             source = "./examples/hello-skill"
         "#;
 
-        let manifest = SkillManifest::from_str(toml).unwrap();
+        let manifest = SkillManifest::parse(toml).unwrap();
         let hello = &manifest.skills["hello"];
         assert_eq!(hello.runtime, SkillRuntime::Wasm);
     }
@@ -720,7 +720,7 @@ mod tests {
             description = "Kubernetes management"
         "#;
 
-        let manifest = SkillManifest::from_str(toml).unwrap();
+        let manifest = SkillManifest::parse(toml).unwrap();
         let k8s = &manifest.skills["kubernetes"];
         assert_eq!(k8s.runtime, SkillRuntime::Native);
     }
@@ -750,7 +750,7 @@ mod tests {
             volumes = ["${TEST_WORKDIR}:/workdir"]
         "#;
 
-        let manifest = SkillManifest::from_str(toml).unwrap();
+        let manifest = SkillManifest::parse(toml).unwrap();
         let resolved = manifest.resolve_instance("test", None).unwrap();
 
         assert_eq!(resolved.runtime, SkillRuntime::Docker);
@@ -775,7 +775,7 @@ mod tests {
             memory = "8g"
         "#;
 
-        let manifest = SkillManifest::from_str(toml).unwrap();
+        let manifest = SkillManifest::parse(toml).unwrap();
         let ml = &manifest.skills["ml"];
         let docker = ml.docker.as_ref().unwrap();
         assert_eq!(docker.gpus, Some("all".to_string()));
@@ -794,7 +794,7 @@ mod tests {
             extra_args = ["--cap-add=SYS_PTRACE", "--security-opt=seccomp=unconfined"]
         "#;
 
-        let manifest = SkillManifest::from_str(toml).unwrap();
+        let manifest = SkillManifest::parse(toml).unwrap();
         let docker = manifest.skills["custom"].docker.as_ref().unwrap();
         assert_eq!(docker.extra_args.len(), 2);
         assert!(docker.extra_args.contains(&"--cap-add=SYS_PTRACE".to_string()));

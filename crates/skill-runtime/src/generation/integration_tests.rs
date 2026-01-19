@@ -3,8 +3,6 @@
 //! Tests the full flow from tool documentation through AI generation,
 //! validation, and streaming events.
 
-#![cfg(test)]
-
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -15,7 +13,6 @@ use super::evaluation::*;
 use super::streaming::*;
 use super::validator::*;
 use super::example_generator::*;
-use super::llm_provider::*;
 use crate::skill_md::ToolDocumentation;
 
 // =============================================================================
@@ -456,11 +453,9 @@ async fn test_concurrent_generation() {
     let config = GeneratorConfig::default();
     let generator = Arc::new(ExampleGenerator::new(provider.clone(), config));
 
-    let tools = vec![
-        kubernetes_apply_tool(),
+    let tools = [kubernetes_apply_tool(),
         simple_tool(),
-        docker_build_tool(),
-    ];
+        docker_build_tool()];
 
     // Generate concurrently
     let handles: Vec<_> = tools.iter()

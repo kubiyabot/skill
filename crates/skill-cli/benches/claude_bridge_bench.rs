@@ -4,7 +4,6 @@
 //! View reports in: target/criterion/
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use std::path::PathBuf;
 use tempfile::TempDir;
 
 // Helper to create test manifest
@@ -100,7 +99,7 @@ fn bench_skill_generation(c: &mut Criterion) {
 fn bench_yaml_frontmatter(c: &mut Criterion) {
     let mut group = c.benchmark_group("yaml_frontmatter");
 
-    let test_data = serde_yaml::to_value(&serde_json::json!({
+    let test_data = serde_yaml::to_value(serde_json::json!({
         "name": "test-skill",
         "description": "A test skill for benchmarking",
         "version": "1.0.0",
@@ -123,9 +122,7 @@ fn bench_yaml_frontmatter(c: &mut Criterion) {
 fn bench_script_generation(c: &mut Criterion) {
     let mut group = c.benchmark_group("script_generation");
 
-    let tool_names = vec![
-        "get", "list", "describe", "create", "update", "delete", "logs", "exec",
-    ];
+    let tool_names = ["get", "list", "describe", "create", "update", "delete", "logs", "exec"];
 
     group.bench_function("generate_scripts", |b| {
         b.iter(|| {
@@ -171,7 +168,7 @@ fn bench_markdown_rendering(c: &mut Criterion) {
                 for param in params {
                     content.push_str(&format!("- `{}` (string): Parameter\n", param));
                 }
-                content.push_str("\n");
+                content.push('\n');
             }
             black_box(content)
         });

@@ -187,13 +187,10 @@ async fn execute_manifest_skill(
     };
 
     println!(
-        "{} Running {} (from manifest, runtime: {}) → {}",
+        "{} Running {}@{} (from manifest, runtime: {}) → {}",
         "→".cyan(),
-        format!(
-            "{}@{}",
-            resolved.skill_name.yellow(),
-            resolved.instance_name.cyan()
-        ),
+        resolved.skill_name.yellow(),
+        resolved.instance_name.cyan(),
         runtime_str.magenta(),
         tool_name.green()
     );
@@ -891,7 +888,7 @@ fn is_git_url_spec(spec: &str) -> bool {
 /// Find the WASM file in a path (handles both files and directories)
 fn find_wasm_in_path(path: &Path) -> Result<PathBuf> {
     // If it's a direct wasm file, return it
-    if path.extension().map_or(false, |ext| ext == "wasm") && path.exists() {
+    if path.extension().is_some_and(|ext| ext == "wasm") && path.exists() {
         return Ok(path.to_path_buf());
     }
 
