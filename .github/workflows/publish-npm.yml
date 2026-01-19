@@ -1,8 +1,6 @@
 name: Publish to npm
 
 on:
-  push:
-    branches: [CORE-skill-fixes]
   release:
     types: [published]
   workflow_dispatch:
