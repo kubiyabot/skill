@@ -1,6 +1,8 @@
 name: Publish to npm
 
 on:
+  push:
+    branches: [CORE-skill-fixes]
   release:
     types: [published]
   workflow_dispatch:
@@ -56,8 +58,6 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
-          cache-dependency-path: sdk/javascript/package-lock.json
 
       - name: Verify version matches tag
         if: github.event_name == 'release'
