@@ -1,0 +1,67 @@
+# cargo-deny configuration
+# https://embarkstudios.github.io/cargo-deny/
+
+[advisories]
+version = 2
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+
+# Allow these advisories that are from transitive dependencies
+# and don't affect our use case or have no fix available yet
+ignore = [
+    # Unmaintained crates (transitive dependencies)
+    "RUSTSEC-2021-0127",  # serde_cbor - unmaintained (used by wasmtime)
+    "RUSTSEC-2024-0370",  # proc-macro-error - unmaintained
+    "RUSTSEC-2024-0387",  # paste - unmaintained (used by wasmtime)
+    "RUSTSEC-2024-0377",  # fxhash - unmaintained
+    "RUSTSEC-2025-0010",  # number_prefix - unmaintained
+    "RUSTSEC-2024-0404",  # bincode - unmaintained
+
+    # Wasmtime vulnerabilities - tracked upstream, upgrade deferred
+    # Low severity (3.3), availability only, requires malicious WASM from untrusted sources.
+    # This project runs trusted skills only. Upgrade to wasmtime 34+ requires API refactoring.
+    "RUSTSEC-2025-0006",  # fd_renumber - fixed in wasmtime 28+
+    "RUSTSEC-2025-0012",  # shared linear memory - fixed in wasmtime 28+
+    "RUSTSEC-2025-0046",  # fd_renumber panic - fixed in wasmtime 34+
+
+    # False positives - vulnerabilities in unused code paths
+    "RUSTSEC-2023-0071",  # RSA Marvin Attack - transitive dep from sqlx-mysql.
+                          # This project only uses SQLite (sqlx/sqlite feature).
+                          # The vulnerable RSA code in sqlx-mysql is never executed.
+]
+
+[licenses]
+version = 2
+confidence-threshold = 0.8
+
+# Allow common permissive licenses
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "0BSD",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "BSL-1.0",
+    "CC0-1.0",
+    "MPL-2.0",
+]
+
+[[licenses.clarify]]
+name = "ring"
+expression = "MIT AND ISC AND OpenSSL"
+license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+highlight = "all"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "warn"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
