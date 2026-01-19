@@ -83,6 +83,9 @@ insta = { version = "1.34", features = ["yaml"] }
 # Performance benchmarking
 criterion = { version = "0.5", features = ["html_reports"] }
 
+# Random number generation (for benchmarks)
+rand = "0.8"
+
 [[bench]]
 name = "claude_bridge_bench"
 harness = false

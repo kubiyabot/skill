@@ -47,7 +47,7 @@ jobs:
       run: cargo test --test security_tests --package skill-cli -- --ignored --nocapture
 
     - name: Run error handling tests
-      run: cargo test --test error_tests -- --ignored --nocapture
+      run: cargo test --test error_tests --package skill-cli -- --ignored --nocapture
 
     - name: Check for security test failures
       if: failure()
