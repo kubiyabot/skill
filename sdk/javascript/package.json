@@ -1,5 +1,5 @@
 {
-  "name": "@skill-engine/sdk",
+  "name": "@kubiya/skill-engine-sdk",
   "version": "0.1.0",
   "description": "JavaScript/TypeScript SDK for creating Skill Engine skills",
   "main": "dist/index.js",
