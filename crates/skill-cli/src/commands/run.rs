@@ -8,6 +8,59 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
 
+/// Parse CLI arguments supporting multiple formats:
+/// - `key=value` (original format)
+/// - `--key value` (standard CLI style)
+/// - `--key=value` (combined style)
+/// - `--flag` (boolean flags without values)
+/// - `-k value` (short flags)
+/// - `-k` (short boolean flags)
+fn parse_cli_args(args: &[String]) -> Vec<(String, String)> {
+    let mut parsed = Vec::new();
+    let mut i = 0;
+
+    while i < args.len() {
+        let arg = &args[i];
+
+        if arg.starts_with("--") {
+            let key = arg.trim_start_matches('-');
+
+            // Check for --key=value format
+            if let Some(pos) = key.find('=') {
+                parsed.push((key[..pos].to_string(), key[pos + 1..].to_string()));
+            }
+            // Check if next arg is the value (not another flag)
+            else if i + 1 < args.len() && !args[i + 1].starts_with('-') {
+                parsed.push((key.to_string(), args[i + 1].clone()));
+                i += 1; // Skip the value
+            }
+            // Boolean flag
+            else {
+                parsed.push((key.to_string(), "true".to_string()));
+            }
+        } else if arg.starts_with('-') && arg.len() == 2 {
+            // Short flag -k value or -k
+            let key = &arg[1..];
+            if i + 1 < args.len() && !args[i + 1].starts_with('-') {
+                parsed.push((key.to_string(), args[i + 1].clone()));
+                i += 1;
+            } else {
+                parsed.push((key.to_string(), "true".to_string()));
+            }
+        } else if let Some(pos) = arg.find('=') {
+            // key=value format (current behavior)
+            parsed.push((arg[..pos].to_string(), arg[pos + 1..].to_string()));
+        } else {
+            // Positional argument
+            parsed.push(("arg".to_string(), arg.clone()));
+        }
+
+        i += 1;
+    }
+
+    parsed
+}
+
 pub async fn execute(
     skill_spec: &str,
     tool: Option<&str>,
@@ -118,18 +171,8 @@ pub async fn execute(
     .await
     .context("Failed to load skill")?;
 
-    // Parse arguments as key=value pairs
-    let parsed_args: Vec<(String, String)> = args
-        .iter()
-        .map(|arg| {
-            if let Some(pos) = arg.find('=') {
-                (arg[..pos].to_string(), arg[pos + 1..].to_string())
-            } else {
-                // Positional argument without key
-                ("arg".to_string(), arg.clone())
-            }
-        })
-        .collect();
+    // Parse arguments (supports key=value, --key value, --key=value, --flag, -k value, -k)
+    let parsed_args = parse_cli_args(args);
 
     // Execute tool
     println!();
@@ -306,17 +349,8 @@ async fn execute_manifest_skill(
         .context("Failed to load installed skill from manifest")?
     };
 
-    // Parse arguments
-    let parsed_args: Vec<(String, String)> = args
-        .iter()
-        .map(|arg| {
-            if let Some(pos) = arg.find('=') {
-                (arg[..pos].to_string(), arg[pos + 1..].to_string())
-            } else {
-                ("arg".to_string(), arg.clone())
-            }
-        })
-        .collect();
+    // Parse arguments (supports key=value, --key value, --key=value, --flag, -k value, -k)
+    let parsed_args = parse_cli_args(args);
 
     // Execute tool
     let result = match executor.execute_tool(tool_name, parsed_args).await {
@@ -550,18 +584,8 @@ async fn execute_native_manifest_skill(
 
     let skill_name = &resolved.skill_name;
 
-    // Parse arguments as key=value pairs
-    let parsed_args: Vec<(String, String)> = args
-        .iter()
-        .map(|arg| {
-            if let Some(pos) = arg.find('=') {
-                (arg[..pos].to_string(), arg[pos + 1..].to_string())
-            } else {
-                // Positional argument without key
-                ("arg".to_string(), arg.clone())
-            }
-        })
-        .collect();
+    // Parse arguments (supports key=value, --key value, --key=value, --flag, -k value, -k)
+    let parsed_args = parse_cli_args(args);
 
     // Build the native command
     let command_str = build_native_command(skill_name, tool_name, &parsed_args)?;
@@ -677,6 +701,7 @@ fn build_native_command(
     for (key, value) in args {
         if key == "arg" || key == "resource" || key.is_empty() {
             // Positional argument - just add the value
+            // Note: "resource" is special-cased for kubectl which expects resource type as positional
             cmd_parts.push(value.clone());
         } else if value == "true" {
             // Boolean flag
@@ -783,17 +808,8 @@ async fn execute_local_skill(
     .await
     .context("Failed to create skill executor")?;
 
-    // Parse arguments
-    let parsed_args: Vec<(String, String)> = args
-        .iter()
-        .map(|arg| {
-            if let Some(pos) = arg.find('=') {
-                (arg[..pos].to_string(), arg[pos + 1..].to_string())
-            } else {
-                ("arg".to_string(), arg.clone())
-            }
-        })
-        .collect();
+    // Parse arguments (supports key=value, --key value, --key=value, --flag, -k value, -k)
+    let parsed_args = parse_cli_args(args);
 
     // Execute tool
     println!("{} Executing tool...", "→".dimmed());
@@ -980,17 +996,8 @@ async fn execute_git_skill(
     .await
     .context("Failed to load skill")?;
 
-    // Parse arguments
-    let parsed_args: Vec<(String, String)> = args
-        .iter()
-        .map(|arg| {
-            if let Some(pos) = arg.find('=') {
-                (arg[..pos].to_string(), arg[pos + 1..].to_string())
-            } else {
-                ("arg".to_string(), arg.clone())
-            }
-        })
-        .collect();
+    // Parse arguments (supports key=value, --key value, --key=value, --flag, -k value, -k)
+    let parsed_args = parse_cli_args(args);
 
     // Execute tool
     println!("{} Executing...", "→".dimmed());
@@ -1147,5 +1154,120 @@ mod tests {
         assert!(is_git_url_spec("https://github.com/user/repo"));
         assert!(!is_git_url_spec("aws:s3-list"));  // This is skill:tool, not Git
         assert!(!is_git_url_spec("my-skill"));
+    }
+
+    #[test]
+    fn test_parse_cli_args_key_value_format() {
+        // Original key=value format
+        let args = vec!["resource=pods".to_string(), "namespace=kube-system".to_string()];
+        let parsed = parse_cli_args(&args);
+        assert_eq!(parsed, vec![
+            ("resource".to_string(), "pods".to_string()),
+            ("namespace".to_string(), "kube-system".to_string()),
+        ]);
+    }
+
+    #[test]
+    fn test_parse_cli_args_long_flag_value() {
+        // --key value format
+        let args = vec!["--resource".to_string(), "pods".to_string(), "--namespace".to_string(), "kube-system".to_string()];
+        let parsed = parse_cli_args(&args);
+        assert_eq!(parsed, vec![
+            ("resource".to_string(), "pods".to_string()),
+            ("namespace".to_string(), "kube-system".to_string()),
+        ]);
+    }
+
+    #[test]
+    fn test_parse_cli_args_long_flag_equals() {
+        // --key=value format
+        let args = vec!["--resource=pods".to_string(), "--namespace=kube-system".to_string()];
+        let parsed = parse_cli_args(&args);
+        assert_eq!(parsed, vec![
+            ("resource".to_string(), "pods".to_string()),
+            ("namespace".to_string(), "kube-system".to_string()),
+        ]);
+    }
+
+    #[test]
+    fn test_parse_cli_args_boolean_flags() {
+        // --flag boolean flags
+        let args = vec!["--all-namespaces".to_string(), "--wide".to_string()];
+        let parsed = parse_cli_args(&args);
+        assert_eq!(parsed, vec![
+            ("all-namespaces".to_string(), "true".to_string()),
+            ("wide".to_string(), "true".to_string()),
+        ]);
+    }
+
+    #[test]
+    fn test_parse_cli_args_short_flags() {
+        // -k value and -k boolean flags
+        let args = vec!["-n".to_string(), "kube-system".to_string(), "-A".to_string()];
+        let parsed = parse_cli_args(&args);
+        assert_eq!(parsed, vec![
+            ("n".to_string(), "kube-system".to_string()),
+            ("A".to_string(), "true".to_string()),
+        ]);
+    }
+
+    #[test]
+    fn test_parse_cli_args_positional() {
+        // Positional arguments
+        let args = vec!["pods".to_string(), "nginx".to_string()];
+        let parsed = parse_cli_args(&args);
+        assert_eq!(parsed, vec![
+            ("arg".to_string(), "pods".to_string()),
+            ("arg".to_string(), "nginx".to_string()),
+        ]);
+    }
+
+    #[test]
+    fn test_parse_cli_args_mixed() {
+        // Mixed format: --resource pods --all-namespaces
+        let args = vec![
+            "--resource".to_string(),
+            "pods".to_string(),
+            "--all-namespaces".to_string(),
+        ];
+        let parsed = parse_cli_args(&args);
+        assert_eq!(parsed, vec![
+            ("resource".to_string(), "pods".to_string()),
+            ("all-namespaces".to_string(), "true".to_string()),
+        ]);
+    }
+
+    #[test]
+    fn test_parse_cli_args_kubectl_get_example() {
+        // Real kubectl example: skill run kubernetes get --resource pods --all-namespaces
+        let args = vec![
+            "--resource".to_string(),
+            "pods".to_string(),
+            "--all-namespaces".to_string(),
+        ];
+        let parsed = parse_cli_args(&args);
+
+        // Should parse to: resource=pods, all-namespaces=true
+        assert_eq!(parsed, vec![
+            ("resource".to_string(), "pods".to_string()),
+            ("all-namespaces".to_string(), "true".to_string()),
+        ]);
+
+        // When passed to build_native_command for kubernetes/get, should produce:
+        // kubectl get pods --all-namespaces
+        // Note: "resource" is special-cased as positional for kubectl compatibility
+        let cmd = build_native_command("kubernetes", "get", &parsed).unwrap();
+        assert_eq!(cmd, "kubectl get pods --all-namespaces");
+    }
+
+    #[test]
+    fn test_build_native_command_with_positional_resource() {
+        // Using positional argument for resource: skill run kubernetes get pods --all-namespaces
+        let parsed = vec![
+            ("arg".to_string(), "pods".to_string()),
+            ("all-namespaces".to_string(), "true".to_string()),
+        ];
+        let cmd = build_native_command("kubernetes", "get", &parsed).unwrap();
+        assert_eq!(cmd, "kubectl get pods --all-namespaces");
     }
 }

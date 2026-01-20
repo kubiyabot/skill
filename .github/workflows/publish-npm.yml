@@ -41,7 +41,7 @@ jobs:
           fi
 
   publish:
-    name: Publish @skill-engine/sdk
+    name: Publish @kubiya/skill-engine-sdk
     runs-on: ubuntu-latest
     needs: check-changes
     if: needs.check-changes.outputs.has_changes == 'true' || github.event_name == 'workflow_dispatch'
@@ -56,8 +56,6 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
-          cache-dependency-path: sdk/javascript/package-lock.json
 
       - name: Verify version matches tag
         if: github.event_name == 'release'
@@ -71,7 +69,7 @@ jobs:
           echo "Version verified: $PKG_VERSION"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build
         run: npm run build
@@ -91,6 +89,7 @@ jobs:
       - name: Summary
         run: |
           echo "## npm Publish Results" >> $GITHUB_STEP_SUMMARY
-          echo "- Package: @skill-engine/sdk" >> $GITHUB_STEP_SUMMARY
-          echo "- Version: $(node -p \"require('./package.json').version\")" >> $GITHUB_STEP_SUMMARY
+          echo "- Package: @kubiya/skill-engine-sdk" >> $GITHUB_STEP_SUMMARY
+          VERSION=$(node -p 'require("./package.json").version')
+          echo "- Version: $VERSION" >> $GITHUB_STEP_SUMMARY
           echo "- Event: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY

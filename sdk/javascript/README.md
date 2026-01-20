@@ -14,7 +14,7 @@ Build portable, secure skills for the Skill Engine using JavaScript or TypeScrip
 ## Installation
 
 ```bash
-npm install @skill-engine/sdk
+npm install @kubiya/skill-engine-sdk
 ```
 
 ## Quick Start
