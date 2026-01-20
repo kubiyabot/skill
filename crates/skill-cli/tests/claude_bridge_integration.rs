@@ -8,6 +8,8 @@
 //! - No-scripts mode
 //! - Dry-run mode
 //! - YAML frontmatter validation
+
+#![allow(deprecated)] // cargo_bin is deprecated but still functional
 //! - File structure compliance
 //! - Specification compliance validation
 

@@ -8,6 +8,10 @@
 //! - File structure (SKILL.md, TOOLS.md, scripts/)
 //! - Script requirements (executable, proper shebang, skill run command)
 //! - Markdown structure (required sections)
+
+#![allow(deprecated)] // cargo_bin is deprecated but still functional
+#![allow(dead_code)] // Validator fields and methods are reserved for future tests
+#![allow(clippy::new_without_default)] // Validator doesn't need Default impl
 //!
 //! # Usage
 //!

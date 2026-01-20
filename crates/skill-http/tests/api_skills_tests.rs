@@ -18,7 +18,7 @@ async fn test_list_skills_returns_200() {
 
     assert_eq!(status, StatusCode::OK);
     let response: PaginatedResponse<SkillSummary> = TestApp::parse_json(&body);
-    assert!(response.items.len() > 0);
+    assert!(!response.items.is_empty());
     assert_eq!(response.page, 1);
     assert_eq!(response.per_page, 20);
 }
@@ -104,7 +104,7 @@ async fn test_get_skill_returns_detail() {
     // Just verify the structure is correct
     assert!(detail.tools.is_empty() || !detail.tools.is_empty()); // Always true, just checking field exists
     // Instances should be populated (at least default instance)
-    assert!(detail.instances.len() > 0);
+    assert!(!detail.instances.is_empty());
 }
 
 #[tokio::test]
@@ -127,7 +127,7 @@ async fn test_get_skill_detail_includes_instances() {
 
     assert_eq!(status, StatusCode::OK);
     let detail: SkillDetail = TestApp::parse_json(&body);
-    assert!(detail.instances.len() > 0);
+    assert!(!detail.instances.is_empty());
 
     let default_instance = detail.instances.iter().find(|i| i.is_default);
     assert!(default_instance.is_some(), "Should have a default instance");

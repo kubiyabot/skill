@@ -88,11 +88,10 @@ impl DockerRuntime {
     /// Validate Docker configuration against security policy
     pub fn validate_config(&self, config: &DockerRuntimeConfig) -> Result<()> {
         // Check for privileged flag in extra_args
-        if self.policy.block_privileged {
-            if config.extra_args.iter().any(|a| a.contains("--privileged")) {
+        if self.policy.block_privileged
+            && config.extra_args.iter().any(|a| a.contains("--privileged")) {
                 return Err(anyhow!("Security policy blocks --privileged mode"));
             }
-        }
 
         // Check for docker.sock mounts
         if self.policy.block_docker_sock {

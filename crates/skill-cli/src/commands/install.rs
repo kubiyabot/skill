@@ -346,7 +346,7 @@ fn install_from_local(source: &str) -> Result<(PathBuf, String, Option<String>)>
         );
     }
 
-    if !source_path.extension().map_or(false, |ext| ext == "wasm") {
+    if !source_path.extension().is_some_and(|ext| ext == "wasm") {
         anyhow::bail!(
             "Invalid file type. Expected .wasm file.\n\
              \n\

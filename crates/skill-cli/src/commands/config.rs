@@ -1,10 +1,36 @@
 use anyhow::{Context, Result};
+use clap::Subcommand;
 use colored::*;
 use dialoguer::{Input, Password, Select};
 use skill_runtime::InstanceManager;
 use skill_runtime::instance::ConfigValue;
 
-use crate::ConfigAction;
+/// Configuration subcommands for skill instances.
+#[derive(Subcommand)]
+pub enum ConfigAction {
+    /// Show current configuration
+    Show,
+
+    /// Set a configuration value
+    Set {
+        /// Key=value pairs
+        #[arg(value_parser = parse_key_val)]
+        pairs: Vec<(String, String)>,
+    },
+
+    /// Get a configuration value
+    Get {
+        /// Configuration key
+        key: String,
+    },
+}
+
+fn parse_key_val(s: &str) -> Result<(String, String), String> {
+    let pos = s
+        .find('=')
+        .ok_or_else(|| format!("invalid KEY=value: no `=` found in `{s}`"))?;
+    Ok((s[..pos].to_string(), s[pos + 1..].to_string()))
+}
 
 pub async fn execute(
     skill: &str,

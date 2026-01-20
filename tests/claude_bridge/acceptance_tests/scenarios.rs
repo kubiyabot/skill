@@ -221,7 +221,7 @@ async fn scenario_git_repository_analysis() {
     // Verify we have commit hashes
     let commit_count = result.matches("commit").count();
     assert!(
-        commit_count >= 1 && commit_count <= 5,
+        (1..=5).contains(&commit_count),
         "Should show 1-5 commits, found {}",
         commit_count
     );

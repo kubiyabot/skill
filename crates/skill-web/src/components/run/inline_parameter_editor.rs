@@ -129,7 +129,7 @@ pub fn inline_parameter_editor(props: &InlineParameterEditorProps) -> Html {
                     </h4>
                     { for required_params.iter().enumerate().map(|(idx, param)| {
                         let is_first = idx == 0;
-                        render_parameter(param, is_first, &props, &first_input_ref, &make_on_input, &make_on_textarea_change, &make_on_keydown)
+                        render_parameter(param, is_first, props, &first_input_ref, &make_on_input, &make_on_textarea_change, &make_on_keydown)
                     }) }
                 </div>
             }
@@ -141,7 +141,7 @@ pub fn inline_parameter_editor(props: &InlineParameterEditorProps) -> Html {
                         { "Optional Parameters" }
                     </h4>
                     { for optional_params.iter().map(|param| {
-                        render_parameter(param, false, &props, &first_input_ref, &make_on_input, &make_on_textarea_change, &make_on_keydown)
+                        render_parameter(param, false, props, &first_input_ref, &make_on_input, &make_on_textarea_change, &make_on_keydown)
                     }) }
                 </div>
             }
@@ -209,7 +209,7 @@ fn render_parameter(
                             "w-full",
                             "font-mono",
                             "text-sm",
-                            has_error.then(|| "border-error-500 focus:border-error-500 focus:ring-error-500")
+                            has_error.then_some("border-error-500 focus:border-error-500 focus:ring-error-500")
                         )}
                         placeholder={format!("Enter {} (JSON format)", param.param_type)}
                         value={current_value.clone()}
@@ -229,7 +229,7 @@ fn render_parameter(
                             class={classes!(
                                 "input",
                                 "flex-1",
-                                has_error.then(|| "border-error-500 focus:border-error-500 focus:ring-error-500")
+                                has_error.then_some("border-error-500 focus:border-error-500 focus:ring-error-500")
                             )}
                             placeholder={param.default_value.as_ref()
                                 .map(|d| format!("Default: {}", d))
@@ -248,7 +248,7 @@ fn render_parameter(
                             class={classes!(
                                 if param_type == "boolean" { "checkbox checkbox-primary" } else { "input w-full" },
                                 if param_type != "boolean" { Some("flex-1") } else { None },
-                                has_error.then(|| "border-error-500 focus:border-error-500 focus:ring-error-500")
+                                has_error.then_some("border-error-500 focus:border-error-500 focus:ring-error-500")
                             )}
                             placeholder={if param_type == "boolean" {
                                 String::new()

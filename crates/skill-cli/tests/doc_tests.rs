@@ -5,7 +5,9 @@
 //! - Internal link validation
 //! - CLI help text completeness
 //! - Error message quality and helpfulness
-//!
+
+#![allow(deprecated)] // cargo_bin is deprecated but still functional
+
 //! # Running Tests
 //!
 //! ```bash

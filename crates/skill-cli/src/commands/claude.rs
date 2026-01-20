@@ -146,8 +146,7 @@ pub async fn status() -> Result<()> {
         let config = load_mcp_config(&project_config_path)?;
         println!();
         println!(
-            "{} Project config: {}",
-            "📁".to_string(),
+            "📁 Project config: {}",
             project_config_path.display()
         );
 
@@ -170,8 +169,7 @@ pub async fn status() -> Result<()> {
     } else {
         println!();
         println!(
-            "{} Project config: {} (not found)",
-            "📁".to_string(),
+            "📁 Project config: {} (not found)",
             project_config_path.display().to_string().dimmed()
         );
     }
@@ -182,8 +180,7 @@ pub async fn status() -> Result<()> {
             let config = load_mcp_config(&global_config_path)?;
             println!();
             println!(
-                "{} Global config: {}",
-                "🌐".to_string(),
+                "🌐 Global config: {}",
                 global_config_path.display()
             );
 

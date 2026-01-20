@@ -213,8 +213,7 @@ impl FileVectorStore {
                     .zip(embedding_b.iter())
                     .map(|(a, b)| a * b)
                     .sum::<f32>()
-                    .max(0.0) // Clamp to 0-1 for score
-                    .min(1.0)
+                    .clamp(0.0, 1.0) // Clamp to 0-1 for score
             }
         }
     }

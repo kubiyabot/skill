@@ -417,6 +417,7 @@ Output your examples as a JSON array with "command" and "explanation" fields."#;
 mod tests {
     use super::*;
     use crate::skill_md::{ParameterDoc, ParameterType};
+    use std::pin::Pin;
 
     fn create_test_tool() -> ToolDocumentation {
         ToolDocumentation {

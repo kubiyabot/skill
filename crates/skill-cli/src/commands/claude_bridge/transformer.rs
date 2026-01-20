@@ -606,7 +606,7 @@ mod tests {
         assert_eq!(result.tools[0].parameters.len(), 2);
         assert_eq!(result.tools[0].parameters[0].name, "resource");
         assert_eq!(result.tools[0].parameters[0].param_type, "string");
-        assert_eq!(result.tools[0].parameters[0].required, true);
+        assert!(result.tools[0].parameters[0].required);
         assert_eq!(result.tools[0].parameters[1].name, "namespace");
         assert_eq!(result.tools[0].parameters[1].default_value, Some("default".to_string()));
     }
@@ -631,7 +631,7 @@ mod tests {
         };
 
         let result = transformer.transform(validated).unwrap();
-        assert_eq!(result.tools[0].streaming, true);
+        assert!(result.tools[0].streaming);
     }
 
     #[test]
@@ -701,7 +701,7 @@ mod tests {
         };
 
         let result = transformer.transform(validated).unwrap();
-        assert!(result.tools[0].examples.len() >= 1);
+        assert!(!result.tools[0].examples.is_empty());
         assert!(result.tools[0].examples[0].mcp_call.contains("test"));
         assert!(result.tools[0].examples[0].script_call.contains("tool1"));
     }

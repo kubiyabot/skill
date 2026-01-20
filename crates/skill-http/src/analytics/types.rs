@@ -50,7 +50,7 @@ impl FeedbackType {
         }
     }
 
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse(s: &str) -> Option<Self> {
         match s {
             "positive" => Some(FeedbackType::Positive),
             "negative" => Some(FeedbackType::Negative),

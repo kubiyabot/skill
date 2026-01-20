@@ -10,7 +10,6 @@ members = [
 ]
 
 [workspace.package]
-version = "1.0.0"
 edition = "2021"
 rust-version = "1.75"
 authors = ["Skill Engine Contributors"]
@@ -24,11 +23,11 @@ categories = ["development-tools", "wasm", "command-line-utilities"]
 description = "Universal skill runtime for AI agents - execute tools in sandboxed WASM environments"
 
 [workspace.dependencies]
-# Workspace crates
-skill-runtime = { path = "crates/skill-runtime", version = "1.0.0" }
-skill-mcp = { path = "crates/skill-mcp", version = "1.0.0" }
-skill-http = { path = "crates/skill-http", version = "1.0.0" }
-skill-context = { path = "crates/skill-context", version = "1.0.0" }
+# Workspace crates (versions specified in each crate's Cargo.toml)
+skill-runtime = { path = "crates/skill-runtime" }
+skill-mcp = { path = "crates/skill-mcp" }
+skill-http = { path = "crates/skill-http" }
+skill-context = { path = "crates/skill-context" }
 
 # Async runtime
 tokio = { version = "1.40", features = ["full"] }

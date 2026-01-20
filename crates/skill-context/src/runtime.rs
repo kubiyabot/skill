@@ -553,12 +553,10 @@ impl NativeOverrides {
 
     /// Get the shell to use, with a default.
     pub fn shell_or_default(&self) -> &str {
-        self.shell.as_deref().unwrap_or_else(|| {
-            if cfg!(windows) {
-                "cmd.exe"
-            } else {
-                "/bin/sh"
-            }
+        self.shell.as_deref().unwrap_or(if cfg!(windows) {
+            "cmd.exe"
+        } else {
+            "/bin/sh"
         })
     }
 

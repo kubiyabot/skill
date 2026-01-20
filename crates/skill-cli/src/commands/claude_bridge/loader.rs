@@ -32,7 +32,7 @@ impl Loader {
 
         let mut skills = Vec::new();
 
-        for (name, _definition) in &manifest.skills {
+        for name in manifest.skills.keys() {
             match self.load_skill(name, manifest).await {
                 Ok(skill) => skills.push(skill),
                 Err(e) => {
@@ -250,7 +250,7 @@ description = "Third skill"
         let temp = TempDir::new().unwrap();
         let manifest_path = create_test_manifest(temp.path(), minimal_manifest());
 
-        let loader = Loader::new(Some(&manifest_path)).unwrap();
+        let _loader = Loader::new(Some(&manifest_path)).unwrap();
 
         // Create a loader with no manifest (this is an edge case test)
         let empty_loader = Loader { manifest: None };
@@ -345,7 +345,7 @@ runtime = "wasm"
         let skills = loader.load_all_skills().await.unwrap();
 
         // Should still load the valid skill even if one fails
-        assert!(skills.len() >= 1);
+        assert!(!skills.is_empty());
         let valid = skills.iter().find(|s| s.name == "valid-skill");
         assert!(valid.is_some());
     }

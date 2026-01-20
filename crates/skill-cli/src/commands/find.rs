@@ -60,7 +60,7 @@ impl EmbeddingCache {
     }
 
     fn is_valid(&self, skill_name: &str, wasm_modified: u64, skill_md_hash: Option<&str>) -> bool {
-        self.entries.get(skill_name).map_or(false, |entry| {
+        self.entries.get(skill_name).is_some_and(|entry| {
             entry.wasm_modified == wasm_modified
                 && entry.skill_md_hash.as_deref() == skill_md_hash
         })
@@ -416,6 +416,7 @@ fn compute_content_hash(tool_name: &str, description: &str, documentation: Optio
 
 /// Build weighted embedding text for better semantic search relevance
 /// Repeats important terms to increase their weight in the embedding
+#[allow(clippy::too_many_arguments)]
 fn build_weighted_embedding_text(
     skill_name: &str,
     _instance_name: &str,
@@ -1406,14 +1407,12 @@ mod tests {
 
     #[test]
     fn test_execution_signature_from_parameters() {
-        let params = vec![
-            ParameterDoc {
+        let params = [ParameterDoc {
                 name: "message".to_string(),
                 required: true,
                 param_type: "string".to_string(),
                 description: "The message to display".to_string(),
-            },
-        ];
+            }];
 
         let sig: ParameterSignature = (&params[0]).into();
         assert_eq!(sig.name, "message");

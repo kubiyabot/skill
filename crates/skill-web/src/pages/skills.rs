@@ -505,7 +505,7 @@ fn skill_card(props: &SkillCardProps) -> Html {
     };
 
     // Format last used
-    let last_used_str = skill
+    let _last_used_str = skill
         .last_used
         .as_ref()
         .map(|s| {

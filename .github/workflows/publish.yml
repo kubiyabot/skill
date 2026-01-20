@@ -16,6 +16,8 @@ env:
 
 jobs:
   publish:
+    # Only run on release tags or manual workflow dispatch
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     # Using macOS due to Linux proc-macro compatibility issue with arg_enum_proc_macro
     runs-on: macos-latest
     steps:
@@ -30,108 +32,83 @@ jobs:
         with:
           cache-on-failure: true
 
-      - name: Verify versions match
+      - name: Determine version
+        id: version
         run: |
-          CARGO_VERSION=$(grep '^version' Cargo.toml | head -1 | cut -d'"' -f2)
           if [[ "${{ github.event_name }}" == "release" ]]; then
-            TAG_VERSION="${{ github.ref_name }}"
-            TAG_VERSION="${TAG_VERSION#v}"  # Remove 'v' prefix if present
-            if [[ "$CARGO_VERSION" != "$TAG_VERSION" ]]; then
-              echo "::error::Version mismatch: Cargo.toml=$CARGO_VERSION, tag=$TAG_VERSION"
-              exit 1
-            fi
-          fi
-          echo "Publishing version: $CARGO_VERSION"
-
-      # Publish crates in dependency order
-      # skill-context, skill-runtime, skill-web have no internal deps
-      # skill-mcp and skill-http depend on skill-runtime
-      # skill-cli depends on skill-runtime, skill-mcp, skill-http
-
-      - name: Publish skill-context
-        run: |
-          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
-            cargo publish -p skill-context --dry-run
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#v}"  # Remove 'v' prefix if present
+            echo "Publishing release version: $VERSION"
           else
-            cargo publish -p skill-context
+            VERSION="0.0.0-dry-run"
+            echo "Dry run with test version: $VERSION"
           fi
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Wait for crates.io index
-        if: github.event.inputs.dry_run != 'true'
-        run: sleep 30
-
-      - name: Publish skill-runtime
+      - name: Inject versions into Cargo.toml files
         run: |
-          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
-            cargo publish -p skill-runtime --dry-run
-          else
-            cargo publish -p skill-runtime
-          fi
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "Setting all crate versions to: $VERSION"
 
-      - name: Publish skill-web
-        run: |
-          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
-            cargo publish -p skill-web --dry-run
-          else
-            cargo publish -p skill-web
-          fi
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          # Update each crate's version
+          for crate in skill-context skill-runtime skill-web skill-mcp skill-http skill-cli; do
+            sed -i.bak "s/^version = \"[^\"]*\"/version = \"$VERSION\"/" "crates/$crate/Cargo.toml"
+            echo "  Updated crates/$crate/Cargo.toml"
+          done
 
-      - name: Wait for crates.io index
-        if: github.event.inputs.dry_run != 'true'
-        run: sleep 30
+          # Update workspace dependencies to include versions
+          # From: skill-foo = { path = "crates/skill-foo" }
+          # To:   skill-foo = { path = "crates/skill-foo", version = "X.Y.Z" }
+          # Note: skill-web and skill-cli are not workspace deps (they're binaries)
+          for crate in skill-context skill-runtime skill-mcp skill-http; do
+            sed -i.bak "s|$crate = { path = \"crates/$crate\" }|$crate = { path = \"crates/$crate\", version = \"$VERSION\" }|" Cargo.toml
+            echo "  Updated workspace dep: $crate"
+          done
 
-      - name: Publish skill-mcp
-        run: |
-          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
-            cargo publish -p skill-mcp --dry-run
-          else
-            cargo publish -p skill-mcp
-          fi
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          # Cleanup backup files
+          find . -name "*.bak" -delete
 
-      - name: Publish skill-http
-        run: |
-          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
-            cargo publish -p skill-http --dry-run
-          else
-            cargo publish -p skill-http
-          fi
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          echo ""
+          echo "Verifying crate versions:"
+          grep '^version' crates/*/Cargo.toml
+          echo ""
+          echo "Verifying workspace dependencies:"
+          grep -E '^skill-' Cargo.toml
 
-      - name: Wait for crates.io index
-        if: github.event.inputs.dry_run != 'true'
-        run: sleep 30
+      - name: Verify build with injected versions
+        run: cargo check --workspace
 
-      - name: Publish skill-cli
-        run: |
-          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
-            cargo publish -p skill-cli --dry-run
-          else
-            cargo publish -p skill-cli
-          fi
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - name: Publish crates
+        uses: katyo/publish-crates@v2
+        with:
+          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          # For releases: always publish. For workflow_dispatch: respect dry_run input
+          dry-run: ${{ github.event_name != 'release' && inputs.dry_run }}
+          # Required: versions are injected at publish time (0.0.0 -> actual version)
+          # The repo check would fail comparing git state vs modified working directory
+          check-repo: false
 
       - name: Summary
         run: |
+          VERSION="${{ steps.version.outputs.version }}"
           echo "## Publish Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
-            echo "✅ Dry run completed successfully" >> $GITHUB_STEP_SUMMARY
+
+          # Check if this was a dry run
+          if [[ "${{ github.event_name }}" != "release" && "${{ inputs.dry_run }}" == "true" ]]; then
+            echo "### Dry Run" >> $GITHUB_STEP_SUMMARY
+            echo "This was a dry run - no packages were actually published." >> $GITHUB_STEP_SUMMARY
           else
-            echo "✅ Published to crates.io:" >> $GITHUB_STEP_SUMMARY
-            echo "- skill-context" >> $GITHUB_STEP_SUMMARY
-            echo "- skill-runtime" >> $GITHUB_STEP_SUMMARY
-            echo "- skill-web" >> $GITHUB_STEP_SUMMARY
-            echo "- skill-mcp" >> $GITHUB_STEP_SUMMARY
-            echo "- skill-http" >> $GITHUB_STEP_SUMMARY
-            echo "- skill-cli" >> $GITHUB_STEP_SUMMARY
+            echo "### Published to crates.io" >> $GITHUB_STEP_SUMMARY
           fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Crate | Version |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| skill-context | $VERSION |" >> $GITHUB_STEP_SUMMARY
+          echo "| skill-runtime | $VERSION |" >> $GITHUB_STEP_SUMMARY
+          echo "| skill-web | $VERSION |" >> $GITHUB_STEP_SUMMARY
+          echo "| skill-mcp | $VERSION |" >> $GITHUB_STEP_SUMMARY
+          echo "| skill-http | $VERSION |" >> $GITHUB_STEP_SUMMARY
+          echo "| skill-cli | $VERSION |" >> $GITHUB_STEP_SUMMARY

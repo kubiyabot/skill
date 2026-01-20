@@ -1034,8 +1034,10 @@ impl SearchPipeline {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serial_test::serial;
 
     #[tokio::test]
+    #[serial]
     async fn test_pipeline_creation() {
         let config = SearchConfig::default();
         let pipeline = SearchPipeline::from_config(config).await;
@@ -1043,6 +1045,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
     async fn test_pipeline_index_and_search() {
         let config = SearchConfig::default();
         let pipeline = SearchPipeline::from_config(config).await.unwrap();
@@ -1092,6 +1095,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
     async fn test_pipeline_health_check() {
         let config = SearchConfig::default();
         let pipeline = SearchPipeline::from_config(config).await.unwrap();
@@ -1103,6 +1107,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
     async fn test_query_processing() {
         let config = SearchConfig::default();
         let mut pipeline = SearchPipeline::from_config(config).await.unwrap();
@@ -1115,6 +1120,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
     async fn test_empty_search() {
         let config = SearchConfig::default();
         let pipeline = SearchPipeline::from_config(config).await.unwrap();
@@ -1125,6 +1131,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
     async fn test_search_with_filter() {
         let config = SearchConfig::default();
         let pipeline = SearchPipeline::from_config(config).await.unwrap();

@@ -18,8 +18,7 @@ struct NavItem {
 pub fn sidebar() -> Html {
     let route = use_route::<Route>();
 
-    let nav_items = vec![
-        NavItem {
+    let nav_items = [NavItem {
             route: Route::Dashboard,
             label: "Dashboard",
             icon: |class| html! { <DashboardIcon class={class} /> },
@@ -53,8 +52,7 @@ pub fn sidebar() -> Html {
             route: Route::Settings,
             label: "Settings",
             icon: |class| html! { <SettingsIcon class={class} /> },
-        },
-    ];
+        }];
 
     html! {
         <aside class="fixed left-0 top-16 bottom-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto z-30">

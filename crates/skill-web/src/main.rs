@@ -3,6 +3,10 @@
 //! A WebAssembly-based web interface for managing AI agent skills,
 //! built with the Yew framework.
 
+// Allow dead code in the binary - all functionality is exercised through the Yew app,
+// but not all types are directly referenced in main.rs
+#![allow(dead_code)]
+
 mod app;
 mod components;
 mod pages;

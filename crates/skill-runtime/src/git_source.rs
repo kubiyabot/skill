@@ -222,7 +222,7 @@ fn parse_ref(ref_str: &str) -> GitRef {
         && ref_str
             .chars()
             .nth(1)
-            .map_or(false, |c| c.is_ascii_digit())
+            .is_some_and(|c| c.is_ascii_digit())
     {
         GitRef::Tag(ref_str.to_string())
     }

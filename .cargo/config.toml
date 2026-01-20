@@ -11,10 +11,6 @@ rustflags = ["-C", "target-feature=+crt-static"]
 linker = "aarch64-linux-musl-gcc"
 rustflags = ["-C", "target-feature=+crt-static"]
 
-# Linux GNU target (default)
-[target.x86_64-unknown-linux-gnu]
-rustflags = ["-C", "target-feature=+crt-static"]
-
 # macOS targets - use static libgcc
 [target.x86_64-apple-darwin]
 rustflags = ["-C", "link-arg=-static-libgcc"]

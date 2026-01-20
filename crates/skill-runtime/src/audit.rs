@@ -190,7 +190,7 @@ impl AuditLogger {
 
         let entries: Vec<AuditEntry> = reader
             .lines()
-            .filter_map(|line| line.ok())
+            .map_while(Result::ok)
             .filter_map(|line| serde_json::from_str(&line).ok())
             .collect();
 
@@ -208,7 +208,7 @@ impl Default for AuditLogger {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
+    
 
     #[test]
     fn test_audit_entry_creation() {

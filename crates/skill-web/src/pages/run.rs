@@ -41,7 +41,7 @@ pub fn run_page(props: &RunPageProps) -> Html {
     let validation_errors = use_state(HashMap::<String, String>::new);
 
     // All skill details (for tool lookup)
-    let all_skill_details = use_state(|| Vec::<SkillDetail>::new());
+    let all_skill_details = use_state(Vec::<SkillDetail>::new);
     let current_skill_detail = use_state(|| None::<SkillDetail>);
     let skills_loading = use_state(|| true);
 
@@ -145,9 +145,9 @@ pub fn run_page(props: &RunPageProps) -> Html {
         use_effect_with(execution_result, move |result| {
             if result.is_some() {
                  if let Some(element) = result_ref.cast::<web_sys::Element>() {
-                    element.scroll_into_view_with_scroll_into_view_options(
-                        web_sys::ScrollIntoViewOptions::new().behavior(web_sys::ScrollBehavior::Smooth)
-                    );
+                    let options = web_sys::ScrollIntoViewOptions::new();
+                    options.set_behavior(web_sys::ScrollBehavior::Smooth);
+                    element.scroll_into_view_with_scroll_into_view_options(&options);
                 }
             }
             || ()
@@ -473,7 +473,7 @@ pub fn run_page(props: &RunPageProps) -> Html {
                                             "flex",
                                             "items-center",
                                             "gap-2",
-                                            (!can_execute).then(|| "opacity-50 cursor-not-allowed")
+                                            (!can_execute).then_some("opacity-50 cursor-not-allowed")
                                         )}
                                         onclick={on_execute}
                                         disabled={!can_execute}

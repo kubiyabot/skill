@@ -66,7 +66,7 @@ impl Renderer {
         for trigger in &skill.when_to_use {
             md.push_str(&format!("- {}\n", trigger));
         }
-        md.push_str("\n");
+        md.push('\n');
 
         // Execution modes
         md.push_str("## How to Execute\n\n");
@@ -89,7 +89,7 @@ impl Renderer {
         md.push_str("### Method 2: Scripts (Fallback / claude.ai)\n\n");
         md.push_str("When MCP is not available, use the shell scripts:\n\n");
         md.push_str("```bash\n");
-        md.push_str(&format!("./scripts/<tool_name>.sh arg1=value1 arg2=value2\n"));
+        md.push_str("./scripts/<tool_name>.sh arg1=value1 arg2=value2\n");
         md.push_str("```\n\n");
 
         // Quick reference table
@@ -101,7 +101,7 @@ impl Renderer {
             let desc = truncate(&tool.description, 50);
             md.push_str(&format!("| `{}` | {} | {} |\n", tool.name, desc, category));
         }
-        md.push_str("\n");
+        md.push('\n');
 
         // Tools by category
         md.push_str("## Tools by Category\n\n");
@@ -129,7 +129,7 @@ impl Renderer {
                                 param.name, param.description, required, default
                             ));
                         }
-                        md.push_str("\n");
+                        md.push('\n');
                     }
 
                     // Example
@@ -157,7 +157,7 @@ impl Renderer {
         for tool in &skill.tools {
             md.push_str(&format!("- `scripts/{}.sh` - {}\n", tool.name, tool.description));
         }
-        md.push_str("\n");
+        md.push('\n');
 
         // Related resources
         md.push_str("## Related Resources\n\n");
@@ -201,7 +201,7 @@ impl Renderer {
                         param.name, param.param_type, required, default, param.description
                     ));
                 }
-                md.push_str("\n");
+                md.push('\n');
             } else {
                 md.push_str("*No parameters required.*\n\n");
             }
@@ -297,7 +297,7 @@ fn escape_yaml(s: &str) -> String {
 mod tests {
     use super::*;
     use crate::commands::claude_bridge::types::{
-        ClaudeTool, ClaudeToolParameter, SkillRuntimeType, ToolExample,
+        ClaudeTool, ClaudeToolParameter, SkillRuntimeType,
     };
     use std::collections::HashMap;
     use tempfile::TempDir;

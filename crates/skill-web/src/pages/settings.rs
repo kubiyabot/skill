@@ -12,7 +12,7 @@ use yew::prelude::*;
 use yewdux::prelude::*;
 
 use crate::api::{
-    Api, AppConfig, SearchConfigResponse, UpdateSearchConfigRequest,
+    Api, AppConfig, UpdateSearchConfigRequest,
 };
 use crate::components::card::Card;
 use crate::components::{use_import_config_modal, use_notifications, ImportConfigModal, Tooltip};
@@ -443,7 +443,7 @@ pub fn settings_page() -> Html {
                         notifications.success("Settings Saved", "Your settings have been updated");
                     }
                     (Err(e), _) | (_, Err(e)) => {
-                        notifications.error("Save Failed", &e.to_string());
+                        notifications.error("Save Failed", e.to_string());
                     }
                 }
             });
@@ -535,14 +535,14 @@ pub fn settings_page() -> Html {
                         if success {
                             notifications.success(
                                 "Connection Test Passed",
-                                &format!("All components healthy ({}ms)", duration_ms)
+                                format!("All components healthy ({}ms)", duration_ms)
                             );
                         } else {
                             notifications.error("Connection Test Failed", &message);
                         }
                     }
                     Err(e) => {
-                        notifications.error("Test Failed", &format!("Error: {}", e));
+                        notifications.error("Test Failed", format!("Error: {}", e));
                         test_result.set(Some(TestResult {
                             success: false,
                             message: format!("Error: {}", e),
@@ -606,14 +606,14 @@ pub fn settings_page() -> Html {
                         if success {
                             notifications.success(
                                 "Pipeline Test Passed",
-                                &format!("Pipeline working correctly ({}ms)", duration_ms)
+                                format!("Pipeline working correctly ({}ms)", duration_ms)
                             );
                         } else {
                             notifications.error("Pipeline Test Failed", &message);
                         }
                     }
                     Err(e) => {
-                        notifications.error("Test Failed", &format!("Error: {}", e));
+                        notifications.error("Test Failed", format!("Error: {}", e));
                         test_result.set(Some(TestResult {
                             success: false,
                             message: format!("Error: {}", e),
@@ -639,8 +639,8 @@ pub fn settings_page() -> Html {
     let on_config_imported = {
         let api = api.clone();
         let settings = settings.clone();
-        let notifications = notifications.clone();
-        Callback::from(move |count: usize| {
+        let _notifications = notifications.clone();
+        Callback::from(move |_count: usize| {
             let api = api.clone();
             let settings = settings.clone();
             spawn_local(async move {
@@ -673,7 +673,7 @@ pub fn settings_page() -> Html {
                         notifications.success("History Cleared", "Execution history cleared successfully");
                     }
                     Err(e) => {
-                        notifications.error("Clear Failed", &format!("Failed to clear history: {}", e));
+                        notifications.error("Clear Failed", format!("Failed to clear history: {}", e));
                     }
                 }
             });

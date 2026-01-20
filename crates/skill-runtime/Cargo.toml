@@ -1,6 +1,6 @@
 [package]
 name = "skill-runtime"
-version.workspace = true
+version = "0.0.0"
 edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
@@ -105,6 +105,7 @@ redis-storage = ["apalis-redis"]
 [dev-dependencies]
 tempfile = { workspace = true }
 mockall = { workspace = true }
+serial_test = "3.2"
 
 [build-dependencies]
 wit-bindgen = { workspace = true }

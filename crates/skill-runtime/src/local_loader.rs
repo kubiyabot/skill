@@ -36,7 +36,7 @@ impl LocalSkillLoader {
         tracing::info!(path = %skill_path.display(), "Loading local skill");
 
         // Check if it's a direct .wasm file
-        if skill_path.extension().map_or(false, |ext| ext == "wasm") {
+        if skill_path.extension().is_some_and(|ext| ext == "wasm") {
             return engine.load_component(skill_path).await;
         }
 
@@ -80,7 +80,7 @@ impl LocalSkillLoader {
             if candidate.exists() {
                 tracing::info!(file = %candidate.display(), "Found skill file");
 
-                if candidate.extension().map_or(false, |ext| ext == "wasm") {
+                if candidate.extension().is_some_and(|ext| ext == "wasm") {
                     return engine.load_component(&candidate).await;
                 } else {
                     return self.compile_and_load(&candidate, engine).await;
@@ -130,7 +130,7 @@ impl LocalSkillLoader {
     /// Compile JavaScript/TypeScript to WASM using jco componentize
     async fn compile_to_wasm(&self, source: &Path, output: &Path) -> Result<()> {
         // Determine if TypeScript compilation is needed
-        let is_typescript = source.extension().map_or(false, |ext| ext == "ts");
+        let is_typescript = source.extension().is_some_and(|ext| ext == "ts");
 
         let js_file = if is_typescript {
             // Compile TypeScript to JavaScript first

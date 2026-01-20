@@ -122,7 +122,7 @@ jobs:
 
   memory-profiling:
     name: Memory Profiling
-    runs-on: macos-latest  # Using macOS due to Linux proc-macro compatibility issue (see tests/claude_bridge/CI_DEPENDENCY_ISSUE.md)
+    runs-on: ubuntu-22.04  # Must use Linux for Valgrind
     timeout-minutes: 20
 
     steps:

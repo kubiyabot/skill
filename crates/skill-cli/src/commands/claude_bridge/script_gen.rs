@@ -105,7 +105,7 @@ impl ScriptGenerator {
             tool.name,
             self.format_usage_args(&tool.parameters)
         ));
-        script.push_str(&format!("    echo \"\"\n"));
+        script.push_str("    echo \"\"\n");
         script.push_str(&format!("    echo \"{}\"\n", tool.description));
 
         if !tool.parameters.is_empty() {
@@ -156,7 +156,7 @@ impl ScriptGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::commands::claude_bridge::types::{ClaudeToolParameter, SkillRuntimeType, ToolExample};
+    use crate::commands::claude_bridge::types::{ClaudeToolParameter, SkillRuntimeType};
     use std::collections::HashMap;
     use tempfile::TempDir;
 

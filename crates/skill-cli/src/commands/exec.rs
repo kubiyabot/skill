@@ -209,13 +209,10 @@ async fn execute_manifest_skill(
         .context("Failed to resolve skill from manifest")?;
 
     println!(
-        "{} Executing {} (from manifest, pass-through mode)",
+        "{} Executing {}@{} (from manifest, pass-through mode)",
         "→".cyan(),
-        format!(
-            "{}@{}",
-            resolved.skill_name.yellow(),
-            resolved.instance_name.cyan()
-        ),
+        resolved.skill_name.yellow(),
+        resolved.instance_name.cyan()
     );
     println!(
         "{} Source: {}",

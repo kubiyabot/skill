@@ -16,13 +16,11 @@ pub struct OnboardingPageProps {
 /// Onboarding page component
 #[function_component(OnboardingPage)]
 pub fn onboarding_page(props: &OnboardingPageProps) -> Html {
-    let steps = vec![
-        ("welcome", "Welcome"),
+    let steps = [("welcome", "Welcome"),
         ("search", "Search"),
         ("credentials", "Credentials"),
         ("skills", "Skills"),
-        ("complete", "Complete"),
-    ];
+        ("complete", "Complete")];
 
     let current_step_idx = steps.iter().position(|(id, _)| *id == props.step).unwrap_or(0);
 
@@ -40,7 +38,7 @@ pub fn onboarding_page(props: &OnboardingPageProps) -> Html {
             <div class="px-6 py-4">
                 <div class="max-w-2xl mx-auto">
                     <div class="flex items-center justify-between">
-                        { for steps.iter().enumerate().map(|(i, (id, label))| {
+                        { for steps.iter().enumerate().map(|(i, (_id, label))| {
                             let is_complete = i < current_step_idx;
                             let is_current = i == current_step_idx;
 
@@ -380,12 +378,10 @@ fn skills_step() -> Html {
         })
     };
 
-    let starter_skills = vec![
-        ("kubernetes", "Kubernetes cluster management", true),
+    let starter_skills = [("kubernetes", "Kubernetes cluster management", true),
         ("github", "GitHub repository operations", true),
         ("docker", "Docker container management", false),
-        ("aws", "AWS cloud services", false),
-    ];
+        ("aws", "AWS cloud services", false)];
 
     html! {
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">

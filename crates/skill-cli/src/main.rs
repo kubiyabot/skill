@@ -1,10 +1,8 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use colored::*;
-
-mod auth;
-mod commands;
-mod config;
+use skill_cli::commands::config::ConfigAction;
+use skill_cli::{auth, commands};
 
 #[derive(Parser)]
 #[command(name = "skill")]
@@ -460,25 +458,6 @@ enum AuthAction {
 
     /// List available authentication providers
     Providers,
-}
-
-#[derive(Subcommand)]
-enum ConfigAction {
-    /// Show current configuration
-    Show,
-
-    /// Set a configuration value
-    Set {
-        /// Key=value pairs
-        #[arg(value_parser = parse_key_val)]
-        pairs: Vec<(String, String)>,
-    },
-
-    /// Get a configuration value
-    Get {
-        /// Configuration key
-        key: String,
-    },
 }
 
 fn parse_key_val(s: &str) -> Result<(String, String), String> {

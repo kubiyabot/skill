@@ -85,6 +85,7 @@ pub fn reciprocal_rank_fusion(
 ///
 /// # Returns
 /// Fused results sorted by combined score descending
+#[allow(clippy::type_complexity)]
 pub fn weighted_sum_fusion(
     weighted_lists: Vec<(&str, f32, Vec<(String, f32)>)>,
     top_k: usize,

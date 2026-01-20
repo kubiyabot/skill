@@ -504,7 +504,7 @@ mod tests {
         let validated = validator.validate_tool(&tool).unwrap();
         assert_eq!(validated.parameters.len(), 2);
         assert_eq!(validated.parameters[0].name, "resource");
-        assert_eq!(validated.parameters[0].required, true);
+        assert!(validated.parameters[0].required);
         // Empty description should be filled
         assert_eq!(validated.parameters[1].description, "namespace parameter");
     }
@@ -547,7 +547,7 @@ mod tests {
             streaming: true,
         };
         let validated = validator.validate_tool(&tool).unwrap();
-        assert_eq!(validated.streaming, true);
+        assert!(validated.streaming);
     }
 
     // === Full Skill Validation Tests ===

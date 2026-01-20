@@ -25,7 +25,7 @@ struct SearchStats {
 #[function_component(SearchTestPage)]
 pub fn search_test_page() -> Html {
     // State
-    let query = use_state(|| String::new());
+    let query = use_state(String::new);
     let results = use_state(|| None::<SearchResponse>);
     let is_searching = use_state(|| false);
     let search_stats = use_state(|| None::<SearchStats>);

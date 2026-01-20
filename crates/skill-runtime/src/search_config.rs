@@ -9,6 +9,7 @@ use std::path::PathBuf;
 
 /// Root search configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct SearchConfig {
     /// Vector store backend
     #[serde(default)]
@@ -47,21 +48,6 @@ pub struct SearchConfig {
     pub ai_ingestion: AiIngestionConfig,
 }
 
-impl Default for SearchConfig {
-    fn default() -> Self {
-        Self {
-            backend: BackendConfig::default(),
-            embedding: EmbeddingConfig::default(),
-            retrieval: RetrievalConfig::default(),
-            reranker: RerankerConfig::default(),
-            context: ContextConfig::default(),
-            file: None,
-            qdrant: None,
-            index: IndexConfig::default(),
-            ai_ingestion: AiIngestionConfig::default(),
-        }
-    }
-}
 
 impl SearchConfig {
     /// Load config from TOML file
@@ -175,10 +161,10 @@ impl SearchConfig {
         if let Ok(val) = std::env::var("OLLAMA_HOST") {
             self.ai_ingestion.ollama.host = val;
         }
-        if let Ok(_) = std::env::var("OPENAI_API_KEY") {
+        if std::env::var("OPENAI_API_KEY").is_ok() {
             self.ai_ingestion.openai.api_key_env = Some("OPENAI_API_KEY".to_string());
         }
-        if let Ok(_) = std::env::var("ANTHROPIC_API_KEY") {
+        if std::env::var("ANTHROPIC_API_KEY").is_ok() {
             self.ai_ingestion.anthropic.api_key_env = Some("ANTHROPIC_API_KEY".to_string());
         }
 
@@ -220,11 +206,10 @@ impl SearchConfig {
         }
 
         // Validate Qdrant config if using Qdrant backend
-        if matches!(self.backend.backend_type, BackendType::Qdrant) {
-            if self.qdrant.is_none() {
+        if matches!(self.backend.backend_type, BackendType::Qdrant)
+            && self.qdrant.is_none() {
                 anyhow::bail!("Qdrant configuration required when backend = 'qdrant'");
             }
-        }
 
         // Validate AI ingestion config
         if self.ai_ingestion.enabled {
@@ -268,19 +253,13 @@ impl std::str::FromStr for BackendType {
 
 /// Backend configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct BackendConfig {
     /// Backend type
     #[serde(default, rename = "type")]
     pub backend_type: BackendType,
 }
 
-impl Default for BackendConfig {
-    fn default() -> Self {
-        Self {
-            backend_type: BackendType::default(),
-        }
-    }
-}
 
 /// Embedding configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -984,11 +963,12 @@ temperature = 0.5
 
     #[test]
     fn test_ai_ingestion_get_model() {
-        let mut config = AiIngestionConfig::default();
-
-        // Default model from provider config
-        config.model = String::new();
-        config.provider = AiProvider::Ollama;
+        // Test with Ollama provider
+        let mut config = AiIngestionConfig {
+            model: String::new(),
+            provider: AiProvider::Ollama,
+            ..AiIngestionConfig::default()
+        };
         assert_eq!(config.get_model(), "llama3.2");
 
         config.provider = AiProvider::OpenAi;

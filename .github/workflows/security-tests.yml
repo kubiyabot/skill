@@ -47,7 +47,7 @@ jobs:
       run: cargo test --test security_tests --package skill-cli -- --ignored --nocapture
 
     - name: Run error handling tests
-      run: cargo test --test error_tests -- --ignored --nocapture
+      run: cargo test --test error_tests --package skill-cli -- --ignored --nocapture
 
     - name: Check for security test failures
       if: failure()
@@ -70,7 +70,13 @@ jobs:
       run: cargo install cargo-audit
 
     - name: Run cargo audit
-      run: cargo audit
+      run: |
+        # Ignored advisories (see deny.toml for full justification):
+        # - RUSTSEC-2023-0071: RSA Marvin Attack - sqlx-mysql transitive dep, project only uses sqlite
+        # - RUSTSEC-2025-0046: Wasmtime fd_renumber panic - low severity, trusted skills only
+        cargo audit \
+          --ignore RUSTSEC-2023-0071 \
+          --ignore RUSTSEC-2025-0046
 
     - name: Report vulnerabilities
       if: failure()

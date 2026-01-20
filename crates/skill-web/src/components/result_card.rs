@@ -64,7 +64,7 @@ pub fn result_card(props: &ResultCardProps) -> Html {
             let is_submitting = is_submitting.clone();
             let notifications = notifications.clone();
             let props = props.clone();
-            let feedback_type_clone = feedback_type.clone();
+            let _feedback_type_clone = feedback_type.clone();
 
             spawn_local(async move {
                 let request = SubmitFeedbackRequest {

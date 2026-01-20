@@ -77,7 +77,7 @@ impl ClaudeCodeSimulator {
     /// - MCP initialization fails
     /// - Server doesn't respond within timeout
     pub async fn new() -> Result<Self> {
-        let mut process = Command::new(env!("CARGO_BIN_EXE_skill"))
+        let process = Command::new(env!("CARGO_BIN_EXE_skill"))
             .arg("serve")
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())

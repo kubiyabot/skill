@@ -174,7 +174,7 @@ invalid toml [[[
 
     let response: serde_json::Value = TestApp::parse_json(&resp_body);
     assert_eq!(response["valid"], false);
-    assert!(response["errors"].as_array().unwrap().len() > 0);
+    assert!(!response["errors"].as_array().unwrap().is_empty());
 }
 
 // ============================================================================

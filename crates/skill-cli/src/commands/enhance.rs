@@ -36,7 +36,7 @@ pub async fn execute(
             "Rebuild with: cargo build --features ai-ingestion".dimmed()
         );
         let _ = (skill_name, all, stream, examples_per_tool); // Suppress unused warnings
-        return Ok(());
+        Ok(())
     }
 
     #[cfg(feature = "ai-ingestion")]

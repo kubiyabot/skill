@@ -7,4 +7,3 @@
 mod acceptance_tests;
 
 // Re-export scenarios so they're discovered by cargo test
-pub use acceptance_tests::scenarios::*;

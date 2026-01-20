@@ -127,17 +127,14 @@ pub struct ToolExample {
 
 /// Runtime type of the source skill
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Default)]
 pub enum SkillRuntimeType {
+    #[default]
     Wasm,
     Native,
     Docker,
 }
 
-impl Default for SkillRuntimeType {
-    fn default() -> Self {
-        Self::Wasm
-    }
-}
 
 /// Intermediate representation of a skill before validation
 #[derive(Debug, Clone)]
