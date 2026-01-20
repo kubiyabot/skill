@@ -60,17 +60,16 @@ jobs:
 
       - name: Install wasm-opt
         run: |
-          ARCH=$(uname -m)
-          if [ "$ARCH" = "arm64" ]; then
-            BINARYEN_ARCH="arm64-macos"
+          # Detect architecture
+          if [ "$(uname -m)" = "arm64" ]; then
+            ARCH="arm64"
           else
-            BINARYEN_ARCH="x86_64-macos"
+            ARCH="x86_64"
           fi
-          curl -L "https://github.com/WebAssembly/binaryen/releases/download/version_118/binaryen-version_118-${BINARYEN_ARCH}.tar.gz" | tar xz
-          sudo mkdir -p /usr/local/lib
+          curl -L https://github.com/WebAssembly/binaryen/releases/download/version_118/binaryen-version_118-${ARCH}-macos.tar.gz -o binaryen.tar.gz
+          tar -xzf binaryen.tar.gz
           sudo mv binaryen-version_118/bin/wasm-opt /usr/local/bin/
-          sudo mv binaryen-version_118/lib/libbinaryen.dylib /usr/local/lib/
-          wasm-opt --version
+          rm -rf binaryen*
 
       - name: Generate Rust documentation
         run: |
