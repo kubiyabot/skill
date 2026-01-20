@@ -46,6 +46,30 @@ Execute skill tools with dynamic parameter forms and real-time output.
 
 Configure search pipeline, execution preferences, and system settings.
 
+### Skill Details
+
+![Skill Details](/screenshots/skill-details.png)
+
+View detailed information about a skill including all available tools and parameters.
+
+### Execution History
+
+![Execution History](/screenshots/history.png)
+
+Track past tool executions with timestamps, parameters, and results.
+
+### Semantic Search
+
+![Semantic Search](/screenshots/search-test.png)
+
+Find tools using natural language queries with AI-powered semantic search.
+
+### Analytics
+
+![Analytics](/screenshots/analytics.png)
+
+Monitor usage patterns, execution statistics, and system performance.
+
 ## Features
 
 ### Skill Browser
