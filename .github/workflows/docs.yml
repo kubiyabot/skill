@@ -67,6 +67,7 @@ jobs:
             BINARYEN_ARCH="x86_64-macos"
           fi
           curl -L "https://github.com/WebAssembly/binaryen/releases/download/version_118/binaryen-version_118-${BINARYEN_ARCH}.tar.gz" | tar xz
+          sudo mkdir -p /usr/local/lib
           sudo mv binaryen-version_118/bin/wasm-opt /usr/local/bin/
           sudo mv binaryen-version_118/lib/libbinaryen.dylib /usr/local/lib/
           wasm-opt --version
