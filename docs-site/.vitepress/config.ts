@@ -23,11 +23,11 @@ export default defineConfig({
           { text: 'Installation', link: '/getting-started/installation' }
         ]
       },
-      { text: 'Tutorials', link: '/tutorials/', activeMatch: '/tutorials/' },
+      // { text: 'Tutorials', link: '/tutorials/', activeMatch: '/tutorials/' },
       { text: 'Guides', link: '/guides/', activeMatch: '/guides/' },
       { text: 'API', link: '/api/', activeMatch: '/api/' },
       { text: 'Examples', link: '/examples/', activeMatch: '/examples/' },
-      { text: 'Catalog', link: CATALOG_URL, target: '_blank', rel: 'noopener' },
+      // { text: 'Catalog', link: CATALOG_URL, target: '_blank', rel: 'noopener' },
       {
         text: 'v1.0.0',
         items: [
@@ -110,7 +110,7 @@ export default defineConfig({
             { text: 'CI/CD Pipeline', link: '/guides/ci-cd' },
             { text: 'Troubleshooting', link: '/guides/troubleshooting' }
           ]
-        }
+        },
       ],
 
       '/api/': [
