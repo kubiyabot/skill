@@ -180,12 +180,12 @@ cargo install --path crates/skill-cli
 ### How do I update Skill?
 
 ```bash
-# Re-run the installer
-curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+# Update via Cargo
+cargo install skill-cli --force
 
 # Or from source
 git pull
-cargo install --path crates/skill-cli
+cargo install --path crates/skill-cli --force
 ```
 
 ## Development

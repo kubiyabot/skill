@@ -277,10 +277,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Install Skill CLI
-        run: |
-          curl -fsSL https://skill-ai.dev/install.sh | sh
-          echo "$HOME/.skill-engine/bin" >> $GITHUB_PATH
+        run: cargo install skill-cli
 
       - name: Install skill
         run: skill install .

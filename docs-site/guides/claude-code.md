@@ -11,8 +11,12 @@ Claude Code is Anthropic's official CLI tool that provides AI assistance directl
 ### 1. Install Skill Engine
 
 ```bash
-curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+cargo install skill-cli
 ```
+
+::: tip Prerequisites
+You need Rust installed. Get it from [rustup.rs](https://rustup.rs/).
+:::
 
 ### 2. Start MCP Server
 

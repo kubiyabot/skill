@@ -4,19 +4,17 @@ Get running with Skill Engine in under 5 minutes.
 
 ## Install
 
-One command to install the pre-compiled binary:
+Install via Cargo:
 
 ```bash
-curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+cargo install skill-cli
 ```
 
-This automatically:
-- Detects your OS and architecture
-- Downloads the correct binary
-- Installs to `~/.skill-engine/bin/skill`
-- Adds to your PATH
+This installs the `skill` binary to your Cargo bin directory (typically `~/.cargo/bin/`).
 
-**No Rust compiler needed** - it's a pre-compiled binary.
+::: tip Prerequisites
+You need Rust installed. Get it from [rustup.rs](https://rustup.rs/).
+:::
 
 ### Verify Installation
 
@@ -129,7 +127,7 @@ Output:
 ✓ Claude Code integration configured
   Location: /path/to/project/.mcp.json
   Server name: skill-engine
-  Binary: /Users/you/.skill-engine/bin/skill
+  Binary: /Users/you/.cargo/bin/skill
 ```
 
 ## Start Web UI (Optional)
@@ -164,10 +162,10 @@ Reload your shell:
 source ~/.bashrc  # or ~/.zshrc
 ```
 
-Or manually add to PATH:
+Or manually add Cargo bin to PATH:
 
 ```bash
-export PATH="$HOME/.skill-engine/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
 ```
 
 ### Claude Code not seeing skills

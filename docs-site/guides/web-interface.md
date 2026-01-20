@@ -420,11 +420,15 @@ WantedBy=multi-user.target
 ### Docker Deployment
 
 ```dockerfile
-FROM alpine:latest
+FROM rust:latest as builder
 
 # Install Skill Engine
-RUN apk add --no-cache curl && \
-    curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+RUN cargo install skill-cli
+
+FROM debian:bookworm-slim
+
+# Copy the binary from builder
+COPY --from=builder /usr/local/cargo/bin/skill /usr/local/bin/skill
 
 # Copy skills
 COPY .skill-engine.toml /app/
@@ -434,7 +438,7 @@ WORKDIR /app
 EXPOSE 3000
 
 # Start web interface
-CMD ["/root/.skill-engine/bin/skill", "web", "--host", "0.0.0.0"]
+CMD ["skill", "web", "--host", "0.0.0.0"]
 ```
 
 Run:

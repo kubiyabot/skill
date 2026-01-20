@@ -5,26 +5,27 @@ Welcome to Skill Engine! This guide will help you create your first skill in min
 ## Prerequisites
 
 - **Mac, Linux, or Windows (WSL)**
-- **Rust 1.75+** (optional, for compiling from source)
+- **Rust 1.75+** (required for installation via Cargo)
 - **Node.js 18+** (optional, for creating JavaScript skills)
-- **curl** (for installation)
 
 ## 1. Installation
 
-### Quick Install (Recommended)
+### Install via Cargo (Recommended)
 
 Install the latest version of Skill Engine:
 
 ```bash
-curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+cargo install skill-cli
 ```
 
-### Install with Cargo
+> **Prerequisites:** Rust is required. Install from [rustup.rs](https://rustup.rs/).
 
-If you have Rust installed:
+### Install from Source
 
 ```bash
-cargo install --git https://github.com/kubiyabot/skill
+git clone https://github.com/kubiyabot/skill
+cd skill
+cargo install --path crates/skill-cli
 ```
 
 ### Verify Installation

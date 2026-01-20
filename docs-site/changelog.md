@@ -118,7 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Recommended Actions**:
 ```bash
 # Update to latest version
-curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+cargo install skill-cli --force
 
 # Verify installation
 skill --version  # Should show 1.0.0
@@ -144,7 +144,7 @@ skill claude-bridge generate examples/native-skills/kubernetes-skill/SKILL.md
 cp -r ~/.skill ~/.skill.backup
 
 # Update to 0.2.0
-curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | SKILL_VERSION=0.2.0 sh
+cargo install skill-cli --force
 
 # Migrate skills (automatic)
 skill list  # Triggers migration
