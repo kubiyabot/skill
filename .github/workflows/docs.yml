@@ -2,17 +2,13 @@ name: Deploy Documentation
 
 on:
   push:
-    branches:
-      - main
-      - CORE-skill-docs-site-fixes
+    branches: [main]
     paths:
       - 'docs-site/**'
       - 'crates/**'
       - '.github/workflows/docs.yml'
   pull_request:
-    branches:
-      - main
-      - CORE-skill-docs-site-fixes
+    branches: [main]
     paths:
       - 'docs-site/**'
       - 'crates/**'
