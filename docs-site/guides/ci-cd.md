@@ -115,14 +115,17 @@ git push origin v0.4.0
 1. Builds binaries for all platforms
 2. Builds Web UI with Tailwind CSS
 3. Creates SHA256 checksums
-4. Uploads to Vercel Blob storage
-5. Creates GitHub Release with download links
+4. Creates GitHub Release with download links
 
-### Download URLs
+### Installation
 
-After release, binaries are available at:
-- Versioned: `https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/releases/v{VERSION}/skill-{target}.tar.gz`
-- Latest: `https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/releases/latest/skill-{target}.tar.gz`
+The primary installation method is via Cargo:
+
+```bash
+cargo install skill-cli
+```
+
+Pre-built binaries are also available from GitHub Releases for users who don't have Rust installed.
 
 ## Crates.io Publishing
 
@@ -320,7 +323,6 @@ Configure these in repository settings:
 | Secret | Purpose |
 |--------|---------|
 | `CODECOV_TOKEN` | Code coverage uploads |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob storage for releases |
 | `CARGO_REGISTRY_TOKEN` | Publishing to crates.io |
 | `GITHUB_TOKEN` | Automatic (GitHub Actions) |
 
@@ -336,7 +338,7 @@ Ensure `CODECOV_TOKEN` is set in repository secrets.
 
 ### Release Artifacts Not Uploading
 
-Check that `BLOB_READ_WRITE_TOKEN` is configured for Vercel Blob storage.
+Check that `CARGO_REGISTRY_TOKEN` is configured for crates.io publishing and GitHub token permissions are correct for releases.
 
 ### Tests Timing Out
 

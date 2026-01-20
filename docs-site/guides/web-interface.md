@@ -46,6 +46,30 @@ Execute skill tools with dynamic parameter forms and real-time output.
 
 Configure search pipeline, execution preferences, and system settings.
 
+### Skill Details
+
+![Skill Details](/screenshots/skill-details.png)
+
+View detailed information about a skill including all available tools and parameters.
+
+### Execution History
+
+![Execution History](/screenshots/history.png)
+
+Track past tool executions with timestamps, parameters, and results.
+
+### Semantic Search
+
+![Semantic Search](/screenshots/search-test.png)
+
+Find tools using natural language queries with AI-powered semantic search.
+
+### Analytics
+
+![Analytics](/screenshots/analytics.png)
+
+Monitor usage patterns, execution statistics, and system performance.
+
 ## Features
 
 ### Skill Browser
@@ -420,11 +444,15 @@ WantedBy=multi-user.target
 ### Docker Deployment
 
 ```dockerfile
-FROM alpine:latest
+FROM rust:latest as builder
 
 # Install Skill Engine
-RUN apk add --no-cache curl && \
-    curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+RUN cargo install skill-cli
+
+FROM debian:bookworm-slim
+
+# Copy the binary from builder
+COPY --from=builder /usr/local/cargo/bin/skill /usr/local/bin/skill
 
 # Copy skills
 COPY .skill-engine.toml /app/
@@ -434,7 +462,7 @@ WORKDIR /app
 EXPOSE 3000
 
 # Start web interface
-CMD ["/root/.skill-engine/bin/skill", "web", "--host", "0.0.0.0"]
+CMD ["skill", "web", "--host", "0.0.0.0"]
 ```
 
 Run:

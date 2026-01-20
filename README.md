@@ -108,23 +108,13 @@ The same skills work in both modes. Write once, use everywhere.
 
 ### Install
 
-**One-liner (recommended):**
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/kubiyabot/skill/main/install.sh | sh
-```
-
-**With specific version:**
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/kubiyabot/skill/main/install.sh | sh -s -- --version 0.1.0
-```
-
-**From crates.io:**
+**Via Cargo (recommended):**
 
 ```bash
 cargo install skill-cli
 ```
+
+> **Prerequisites:** Rust is required. Install from [rustup.rs](https://rustup.rs/).
 
 **From source:**
 
@@ -142,39 +132,26 @@ skill --version
 
 ### Programmatic Installation
 
-The installer is designed to work in CI/CD pipelines and scripts:
-
-```bash
-# Non-interactive (won't modify PATH)
-SKILL_NO_MODIFY_PATH=1 curl -fsSL https://raw.githubusercontent.com/kubiyabot/skill/main/install.sh | sh
-
-# Custom install directory
-SKILL_INSTALL_DIR=/opt/skill curl -fsSL https://raw.githubusercontent.com/kubiyabot/skill/main/install.sh | sh
-```
-
 **Python:**
 
 ```python
-import subprocess, shutil, os
+import subprocess, shutil
 
 def ensure_skill_installed():
     if shutil.which("skill"):
         return True
-    subprocess.run(
-        "curl -fsSL https://raw.githubusercontent.com/kubiyabot/skill/main/install.sh | sh",
-        shell=True, check=True,
-        env={"SKILL_NO_MODIFY_PATH": "1", **os.environ}
-    )
+    subprocess.run(["cargo", "install", "skill-cli"], check=True)
     return True
 ```
 
 **GitHub Actions:**
 
 ```yaml
+- name: Install Rust
+  uses: dtolnay/rust-toolchain@stable
+
 - name: Install Skill
-  run: |
-    curl -fsSL https://raw.githubusercontent.com/kubiyabot/skill/main/install.sh | sh
-    echo "$HOME/.skill-engine/bin" >> $GITHUB_PATH
+  run: cargo install skill-cli
 ```
 
 ### Install a Skill

@@ -8,28 +8,29 @@ Comprehensive installation instructions for Skill Engine on all supported platfo
 - **OS**: Linux, macOS 11+, or Windows 10+ (with WSL2)
 - **RAM**: 512MB available memory
 - **Disk**: 50MB for binary + storage for skills
-
-**No Rust compiler needed!** Skill Engine is distributed as a pre-compiled binary.
+- **Rust**: Required for installation via Cargo
 
 ### Optional Requirements
 - **Docker**: For running Docker-based skills (containerized tools)
-- **Rust**: Only needed if building from source (development)
 
 ## Installation Methods
 
-### Method 1: One-Liner Install (Recommended)
+### Method 1: Install via Cargo (Recommended)
 
 The easiest way to install Skill Engine:
 
 ```bash
-curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+cargo install skill-cli
 ```
 
-This script:
-- Detects your OS and architecture automatically
-- Downloads the pre-compiled binary (no Rust needed!)
-- Installs to `~/.skill-engine/bin/skill`
-- Adds to your PATH (with permission)
+This installs the `skill` binary to your Cargo bin directory (typically `~/.cargo/bin/`).
+
+::: tip Prerequisites
+You need Rust installed. Get it from [rustup.rs](https://rustup.rs/):
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+:::
 
 **Verify installation:**
 
@@ -38,35 +39,17 @@ skill --version
 # Output: skill 1.0.0
 ```
 
-**Install specific version:**
+**Update to latest version:**
 
 ```bash
-curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | SKILL_VERSION=0.2.0 sh
+cargo install skill-cli --force
 ```
 
-**Non-interactive install (for CI/CD):**
-
-```bash
-# Won't modify PATH, won't ask for confirmation
-SKILL_NO_MODIFY_PATH=1 curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
-```
-
-**Custom install directory:**
-
-```bash
-SKILL_INSTALL_DIR=/opt/skill curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
-```
-
-### Method 2: Build from Source (Optional)
+### Method 2: Build from Source
 
 For developers who want to build from source or contribute:
 
-**Requirements**: Rust 1.75.0 or later ([rustup.rs](https://rustup.rs))
-
 ```bash
-# Install Rust (if not already installed)
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
 # Clone repository
 git clone https://github.com/kubiyabot/skill.git
 cd skill
@@ -79,7 +62,7 @@ cargo install --path crates/skill-cli
 
 ### Linux
 
-The one-liner install works on all Linux distributions. No additional setup needed!
+Cargo install works on all Linux distributions. Ensure Rust is installed first.
 
 **Optional: Install Docker** (for Docker-based skills):
 
@@ -107,7 +90,7 @@ sudo usermod -aG docker $USER
 
 ### macOS
 
-The one-liner install works on all macOS versions 11+.
+Cargo install works on all macOS versions 11+ (Intel and Apple Silicon).
 
 **Optional: Install Docker** (for Docker-based skills):
 
@@ -121,7 +104,7 @@ brew install --cask docker
 
 ### Windows (WSL2)
 
-The one-liner install works in WSL2 Ubuntu/Debian.
+Cargo install works in WSL2 Ubuntu/Debian. Install Rust in your WSL2 environment first.
 
 **Optional: Install Docker**:
 1. Download Docker Desktop for Windows with WSL2 backend
@@ -158,7 +141,7 @@ Output:
 ✓ Claude Code integration configured
   Location: /path/to/project/.mcp.json
   Server name: skill-engine
-  Binary: /Users/you/.skill-engine/bin/skill
+  Binary: /Users/you/.cargo/bin/skill
 ```
 
 **Restart Claude Code** and you're ready to use skills through Claude!

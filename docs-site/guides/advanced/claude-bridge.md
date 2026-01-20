@@ -570,10 +570,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Install Skill Engine
-        run: |
-          curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
-          echo "$HOME/.skill/bin" >> $GITHUB_PATH
+        run: cargo install skill-cli
 
       - name: Generate Claude Skills
         run: skill claude-bridge generate --output ./dist/skills

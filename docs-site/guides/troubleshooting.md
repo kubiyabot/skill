@@ -6,28 +6,29 @@ This guide helps you solve common issues with Skill Engine.
 
 ### "Command not found: skill"
 
-**Cause:** Skill is not in your PATH.
+**Cause:** Skill is not in your PATH or not installed.
 
 **Solution:**
 ```bash
-# Add to PATH (add to your shell profile)
-export PATH="$HOME/.skill-engine/bin:$PATH"
+# Install via Cargo
+cargo install skill-cli
 
-# Or reinstall
-curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+# Or add Cargo bin to PATH (add to your shell profile)
+export PATH="$HOME/.cargo/bin:$PATH"
+source ~/.bashrc  # or ~/.zshrc
 ```
 
 ### Installation fails on Apple Silicon (M1/M2)
 
-**Cause:** Architecture mismatch.
+**Cause:** Architecture mismatch or build issue.
 
 **Solution:**
 ```bash
 # Verify architecture
 uname -m  # Should show arm64
 
-# Reinstall with correct binary
-SKILL_VERSION=latest curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+# Reinstall via Cargo (handles architecture automatically)
+cargo install skill-cli --force
 ```
 
 ### Permission denied during installation
@@ -36,11 +37,12 @@ SKILL_VERSION=latest curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-stor
 
 **Solution:**
 ```bash
-# Option 1: Use custom directory
-SKILL_INSTALL_DIR="$HOME/.local/bin" curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+# Cargo install typically uses ~/.cargo/bin which should be writable
+# If you have permission issues, check directory permissions:
+ls -la ~/.cargo/bin
 
-# Option 2: Fix permissions
-chmod +x ~/.skill-engine/bin/skill
+# Or install to a custom location:
+cargo install skill-cli --root ~/.local
 ```
 
 ## Skill Not Found

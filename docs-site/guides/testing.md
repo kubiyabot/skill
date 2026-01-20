@@ -497,10 +497,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Install Skill Engine
-        run: |
-          curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
-          echo "$HOME/.skill/bin" >> $GITHUB_PATH
+        run: cargo install skill-cli
 
       - name: Run unit tests
         run: npm test
@@ -522,10 +523,9 @@ jobs:
 ```yaml
 # .gitlab-ci.yml
 test:
-  image: ubuntu:22.04
+  image: rust:latest
   before_script:
-    - curl -fsSL https://install-url.com/install.sh | sh
-    - export PATH="$HOME/.skill/bin:$PATH"
+    - cargo install skill-cli
   script:
     - npm test
     - ./tests/integration-tests.sh

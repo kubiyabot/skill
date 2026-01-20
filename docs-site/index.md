@@ -42,8 +42,8 @@ Today, you have two choices:
 ## Quick Start
 
 ```bash
-# Install
-curl -fsSL https://dqkbk9o7ynwhxfjx.public.blob.vercel-storage.com/install.sh | sh
+# Install via Cargo (requires Rust: https://rustup.rs)
+cargo install skill-cli
 
 # Discover tools with natural language
 skill find "manage kubernetes pods"

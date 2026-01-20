@@ -65,25 +65,49 @@ crates/
 
 ### Key Components
 
-**skill-runtime** is the core engine providing:
-- `SkillEngine` - Orchestrates execution and search
-- `SkillManifest` - Declarative skill configuration (`.skill-engine.toml`)
-- `SkillExecutor` - WASM Component Model execution via Wasmtime
-- `DockerRuntime` - Containerized skill execution
-- `SearchPipeline` - RAG-powered semantic search (FastEmbed, optional Qdrant)
-- Native execution for SKILL.md-based skills (kubectl, git, etc.)
+**skill-runtime** (`crates/skill-runtime/src/`) is the core engine:
+- `engine.rs` - `SkillEngine` orchestrates execution and search
+- `manifest.rs` - `SkillManifest` for `.skill-engine.toml` parsing
+- `executor.rs` - `SkillExecutor` WASM Component Model execution via Wasmtime
+- `docker_runtime.rs` - Containerized skill execution with security policies
+- `skill_md.rs` - SKILL.md parser for native command-based skills
+- `local_loader.rs` / `git_loader.rs` - Skill installation from various sources
+- `instance.rs` - Multi-instance management (dev/staging/prod)
+- `credentials.rs` - Secure credential storage via keyring
+- `audit.rs` - Execution audit logging
 
-**skill-cli** commands in `crates/skill-cli/src/commands/`:
-- `install.rs` - Install from local, HTTP, Git sources
-- `run.rs` - Execute skill tools with arguments
-- `serve.rs` - Start MCP server (stdio or HTTP)
-- `find.rs` - Semantic search for tools
-- `list.rs` - List installed skills
-- `info.rs` - Show skill details
-- `remove.rs` - Uninstall skills
-- `config.rs` - Configure skill credentials
-- `claude.rs` - Claude Code integration setup (`skill claude setup/status/remove`)
-- `claude_bridge/` - Generates Claude Code-compatible skill definitions from SKILL.md files
+**skill-runtime search subsystem** (`crates/skill-runtime/src/search/`):
+- `pipeline.rs` - `SearchPipeline` coordinates the full RAG pipeline
+- `index_manager.rs` - Persistent index management with incremental updates
+- `hybrid.rs` - Dense + BM25 fusion search
+- `reranker.rs` - Cross-encoder reranking for precision
+- `context.rs` - Token-aware context compression
+- `query_processor.rs` - Intent classification and entity extraction
+
+**skill-cli** (`crates/skill-cli/src/`):
+- `commands/` - CLI command implementations
+- `auth/` - Authentication providers (OAuth2, API keys, AWS)
+- `config.rs` - CLI configuration management
+
+**skill-cli commands** (aliases in parentheses):
+- `install` - Install from local, HTTP, Git sources
+- `run` - Execute skill tools with arguments
+- `exec` - Pass-through execution (like `docker exec`)
+- `list` (`ls`) - List installed skills
+- `remove` (`rm`) - Uninstall skills
+- `info` - Show skill details
+- `find` - Semantic search for tools
+- `search` - Registry search
+- `config` - Configure skill credentials
+- `serve` - Start MCP server (stdio or HTTP)
+- `setup` - Configure search/RAG settings
+- `enhance` - AI-generated examples
+- `init` - Initialize new skill project
+- `init-skill` - Generate SKILL.md template
+- `claude setup/status/remove/generate` - Claude Code integration
+- `auth login/status/logout/providers` - Authentication management
+- `web` - Start embedded web interface
+- `upgrade` - Self-update CLI
 
 **skill-mcp** exposes three MCP tools:
 - `execute` - Run any skill tool
@@ -150,6 +174,18 @@ MCP server uses stdio for Claude Code integration. **Critical: all logs must go 
 - Shell tests: `tests/` directory (MCP, security, e2e)
 - Snapshot tests: Uses `insta` crate for YAML snapshots
 
+Test directory structure:
+```
+tests/
+├── mcp_integration_tests.sh     # MCP protocol tests (45 tests)
+├── run-all-tests.sh             # Full test suite
+├── claude_bridge/               # Claude bridge integration tests
+├── e2e/                         # End-to-end tests
+├── integration/                 # Runtime integration (docker, native, wasm)
+├── security/                    # Security tests (injection, path traversal, etc.)
+└── unit/                        # CLI command unit tests
+```
+
 Run specific test:
 ```bash
 cargo test -p skill-cli test_name
@@ -174,14 +210,24 @@ The `SkillEngine` in skill-runtime orchestrates which executor to use based on s
 
 ### Claude Bridge
 
-The `claude_bridge/` module in skill-cli generates Claude Code-compatible skill definitions:
+The `claude_bridge/` module in skill-cli (`crates/skill-cli/src/commands/claude_bridge/`) generates Claude Code-compatible skill definitions:
 - `loader.rs` - Loads SKILL.md files and extracts tool metadata
 - `transformer.rs` - Converts skill tools to Claude-compatible format
 - `renderer.rs` - Generates the final skill definition output
 - `validator.rs` - Validates parameter types and constraints
 - `script_gen.rs` - Generates shell scripts for skill execution
+- `edge_cases.rs` - Handles special parameter types and edge cases
+- `types.rs` - Shared type definitions
 
 Run `skill claude setup` to auto-configure Claude Code integration.
+
+### Authentication System
+
+The auth module (`crates/skill-cli/src/auth/`) supports multiple providers:
+- `providers/oauth2.rs` - OAuth2 Device Flow (GitHub, Google)
+- `providers/api_key.rs` - API key storage (OpenAI, Anthropic)
+- `providers/aws.rs` - AWS IAM credentials
+- `token_store.rs` - Secure token persistence via keyring
 
 ## Task Master AI Instructions
 **Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
