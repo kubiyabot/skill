@@ -1,6 +1,7 @@
 /* Tailwind CSS entry point */
-@import "tailwindcss/theme" reference(type);
-@import "tailwindcss/utilities" reference(type);
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Custom base styles */
 @layer base {
