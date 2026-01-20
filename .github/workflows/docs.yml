@@ -55,34 +55,11 @@ jobs:
         with:
           cache-on-failure: true
 
-      - name: Install WASM target
-        run: rustup target add wasm32-unknown-unknown
-
-      - name: Install wasm-opt
-        run: |
-          # Detect architecture
-          if [ "$(uname -m)" = "arm64" ]; then
-            ARCH="arm64"
-          else
-            ARCH="x86_64"
-          fi
-          curl -L https://github.com/WebAssembly/binaryen/releases/download/version_118/binaryen-version_118-${ARCH}-macos.tar.gz -o binaryen.tar.gz
-          tar -xzf binaryen.tar.gz
-          sudo mv binaryen-version_118/bin/wasm-opt /usr/local/bin/
-          rm -rf binaryen*
-
       - name: Generate Rust documentation
         run: |
           cargo doc --workspace --no-deps --document-private-items
           mkdir -p docs-site/public/api/rust
           cp -r target/doc/* docs-site/public/api/rust/
-
-      - name: Build skill-runtime WASM for playground
-        run: |
-          cd crates/skill-runtime
-          cargo build --release --target wasm32-unknown-unknown
-          wasm-opt -Oz ../../target/wasm32-unknown-unknown/release/skill_runtime.wasm -o ../../docs-site/public/skill_runtime.wasm
-          cd ../..
 
       - name: Install npm dependencies
         working-directory: docs-site
