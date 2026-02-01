@@ -1,11 +1,12 @@
 #!/bin/sh
-# Skill Engine Installer
+# Skill Engine Installer (Security Hardened)
 # Usage: curl -fsSL https://raw.githubusercontent.com/kubiyabot/skill/main/install.sh | sh
 #
 # Environment Variables:
 #   SKILL_INSTALL_DIR  - Installation directory (default: ~/.skill-engine/bin)
 #   SKILL_NO_MODIFY_PATH - Don't modify PATH in shell rc files
 #   SKILL_VERSION      - Specific version to install (default: latest)
+#   SKILL_SKIP_VERIFY  - Skip checksum verification (NOT RECOMMENDED)
 
 set -e
 
@@ -28,6 +29,12 @@ fi
 GITHUB_REPO="kubiyabot/skill"
 INSTALL_DIR="${SKILL_INSTALL_DIR:-$HOME/.skill-engine/bin}"
 BINARY_NAME="skill"
+
+# Security: Validate HOME directory exists
+if [ -z "$HOME" ] || [ ! -d "$HOME" ]; then
+    printf "${RED}Error:${NC} HOME directory is not set or does not exist\n" >&2
+    exit 1
+fi
 
 # Logging functions
 info() {
@@ -92,6 +99,46 @@ check_dependencies() {
     if ! command -v tar >/dev/null 2>&1; then
         error "tar is required but not installed. Please install tar first."
     fi
+
+    # Check for sha256sum or shasum for checksum verification
+    if ! command -v sha256sum >/dev/null 2>&1 && ! command -v shasum >/dev/null 2>&1; then
+        if [ -z "$SKILL_SKIP_VERIFY" ]; then
+            error "sha256sum or shasum is required for verification. Install it or set SKILL_SKIP_VERIFY=1 (not recommended)"
+        else
+            warn "Checksum verification tools not found - skipping verification (INSECURE)"
+        fi
+    fi
+}
+
+# Verify file checksum
+verify_checksum() {
+    local file="$1"
+    local expected_checksum="$2"
+    
+    if [ -z "$SKILL_SKIP_VERIFY" ]; then
+        info "Verifying download integrity..."
+        
+        # Try sha256sum first, fall back to shasum
+        if command -v sha256sum >/dev/null 2>&1; then
+            actual_checksum=$(sha256sum "$file" | awk '{print $1}')
+        elif command -v shasum >/dev/null 2>&1; then
+            actual_checksum=$(shasum -a 256 "$file" | awk '{print $1}')
+        else
+            warn "Cannot verify checksum - no tool available"
+            return 0
+        fi
+        
+        if [ "$actual_checksum" != "$expected_checksum" ]; then
+            error "Checksum verification failed!
+Expected: $expected_checksum
+Actual: $actual_checksum
+The download may be corrupted or tampered with."
+        fi
+        
+        success "Checksum verified successfully"
+    else
+        warn "Skipping checksum verification (INSECURE - set by SKILL_SKIP_VERIFY)"
+    fi
 }
 
 # Get latest version from GitHub
@@ -103,13 +150,15 @@ get_latest_version() {
 
     info "Fetching latest version..."
 
-    # Try to get latest release
-    LATEST_RELEASE=$(curl -fsSL "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" 2>/dev/null || echo "")
+    # Try to get latest release with TLS cert validation
+    LATEST_RELEASE=$(curl -fsSL --tlsv1.2 --proto "=https" \
+        "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" 2>/dev/null || echo "")
 
     if [ -z "$LATEST_RELEASE" ]; then
         # Fallback to tags if no releases
         warn "No releases found, falling back to tags..."
-        VERSION=$(curl -fsSL "https://api.github.com/repos/${GITHUB_REPO}/tags" 2>/dev/null | \
+        VERSION=$(curl -fsSL --tlsv1.2 --proto "=https" \
+            "https://api.github.com/repos/${GITHUB_REPO}/tags" 2>/dev/null | \
             grep '"name":' | head -1 | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/^v//')
     else
         VERSION=$(echo "$LATEST_RELEASE" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/^v//')
@@ -126,20 +175,34 @@ get_latest_version() {
 install() {
     VERSION=$(get_latest_version)
     DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/download/v${VERSION}/skill-${PLATFORM}.tar.gz"
+    CHECKSUM_URL="https://github.com/${GITHUB_REPO}/releases/download/v${VERSION}/skill-${PLATFORM}.tar.gz.sha256"
 
     info "Installing Skill Engine v${VERSION}..."
 
-    # Create install directory
+    # Create install directory with secure permissions
     mkdir -p "$INSTALL_DIR"
+    chmod 755 "$INSTALL_DIR"
 
-    # Create temp directory
+    # Create temp directory with secure permissions
     TMP_DIR=$(mktemp -d)
+    chmod 700 "$TMP_DIR"
     trap "rm -rf $TMP_DIR" EXIT
 
-    # Download
+    # Download with TLS validation
     info "Downloading from $DOWNLOAD_URL"
-    if ! curl -fsSL "$DOWNLOAD_URL" -o "$TMP_DIR/skill.tar.gz"; then
+    if ! curl -fsSL --tlsv1.2 --proto "=https" "$DOWNLOAD_URL" -o "$TMP_DIR/skill.tar.gz"; then
         error "Download failed. Please check the version and try again."
+    fi
+
+    # Download checksum file
+    if [ -z "$SKILL_SKIP_VERIFY" ]; then
+        info "Downloading checksum..."
+        if curl -fsSL --tlsv1.2 --proto "=https" "$CHECKSUM_URL" -o "$TMP_DIR/skill.tar.gz.sha256" 2>/dev/null; then
+            EXPECTED_CHECKSUM=$(cat "$TMP_DIR/skill.tar.gz.sha256" | awk '{print $1}')
+            verify_checksum "$TMP_DIR/skill.tar.gz" "$EXPECTED_CHECKSUM"
+        else
+            warn "Checksum file not available - skipping verification"
+        fi
     fi
 
     # Extract
@@ -161,7 +224,7 @@ install() {
 
     # Move to install directory
     mv "$BINARY_PATH" "${INSTALL_DIR}/${BINARY_NAME}"
-    chmod +x "${INSTALL_DIR}/${BINARY_NAME}"
+    chmod 755 "${INSTALL_DIR}/${BINARY_NAME}"
 
     # Verify installation
     if ! "${INSTALL_DIR}/${BINARY_NAME}" --version >/dev/null 2>&1; then
@@ -253,6 +316,7 @@ parse_args() {
                 echo "  SKILL_VERSION          Same as --version"
                 echo "  SKILL_INSTALL_DIR      Same as --install-dir"
                 echo "  SKILL_NO_MODIFY_PATH   Same as --no-modify-path (set to 1)"
+                echo "  SKILL_SKIP_VERIFY      Skip checksum verification (NOT RECOMMENDED)"
                 exit 0
                 ;;
             *)
@@ -268,8 +332,8 @@ main() {
     parse_args "$@"
 
     echo ""
-    echo "  Skill Engine Installer"
-    echo "  ----------------------"
+    echo "  Skill Engine Installer (Security Hardened)"
+    echo "  ------------------------------------------"
     echo ""
 
     check_dependencies
